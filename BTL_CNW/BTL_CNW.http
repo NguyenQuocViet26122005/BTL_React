@@ -1,0 +1,6 @@
+@BTL_CNW_HostAddress = http://localhost:5220
+
+GET {{BTL_CNW_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
