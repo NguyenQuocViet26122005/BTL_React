@@ -12,6 +12,9 @@ using BTL_CNW.DAL.DonUngTuyen;
 using BTL_CNW.DAL.HoSoUngVien;
 using BTL_CNW.DAL.LichPhongVan;
 
+using BTL_CNW.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // =====================
@@ -20,6 +23,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// ===== ENTITY FRAMEWORK =====
+builder.Services.AddDbContext<QuanLyViecLamContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ===== CORS =====
 builder.Services.AddCors(options =>

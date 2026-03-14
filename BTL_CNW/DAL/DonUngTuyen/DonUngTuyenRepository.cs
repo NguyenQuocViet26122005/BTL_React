@@ -1,116 +1,138 @@
 using BTL_CNW.DTO.DonUngTuyen;
-using Microsoft.Data.SqlClient;
-using System.Data;
+using BTL_CNW.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BTL_CNW.DAL.DonUngTuyen
 {
     public class DonUngTuyenRepository : IDonUngTuyenRepository
     {
-        private readonly string _conn;
+        private readonly QuanLyViecLamContext _context;
 
-        public DonUngTuyenRepository(IConfiguration config)
+        public DonUngTuyenRepository(QuanLyViecLamContext context)
         {
-            _conn = config.GetConnectionString("DefaultConnection")!;
+            _context = context;
         }
-
-        private const string SelectBase = @"
-SELECT d.MaDon, d.MaTin, t.TieuDe,
-       d.MaUngVien, nd.HoTen, nd.Email,
-       d.MaFileCV, fc.TenFile,
-       d.ThuGioiThieu, d.TrangThai, d.NgayNop, d.NgayCapNhat
-FROM DonUngTuyen d
-JOIN TinTuyenDung t ON t.MaTin = d.MaTin
-JOIN NguoiDung nd ON nd.MaNguoiDung = d.MaUngVien
-LEFT JOIN FileCV fc ON fc.MaFileCV = d.MaFileCV";
-
-        private static DonUngTuyenDto MapRow(SqlDataReader rd) => new()
-        {
-            MaDon = rd.GetInt32(0),
-            MaTin = rd.GetInt32(1),
-            TieuDeTin = rd.GetString(2),
-            MaUngVien = rd.GetInt32(3),
-            TenUngVien = rd.GetString(4),
-            EmailUngVien = rd.IsDBNull(5) ? null : rd.GetString(5),
-            MaFileCV = rd.GetInt32(6),
-            TenFileCV = rd.IsDBNull(7) ? null : rd.GetString(7),
-            ThuGioiThieu = rd.IsDBNull(8) ? null : rd.GetString(8),
-            TrangThai = rd.GetString(9),
-            NgayNop = rd.GetDateTime(10),
-            NgayCapNhat = rd.GetDateTime(11)
-        };
 
         public bool DaNop(int maTin, int maUngVien)
         {
-            using var conn = new SqlConnection(_conn);
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT COUNT(1) FROM DonUngTuyen WHERE MaTin=@MaTin AND MaUngVien=@MaUngVien";
-            cmd.Parameters.Add("@MaTin", SqlDbType.Int).Value = maTin;
-            cmd.Parameters.Add("@MaUngVien", SqlDbType.Int).Value = maUngVien;
-            conn.Open();
-            return (int)cmd.ExecuteScalar()! > 0;
+            return _context.DonUngTuyens.Any(x => x.MaTin == maTin && x.MaUngVien == maUngVien);
         }
 
         public bool NopDon(NopDonDto dto)
         {
-            using var conn = new SqlConnection(_conn);
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = @"
-INSERT INTO DonUngTuyen (MaTin, MaUngVien, MaFileCV, ThuGioiThieu, TrangThai)
-VALUES (@MaTin, @MaUngVien, @MaFileCV, @ThuGioiThieu, N'DaNop')";
-            cmd.Parameters.Add("@MaTin", SqlDbType.Int).Value = dto.MaTin;
-            cmd.Parameters.Add("@MaUngVien", SqlDbType.Int).Value = dto.MaUngVien;
-            cmd.Parameters.Add("@MaFileCV", SqlDbType.Int).Value = dto.MaFileCV;
-            cmd.Parameters.Add("@ThuGioiThieu", SqlDbType.NVarChar).Value = (object?)dto.ThuGioiThieu ?? DBNull.Value;
-            conn.Open();
-            return cmd.ExecuteNonQuery() > 0;
+            try
+            {
+                var donUngTuyen = new Models.DonUngTuyen
+                {
+                    MaTin = dto.MaTin,
+                    MaUngVien = dto.MaUngVien,
+                    MaFileCv = dto.MaFileCV,
+                    ThuGioiThieu = dto.ThuGioiThieu,
+                    TrangThai = "DaNop"
+                };
+
+                _context.DonUngTuyens.Add(donUngTuyen);
+                return _context.SaveChanges() > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public List<DonUngTuyenDto> LayTheoUngVien(int maUngVien)
         {
-            var list = new List<DonUngTuyenDto>();
-            using var conn = new SqlConnection(_conn);
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = SelectBase + " WHERE d.MaUngVien = @MaUngVien ORDER BY d.NgayNop DESC";
-            cmd.Parameters.Add("@MaUngVien", SqlDbType.Int).Value = maUngVien;
-            conn.Open();
-            using var rd = cmd.ExecuteReader();
-            while (rd.Read()) list.Add(MapRow(rd));
-            return list;
+            return _context.DonUngTuyens
+                .Include(x => x.MaTinNavigation)
+                .Include(x => x.MaUngVienNavigation)
+                .Include(x => x.MaFileCvNavigation)
+                .Where(x => x.MaUngVien == maUngVien)
+                .OrderByDescending(x => x.NgayNop)
+                .Select(x => new DonUngTuyenDto
+                {
+                    MaDon = x.MaDon,
+                    MaTin = x.MaTin,
+                    TieuDeTin = x.MaTinNavigation.TieuDe,
+                    MaUngVien = x.MaUngVien,
+                    TenUngVien = x.MaUngVienNavigation.HoTen,
+                    EmailUngVien = x.MaUngVienNavigation.Email,
+                    MaFileCV = x.MaFileCv,
+                    TenFileCV = x.MaFileCvNavigation.TenFile,
+                    ThuGioiThieu = x.ThuGioiThieu,
+                    TrangThai = x.TrangThai,
+                    NgayNop = x.NgayNop,
+                    NgayCapNhat = x.NgayCapNhat
+                })
+                .ToList();
         }
 
         public List<DonUngTuyenDto> LayTheoTin(int maTin)
         {
-            var list = new List<DonUngTuyenDto>();
-            using var conn = new SqlConnection(_conn);
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = SelectBase + " WHERE d.MaTin = @MaTin ORDER BY d.NgayNop DESC";
-            cmd.Parameters.Add("@MaTin", SqlDbType.Int).Value = maTin;
-            conn.Open();
-            using var rd = cmd.ExecuteReader();
-            while (rd.Read()) list.Add(MapRow(rd));
-            return list;
+            return _context.DonUngTuyens
+                .Include(x => x.MaTinNavigation)
+                .Include(x => x.MaUngVienNavigation)
+                .Include(x => x.MaFileCvNavigation)
+                .Where(x => x.MaTin == maTin)
+                .OrderByDescending(x => x.NgayNop)
+                .Select(x => new DonUngTuyenDto
+                {
+                    MaDon = x.MaDon,
+                    MaTin = x.MaTin,
+                    TieuDeTin = x.MaTinNavigation.TieuDe,
+                    MaUngVien = x.MaUngVien,
+                    TenUngVien = x.MaUngVienNavigation.HoTen,
+                    EmailUngVien = x.MaUngVienNavigation.Email,
+                    MaFileCV = x.MaFileCv,
+                    TenFileCV = x.MaFileCvNavigation.TenFile,
+                    ThuGioiThieu = x.ThuGioiThieu,
+                    TrangThai = x.TrangThai,
+                    NgayNop = x.NgayNop,
+                    NgayCapNhat = x.NgayCapNhat
+                })
+                .ToList();
         }
 
         public DonUngTuyenDto? LayChiTiet(int maDon)
         {
-            using var conn = new SqlConnection(_conn);
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = SelectBase + " WHERE d.MaDon = @MaDon";
-            cmd.Parameters.Add("@MaDon", SqlDbType.Int).Value = maDon;
-            conn.Open();
-            using var rd = cmd.ExecuteReader();
-            return rd.Read() ? MapRow(rd) : null;
+            var don = _context.DonUngTuyens
+                .Include(x => x.MaTinNavigation)
+                .Include(x => x.MaUngVienNavigation)
+                .Include(x => x.MaFileCvNavigation)
+                .FirstOrDefault(x => x.MaDon == maDon);
+
+            if (don == null) return null;
+
+            return new DonUngTuyenDto
+            {
+                MaDon = don.MaDon,
+                MaTin = don.MaTin,
+                TieuDeTin = don.MaTinNavigation.TieuDe,
+                MaUngVien = don.MaUngVien,
+                TenUngVien = don.MaUngVienNavigation.HoTen,
+                EmailUngVien = don.MaUngVienNavigation.Email,
+                MaFileCV = don.MaFileCv,
+                TenFileCV = don.MaFileCvNavigation.TenFile,
+                ThuGioiThieu = don.ThuGioiThieu,
+                TrangThai = don.TrangThai,
+                NgayNop = don.NgayNop,
+                NgayCapNhat = don.NgayCapNhat
+            };
         }
 
         public bool CapNhatTrangThai(int maDon, string trangThai)
         {
-            using var conn = new SqlConnection(_conn);
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = "UPDATE DonUngTuyen SET TrangThai = @TrangThai WHERE MaDon = @MaDon";
-            cmd.Parameters.Add("@MaDon", SqlDbType.Int).Value = maDon;
-            cmd.Parameters.Add("@TrangThai", SqlDbType.NVarChar, 20).Value = trangThai;
-            conn.Open();
-            return cmd.ExecuteNonQuery() > 0;
+            try
+            {
+                var don = _context.DonUngTuyens.FirstOrDefault(x => x.MaDon == maDon);
+                if (don == null) return false;
+
+                don.TrangThai = trangThai;
+                return _context.SaveChanges() > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -1,0 +1,55 @@
+### Test Auth API - Đăng ký
+POST http://localhost:5220/api/auth/dang-ky
+Content-Type: application/json
+
+{
+  "maVaiTro": 2,
+  "hoTen": "Nguyễn Văn Test",
+  "email": "test@example.com",
+  "soDienThoai": "0123456789",
+  "matKhau": "123456"
+}
+
+### Test Auth API - Đăng nhập
+POST http://localhost:5220/api/auth/dang-nhap
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "matKhau": "123456"
+}
+
+### Test CongTy API - Tạo công ty
+POST http://localhost:5220/api/cong-ty
+Content-Type: application/json
+
+{
+  "maChuSoHuu": 1,
+  "tenCongTy": "Công ty Test",
+  "maSoThue": "123456789",
+  "website": "https://test.com",
+  "quyMo": "50-100",
+  "diaChi": "123 Test Street",
+  "thanhPho": "Hà Nội",
+  "quocGia": "Việt Nam",
+  "moTa": "Công ty test"
+}
+
+### Test TinTuyenDung API - Lấy danh sách
+GET http://localhost:5220/api/tin-tuyen-dung
+
+### Test TinTuyenDung API - Tạo tin tuyển dụng
+POST http://localhost:5220/api/tin-tuyen-dung
+Content-Type: application/json
+
+{
+  "maCongTy": 1,
+  "maNguoiDang": 1,
+  "tieuDe": "Tuyển Developer .NET",
+  "moTa": "Tuyển developer có kinh nghiệm .NET",
+  "hinhThucLamViec": "ToanThoiGian",
+  "mucLuongToiThieu": 15000000,
+  "mucLuongToiDa": 25000000,
+  "thanhPho": "Hà Nội",
+  "soLuongTuyen": 2
+}

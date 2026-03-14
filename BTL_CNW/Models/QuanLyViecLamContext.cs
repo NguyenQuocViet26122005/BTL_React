@@ -60,8 +60,13 @@ public partial class QuanLyViecLamContext : DbContext
     public virtual DbSet<VaiTro> VaiTros { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-D4ADKL6\\MAY1;Database=QuanLyViecLam;Trusted_Connection=True;TrustServerCertificate=True;");
+    {
+        // Connection string sẽ được cấu hình từ Program.cs thông qua dependency injection
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer("Server=.;Database=QuanLyViecLam;Trusted_Connection=True;TrustServerCertificate=True;");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
