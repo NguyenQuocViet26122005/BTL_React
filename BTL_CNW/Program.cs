@@ -13,7 +13,11 @@ using BTL_CNW.DAL.HoSoUngVien;
 using BTL_CNW.DAL.LichPhongVan;
 
 using BTL_CNW.Models;
+using BTL_CNW.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +32,32 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<QuanLyViecLamContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// ===== JWT AUTHENTICATION =====
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+
 // ===== CORS =====
 builder.Services.AddCors(options =>
 {
@@ -40,6 +70,9 @@ builder.Services.AddCors(options =>
 });
 
 // ===== DEPENDENCY INJECTION =====
+
+// JWT Service
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 // Auth
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -78,9 +111,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// CORS phải trước Authorization
+// CORS phải trước Authentication
 app.UseCors("AllowAll");
 
+// Authentication phải trước Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

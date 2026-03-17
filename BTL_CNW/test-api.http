@@ -19,9 +19,14 @@ Content-Type: application/json
   "matKhau": "123456"
 }
 
-### Test CongTy API - Tạo công ty
+### Test Auth API - Lấy thông tin user hiện tại (cần token)
+GET http://localhost:5220/api/auth/me
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Test CongTy API - Tạo công ty (cần token nhà tuyển dụng)
 POST http://localhost:5220/api/cong-ty
 Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
 {
   "maChuSoHuu": 1,
@@ -35,12 +40,13 @@ Content-Type: application/json
   "moTa": "Công ty test"
 }
 
-### Test TinTuyenDung API - Lấy danh sách
+### Test TinTuyenDung API - Lấy danh sách (public - không cần token)
 GET http://localhost:5220/api/tin-tuyen-dung
 
-### Test TinTuyenDung API - Tạo tin tuyển dụng
+### Test TinTuyenDung API - Tạo tin tuyển dụng (cần token nhà tuyển dụng)
 POST http://localhost:5220/api/tin-tuyen-dung
 Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
 {
   "maCongTy": 1,
@@ -52,4 +58,30 @@ Content-Type: application/json
   "mucLuongToiDa": 25000000,
   "thanhPho": "Hà Nội",
   "soLuongTuyen": 2
+}
+
+### Test DonUngTuyen API - Nộp đơn (cần token ứng viên)
+POST http://localhost:5220/api/don-ung-tuyen
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "maTin": 1,
+  "maUngVien": 1,
+  "maFileCV": 1,
+  "thuGioiThieu": "Tôi có 3 năm kinh nghiệm .NET"
+}
+
+### Test HoSo API - Tạo hồ sơ (cần token ứng viên)
+POST http://localhost:5220/api/ho-so
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "maNguoiDung": 1,
+  "tieuDe": "Developer .NET",
+  "tomTat": "Có kinh nghiệm phát triển ứng dụng web",
+  "gioiTinh": "Nam",
+  "thanhPho": "Hà Nội",
+  "mucLuongMongMuon": 20000000
 }

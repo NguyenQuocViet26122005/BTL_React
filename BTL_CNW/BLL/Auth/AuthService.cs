@@ -1,21 +1,35 @@
 using BTL_CNW.DTO.Auth;
 using BTL_CNW.DAL.Auth;
+using BTL_CNW.Services;
 
 namespace BTL_CNW.BLL.Auth
 {
     public interface IAuthService
     {
-        NguoiDungDto? DangNhap(DangNhapDto dto);
+        (NguoiDungDto? user, string? token) DangNhap(DangNhapDto dto);
         (bool ok, string msg) DangKy(DangKyDto dto);
     }
 
     public class AuthService : IAuthService
     {
         private readonly IAuthRepository _repo;
-        public AuthService(IAuthRepository repo) => _repo = repo;
+        private readonly IJwtService _jwtService;
+        
+        public AuthService(IAuthRepository repo, IJwtService jwtService)
+        {
+            _repo = repo;
+            _jwtService = jwtService;
+        }
 
-        public NguoiDungDto? DangNhap(DangNhapDto dto)
-            => _repo.DangNhap(dto.Email, dto.MatKhau);
+        public (NguoiDungDto? user, string? token) DangNhap(DangNhapDto dto)
+        {
+            var user = _repo.DangNhap(dto.Email, dto.MatKhau);
+            if (user == null)
+                return (null, null);
+
+            var token = _jwtService.GenerateToken(user);
+            return (user, token);
+        }
 
         public (bool ok, string msg) DangKy(DangKyDto dto)
         {
