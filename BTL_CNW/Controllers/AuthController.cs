@@ -17,14 +17,32 @@ namespace BTL_CNW.Controllers
         [AllowAnonymous]
         public IActionResult DangNhap(DangNhapDto dto)
         {
-            var (user, token) = _service.DangNhap(dto);
-            return user == null
-                ? Unauthorized(new { message = "Email hoặc mật khẩu không đúng." })
-                : Ok(new { 
-                    message = "Đăng nhập thành công!",
-                    user = user,
-                    token = token
+            try
+            {
+                var (user, token, error) = _service.DangNhap(dto);
+                
+                if (error != null)
+                {
+                    return BadRequest(new { success = false, message = error });
+                }
+
+                return Ok(new { 
+                    success = true,
+                    message = "Đăng nhập thành công",
+                    data = new {
+                        user = user,
+                        token = token
+                    }
                 });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
         }
 
         /// <summary>Đăng ký tài khoản mới</summary>
@@ -32,8 +50,27 @@ namespace BTL_CNW.Controllers
         [AllowAnonymous]
         public IActionResult DangKy(DangKyDto dto)
         {
-            var (ok, msg) = _service.DangKy(dto);
-            return ok ? Ok(new { message = msg }) : BadRequest(new { message = msg });
+            try
+            {
+                var (ok, msg) = _service.DangKy(dto);
+                
+                if (ok)
+                {
+                    return Ok(new { success = true, message = msg });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = msg });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
         }
 
         /// <summary>Lấy thông tin người dùng hiện tại</summary>
@@ -41,18 +78,39 @@ namespace BTL_CNW.Controllers
         [Authorize]
         public IActionResult GetCurrentUser()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var userName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-            var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-            var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-
-            return Ok(new
+            try
             {
-                maNguoiDung = userId,
-                hoTen = userName,
-                email = userEmail,
-                vaiTro = userRole
-            });
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+                var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Lấy thông tin thành công",
+                    data = new
+                    {
+                        maNguoiDung = userId,
+                        hoTen = userName,
+                        email = userEmail,
+                        vaiTro = userRole
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
         }
     }
 }

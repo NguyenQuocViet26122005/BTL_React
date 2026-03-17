@@ -15,7 +15,14 @@ namespace BTL_CNW.DAL.Auth
 
         public bool EmailDaTonTai(string email)
         {
-            return _context.NguoiDungs.Any(x => x.Email == email);
+            try
+            {
+                return _context.NguoiDungs.Any(x => x.Email == email);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi kiểm tra email: {ex.Message}", ex);
+            }
         }
 
         public bool DangKy(DangKyDto dto)
@@ -36,34 +43,49 @@ namespace BTL_CNW.DAL.Auth
                 _context.NguoiDungs.Add(nguoiDung);
                 return _context.SaveChanges() > 0;
             }
-            catch
+            catch (DbUpdateException ex)
             {
-                return false;
+                if (ex.InnerException?.Message.Contains("UNIQUE") == true)
+                {
+                    throw new Exception("Email đã được sử dụng bởi tài khoản khác");
+                }
+                throw new Exception($"Lỗi cơ sở dữ liệu khi đăng ký: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi không xác định khi đăng ký: {ex.Message}", ex);
             }
         }
 
         public NguoiDungDto? DangNhap(string email, string matKhau)
         {
-            var nguoiDung = _context.NguoiDungs
-                .Include(x => x.MaVaiTroNavigation)
-                .FirstOrDefault(x => x.Email == email && 
-                                   x.MatKhauMaHoa == matKhau && 
-                                   x.DangHoatDong == true);
-
-            if (nguoiDung == null) return null;
-
-            return new NguoiDungDto
+            try
             {
-                MaNguoiDung = nguoiDung.MaNguoiDung,
-                MaVaiTro = nguoiDung.MaVaiTro,
-                TenVaiTro = nguoiDung.MaVaiTroNavigation.TenVaiTro,
-                HoTen = nguoiDung.HoTen,
-                Email = nguoiDung.Email,
-                SoDienThoai = nguoiDung.SoDienThoai,
-                AnhDaiDien = nguoiDung.AnhDaiDien,
-                DangHoatDong = nguoiDung.DangHoatDong,
-                NgayTao = nguoiDung.NgayTao
-            };
+                var nguoiDung = _context.NguoiDungs
+                    .Include(x => x.MaVaiTroNavigation)
+                    .FirstOrDefault(x => x.Email == email && 
+                                       x.MatKhauMaHoa == matKhau && 
+                                       x.DangHoatDong == true);
+
+                if (nguoiDung == null) return null;
+
+                return new NguoiDungDto
+                {
+                    MaNguoiDung = nguoiDung.MaNguoiDung,
+                    MaVaiTro = nguoiDung.MaVaiTro,
+                    TenVaiTro = nguoiDung.MaVaiTroNavigation.TenVaiTro,
+                    HoTen = nguoiDung.HoTen,
+                    Email = nguoiDung.Email,
+                    SoDienThoai = nguoiDung.SoDienThoai,
+                    AnhDaiDien = nguoiDung.AnhDaiDien,
+                    DangHoatDong = nguoiDung.DangHoatDong,
+                    NgayTao = nguoiDung.NgayTao
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi cơ sở dữ liệu khi đăng nhập: {ex.Message}", ex);
+            }
         }
     }
 }

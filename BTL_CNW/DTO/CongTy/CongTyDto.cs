@@ -16,6 +16,7 @@ namespace BTL_CNW.DTO.CongTy
         public string? QuocGia { get; set; }
         public string? MoTa { get; set; }
         public bool DaDuocDuyet { get; set; }
+        public string TrangThai => DaDuocDuyet ? "Đã duyệt" : "Chờ duyệt";
         public DateTime NgayTao { get; set; }
     }
 }

@@ -5,10 +5,10 @@ namespace BTL_CNW.BLL.LichPhongVan
 {
     public interface ILichPhongVanService
     {
-        bool TaoLich(TaoLichDto dto);
-        List<LichPhongVanDto> LayTheoDon(int maDon);
-        LichPhongVanDto? LayChiTiet(int maLich);
-        bool DoiTrangThai(int maLich, string trangThai);
+        (bool success, string message) TaoLich(TaoLichDto dto);
+        (bool success, string message, List<LichPhongVanDto> data) LayTheoDon(int maDon);
+        (bool success, string message, LichPhongVanDto? data) LayChiTiet(int maLich);
+        (bool success, string message) DoiTrangThai(int maLich, string trangThai);
     }
 
     public class LichPhongVanService : ILichPhongVanService
@@ -16,9 +16,108 @@ namespace BTL_CNW.BLL.LichPhongVan
         private readonly ILichPhongVanRepository _repo;
         public LichPhongVanService(ILichPhongVanRepository repo) => _repo = repo;
 
-        public bool TaoLich(TaoLichDto dto) => _repo.TaoLich(dto);
-        public List<LichPhongVanDto> LayTheoDon(int maDon) => _repo.LayTheoDon(maDon);
-        public LichPhongVanDto? LayChiTiet(int maLich) => _repo.LayChiTiet(maLich);
-        public bool DoiTrangThai(int maLich, string trangThai) => _repo.DoiTrangThai(maLich, trangThai);
+        public (bool success, string message) TaoLich(TaoLichDto dto)
+        {
+            try
+            {
+                // Validate input
+                if (dto.ThoiGian == default)
+                    return (false, "Thời gian phỏng vấn không hợp lệ");
+
+                if (dto.ThoiGian <= DateTime.Now)
+                    return (false, "Thời gian phỏng vấn phải sau thời điểm hiện tại");
+
+                if (string.IsNullOrWhiteSpace(dto.DiaDiem))
+                    return (false, "Địa điểm phỏng vấn không được để trống");
+
+                if (dto.MaDon <= 0)
+                    return (false, "Mã đơn ứng tuyển không hợp lệ");
+
+                // Check if interview already exists for this application
+                var existingInterviews = _repo.LayTheoDon(dto.MaDon);
+                if (existingInterviews.Any(x => x.TrangThai == "Đã lên lịch" || x.TrangThai == "Đang diễn ra"))
+                    return (false, "Đơn ứng tuyển này đã có lịch phỏng vấn rồi");
+
+                var result = _repo.TaoLich(dto);
+                return result 
+                    ? (true, "Tạo lịch phỏng vấn thành công")
+                    : (false, "Không thể tạo lịch phỏng vấn, vui lòng thử lại");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
+
+        public (bool success, string message, List<LichPhongVanDto> data) LayTheoDon(int maDon)
+        {
+            try
+            {
+                if (maDon <= 0)
+                    return (false, "Mã đơn không hợp lệ", new List<LichPhongVanDto>());
+
+                var danhSach = _repo.LayTheoDon(maDon);
+                return (true, "Lấy danh sách lịch phỏng vấn thành công", danhSach);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}", new List<LichPhongVanDto>());
+            }
+        }
+
+        public (bool success, string message, LichPhongVanDto? data) LayChiTiet(int maLich)
+        {
+            try
+            {
+                if (maLich <= 0)
+                    return (false, "Mã lịch không hợp lệ", null);
+
+                var lich = _repo.LayChiTiet(maLich);
+                return lich != null 
+                    ? (true, "Lấy chi tiết lịch phỏng vấn thành công", lich)
+                    : (false, "Không tìm thấy lịch phỏng vấn", null);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}", null);
+            }
+        }
+
+        public (bool success, string message) DoiTrangThai(int maLich, string trangThai)
+        {
+            try
+            {
+                if (maLich <= 0)
+                    return (false, "Mã lịch không hợp lệ");
+
+                if (string.IsNullOrWhiteSpace(trangThai))
+                    return (false, "Trạng thái không được để trống");
+
+                var validStates = new[] { "Đã lên lịch", "Đang diễn ra", "Hoàn thành", "Hủy bỏ", "Hoãn lại" };
+                if (!validStates.Contains(trangThai))
+                    return (false, "Trạng thái không hợp lệ");
+
+                // Check if interview exists
+                var existingInterview = _repo.LayChiTiet(maLich);
+                if (existingInterview == null)
+                    return (false, "Không tìm thấy lịch phỏng vấn cần cập nhật");
+
+                if (existingInterview.TrangThai == trangThai)
+                    return (false, $"Lịch phỏng vấn đã ở trạng thái '{trangThai}' rồi");
+
+                // Business logic validation
+                if (existingInterview.TrangThai == "Hoàn thành" && trangThai != "Hoàn thành")
+                    return (false, "Không thể thay đổi trạng thái của lịch phỏng vấn đã hoàn thành");
+
+                var result = _repo.DoiTrangThai(maLich, trangThai);
+                return result 
+                    ? (true, $"Đã cập nhật trạng thái thành '{trangThai}'")
+                    : (false, "Không thể cập nhật trạng thái, vui lòng thử lại");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
     }
 }

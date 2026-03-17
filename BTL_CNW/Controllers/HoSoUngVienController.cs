@@ -18,15 +18,22 @@ namespace BTL_CNW.Controllers
         [HttpPost]
         [RoleAuthorize(UserRoles.UngVien)]
         public IActionResult TaoHoSo(TaoHoSoDto dto)
-            => _service.TaoHoSo(dto) ? Ok(new { message = "Tạo hồ sơ thành công!" }) : BadRequest(new { message = "Tạo hồ sơ thất bại." });
+        {
+            var result = _service.TaoHoSo(dto);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
 
         /// <summary>Lấy hồ sơ theo người dùng - Chỉ ứng viên</summary>
         [HttpGet("cua-toi/{maNguoiDung:int}")]
         [RoleAuthorize(UserRoles.UngVien)]
         public IActionResult LayTheoNguoiDung(int maNguoiDung)
         {
-            var hs = _service.LayTheoNguoiDung(maNguoiDung);
-            return hs == null ? NotFound(new { message = "Chưa có hồ sơ." }) : Ok(hs);
+            var result = _service.LayTheoNguoiDung(maNguoiDung);
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : NotFound(new { success = false, message = result.message });
         }
 
         /// <summary>Lấy hồ sơ theo ID - Nhà tuyển dụng và ứng viên</summary>
@@ -34,14 +41,21 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung, UserRoles.UngVien)]
         public IActionResult LayTheoId(int maHoSo)
         {
-            var hs = _service.LayTheoId(maHoSo);
-            return hs == null ? NotFound(new { message = "Không tìm thấy hồ sơ." }) : Ok(hs);
+            var result = _service.LayTheoId(maHoSo);
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : NotFound(new { success = false, message = result.message });
         }
 
         /// <summary>Cập nhật hồ sơ - Chỉ ứng viên</summary>
         [HttpPut("{maHoSo:int}")]
         [RoleAuthorize(UserRoles.UngVien)]
         public IActionResult CapNhat(int maHoSo, TaoHoSoDto dto)
-            => _service.CapNhat(maHoSo, dto) ? Ok(new { message = "Cập nhật thành công!" }) : BadRequest(new { message = "Cập nhật thất bại." });
+        {
+            var result = _service.CapNhat(maHoSo, dto);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
     }
 }

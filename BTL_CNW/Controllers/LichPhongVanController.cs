@@ -18,27 +18,44 @@ namespace BTL_CNW.Controllers
         [HttpPost]
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult TaoLich(TaoLichDto dto)
-            => _service.TaoLich(dto) ? Ok(new { message = "Tạo lịch phỏng vấn thành công!" }) : BadRequest(new { message = "Tạo lịch thất bại." });
+        {
+            var result = _service.TaoLich(dto);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
 
         /// <summary>Danh sách lịch phỏng vấn theo đơn - Nhà tuyển dụng và ứng viên</summary>
         [HttpGet("theo-don/{maDon:int}")]
         [RoleAuthorize(UserRoles.NhaTuyenDung, UserRoles.UngVien)]
         public IActionResult LayTheoDon(int maDon)
-            => Ok(_service.LayTheoDon(maDon));
+        {
+            var result = _service.LayTheoDon(maDon);
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : BadRequest(new { success = false, message = result.message });
+        }
 
         /// <summary>Chi tiết lịch phỏng vấn - Nhà tuyển dụng và ứng viên</summary>
         [HttpGet("{maLich:int}")]
         [RoleAuthorize(UserRoles.NhaTuyenDung, UserRoles.UngVien)]
         public IActionResult LayChiTiet(int maLich)
         {
-            var lich = _service.LayChiTiet(maLich);
-            return lich == null ? NotFound(new { message = "Không tìm thấy lịch." }) : Ok(lich);
+            var result = _service.LayChiTiet(maLich);
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : NotFound(new { success = false, message = result.message });
         }
 
         /// <summary>Cập nhật trạng thái lịch phỏng vấn - Chỉ nhà tuyển dụng</summary>
         [HttpPut("{maLich:int}/trang-thai")]
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult DoiTrangThai(int maLich, [FromQuery] string trangThai)
-            => _service.DoiTrangThai(maLich, trangThai) ? Ok(new { message = "Đã cập nhật trạng thái." }) : BadRequest(new { message = "Thất bại." });
+        {
+            var result = _service.DoiTrangThai(maLich, trangThai);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
     }
 }

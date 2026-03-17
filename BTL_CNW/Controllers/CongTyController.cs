@@ -18,20 +18,32 @@ namespace BTL_CNW.Controllers
         [HttpPost]
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult TaoCongTy(TaoCongTyDto dto)
-            => _service.TaoCongTy(dto) ? Ok(new { message = "Tạo công ty thành công!" }) : BadRequest(new { message = "Tạo công ty thất bại." });
+        {
+            var result = _service.TaoCongTy(dto);
+            return result.success 
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
 
         /// <summary>Lấy tất cả công ty - Chỉ quản trị viên</summary>
         [HttpGet]
         [RoleAuthorize(UserRoles.QuanTriVien)]
         public IActionResult LayTatCa()
-            => Ok(_service.LayTatCa());
+        {
+            var result = _service.LayTatCa();
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : BadRequest(new { success = false, message = result.message });
+        }
 
         /// <summary>Lấy công ty theo ID - Tất cả người dùng đã đăng nhập</summary>
         [HttpGet("{maCongTy:int}")]
         public IActionResult LayTheoId(int maCongTy)
         {
-            var ct = _service.LayTheoId(maCongTy);
-            return ct == null ? NotFound(new { message = "Không tìm thấy công ty." }) : Ok(ct);
+            var result = _service.LayTheoId(maCongTy);
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : NotFound(new { success = false, message = result.message });
         }
 
         /// <summary>Lấy công ty của nhà tuyển dụng - Chỉ nhà tuyển dụng</summary>
@@ -39,26 +51,43 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayTheoChuSoHuu(int maNguoiDung)
         {
-            var ct = _service.LayTheoChuSoHuu(maNguoiDung);
-            return ct == null ? NotFound(new { message = "Chưa có công ty." }) : Ok(ct);
+            var result = _service.LayTheoChuSoHuu(maNguoiDung);
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : NotFound(new { success = false, message = result.message });
         }
 
         /// <summary>Cập nhật thông tin công ty - Chỉ nhà tuyển dụng</summary>
         [HttpPut("{maCongTy:int}")]
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult CapNhat(int maCongTy, CapNhatCongTyDto dto)
-            => _service.CapNhat(maCongTy, dto) ? Ok(new { message = "Cập nhật thành công!" }) : BadRequest(new { message = "Cập nhật thất bại." });
+        {
+            var result = _service.CapNhat(maCongTy, dto);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
 
         /// <summary>Admin duyệt công ty - Chỉ quản trị viên</summary>
         [HttpPut("{maCongTy:int}/duyet")]
         [RoleAuthorize(UserRoles.QuanTriVien)]
         public IActionResult DuyetCongTy(int maCongTy)
-            => _service.DuyetCongTy(maCongTy) ? Ok(new { message = "Đã duyệt công ty." }) : BadRequest(new { message = "Duyệt thất bại." });
+        {
+            var result = _service.DuyetCongTy(maCongTy);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
 
         /// <summary>Xóa công ty - Chỉ quản trị viên</summary>
         [HttpDelete("{maCongTy:int}")]
         [RoleAuthorize(UserRoles.QuanTriVien)]
         public IActionResult Xoa(int maCongTy)
-            => _service.Xoa(maCongTy) ? Ok(new { message = "Đã xóa công ty." }) : BadRequest(new { message = "Xóa thất bại." });
+        {
+            var result = _service.Xoa(maCongTy);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
     }
 }

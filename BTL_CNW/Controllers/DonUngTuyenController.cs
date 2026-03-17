@@ -19,37 +19,145 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.UngVien)]
         public IActionResult NopDon(NopDonDto dto)
         {
-            var (ok, msg) = _service.NopDon(dto);
-            return ok ? Ok(new { message = msg }) : BadRequest(new { message = msg });
+            try
+            {
+                var (ok, msg) = _service.NopDon(dto);
+                
+                if (ok)
+                {
+                    return Ok(new { success = true, message = msg });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = msg });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
         }
 
         /// <summary>Đơn ứng tuyển của ứng viên - Chỉ ứng viên</summary>
         [HttpGet("cua-toi/{maUngVien:int}")]
         [RoleAuthorize(UserRoles.UngVien)]
         public IActionResult LayTheoUngVien(int maUngVien)
-            => Ok(_service.LayTheoUngVien(maUngVien));
+        {
+            try
+            {
+                var (data, error) = _service.LayTheoUngVien(maUngVien);
+                
+                if (error != null)
+                {
+                    return BadRequest(new { success = false, message = error });
+                }
+
+                return Ok(new { 
+                    success = true, 
+                    message = "Lấy danh sách đơn ứng tuyển thành công", 
+                    data = data 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
+        }
 
         /// <summary>Đơn ứng tuyển theo tin tuyển dụng - Chỉ nhà tuyển dụng</summary>
         [HttpGet("theo-tin/{maTin:int}")]
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayTheoTin(int maTin)
-            => Ok(_service.LayTheoTin(maTin));
+        {
+            try
+            {
+                var (data, error) = _service.LayTheoTin(maTin);
+                
+                if (error != null)
+                {
+                    return BadRequest(new { success = false, message = error });
+                }
+
+                return Ok(new { 
+                    success = true, 
+                    message = "Lấy danh sách đơn ứng tuyển thành công", 
+                    data = data 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
+        }
 
         /// <summary>Chi tiết đơn ứng tuyển - Nhà tuyển dụng và ứng viên</summary>
         [HttpGet("{maDon:int}")]
         [RoleAuthorize(UserRoles.NhaTuyenDung, UserRoles.UngVien)]
         public IActionResult LayChiTiet(int maDon)
         {
-            var don = _service.LayChiTiet(maDon);
-            return don == null ? NotFound(new { message = "Không tìm thấy đơn." }) : Ok(don);
+            try
+            {
+                var (data, error) = _service.LayChiTiet(maDon);
+                
+                if (error != null)
+                {
+                    return BadRequest(new { success = false, message = error });
+                }
+
+                return Ok(new { 
+                    success = true, 
+                    message = "Lấy chi tiết đơn ứng tuyển thành công", 
+                    data = data 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
         }
 
         /// <summary>Cập nhật trạng thái đơn - Chỉ nhà tuyển dụng</summary>
         [HttpPut("{maDon:int}/trang-thai")]
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult CapNhatTrangThai(int maDon, CapNhatTrangThaiDto dto)
-            => _service.CapNhatTrangThai(maDon, dto.TrangThai)
-                ? Ok(new { message = "Cập nhật trạng thái thành công!" })
-                : BadRequest(new { message = "Cập nhật thất bại." });
+        {
+            try
+            {
+                var (ok, msg) = _service.CapNhatTrangThai(maDon, dto.TrangThai);
+                
+                if (ok)
+                {
+                    return Ok(new { success = true, message = msg });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = msg });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
+        }
     }
 }
