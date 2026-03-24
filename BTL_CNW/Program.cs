@@ -4,6 +4,7 @@ using BTL_CNW.BLL.TinTuyenDung;
 using BTL_CNW.BLL.DonUngTuyen;
 using BTL_CNW.BLL.HoSoUngVien;
 using BTL_CNW.BLL.LichPhongVan;
+using BTL_CNW.BLL.DanhMuc;
 
 using BTL_CNW.DAL.Auth;
 using BTL_CNW.DAL.CongTy;
@@ -11,6 +12,7 @@ using BTL_CNW.DAL.TinTuyenDung;
 using BTL_CNW.DAL.DonUngTuyen;
 using BTL_CNW.DAL.HoSoUngVien;
 using BTL_CNW.DAL.LichPhongVan;
+using BTL_CNW.DAL.DanhMuc;
 
 using BTL_CNW.Models;
 using BTL_CNW.Services;
@@ -97,6 +99,11 @@ builder.Services.AddScoped<IHoSoUngVienService, HoSoUngVienService>();
 // Lịch phỏng vấn
 builder.Services.AddScoped<ILichPhongVanRepository, LichPhongVanRepository>();
 builder.Services.AddScoped<ILichPhongVanService, LichPhongVanService>();
+
+// Danh mục và Lĩnh vực
+builder.Services.AddScoped<IDanhMucRepository, DanhMucRepository>();
+builder.Services.AddScoped<ILinhVucRepository, LinhVucRepository>();
+builder.Services.AddScoped<DanhMucService>();
 
 var app = builder.Build();
 

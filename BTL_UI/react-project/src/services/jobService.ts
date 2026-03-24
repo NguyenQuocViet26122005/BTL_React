@@ -7,6 +7,37 @@ export const jobService = {
     return response.data;
   },
 
+  filterJobs: async (filters: {
+    search?: string;
+    danhMuc?: number[];
+    kinhNghiem?: string;
+    hinhThucLamViec?: string;
+    linhVuc?: number[];
+    mucLuongMin?: number;
+    mucLuongMax?: number;
+    thanhPho?: string;
+  }) => {
+    const params = new URLSearchParams();
+    
+    if (filters.search) params.append('search', filters.search);
+    if (filters.kinhNghiem && filters.kinhNghiem !== 'all') params.append('kinhNghiem', filters.kinhNghiem);
+    if (filters.hinhThucLamViec && filters.hinhThucLamViec !== 'all') params.append('hinhThucLamViec', filters.hinhThucLamViec);
+    if (filters.thanhPho) params.append('thanhPho', filters.thanhPho);
+    if (filters.mucLuongMin) params.append('mucLuongMin', filters.mucLuongMin.toString());
+    if (filters.mucLuongMax) params.append('mucLuongMax', filters.mucLuongMax.toString());
+    
+    if (filters.danhMuc && filters.danhMuc.length > 0) {
+      filters.danhMuc.forEach(dm => params.append('danhMuc', dm.toString()));
+    }
+    
+    if (filters.linhVuc && filters.linhVuc.length > 0) {
+      filters.linhVuc.forEach(lv => params.append('linhVuc', lv.toString()));
+    }
+
+    const response = await api.get<ApiResponse<TinTuyenDung[]>>(`/tin-tuyen-dung/filter?${params.toString()}`);
+    return response.data;
+  },
+
   getJobById: async (id: number) => {
     const response = await api.get<ApiResponse<TinTuyenDung>>(`/tin-tuyen-dung/${id}`);
     return response.data;

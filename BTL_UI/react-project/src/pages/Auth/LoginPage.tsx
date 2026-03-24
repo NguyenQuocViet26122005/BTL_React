@@ -1,4 +1,4 @@
-import { Form, Input, Button, Card, Typography, message } from 'antd';
+﻿import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
@@ -24,7 +24,6 @@ const LoginPage = () => {
         
         message.success('Đăng nhập thành công!');
         
-        // Điều hướng dựa vào vai trò
         const user = response.data.user;
         if (user.maVaiTro === 1) {
           navigate('/admin/dashboard');
@@ -41,14 +40,14 @@ const LoginPage = () => {
 
   return (
     <div style={{
-      minHeight: 'calc(100vh - 64px - 200px)',
+      minHeight: '100vh',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       padding: '40px 20px',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}>
-      <Card style={{ width: '100%', maxWidth: '450px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+      <Card style={{ width: '100%', maxWidth: '500px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <Title level={2}>Đăng Nhập</Title>
           <Text type="secondary">Chào mừng bạn quay trở lại!</Text>

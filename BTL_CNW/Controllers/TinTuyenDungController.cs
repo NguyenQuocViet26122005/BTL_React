@@ -27,6 +27,25 @@ namespace BTL_CNW.Controllers
                 : BadRequest(new { success = false, message = result.message });
         }
 
+        /// <summary>Lọc tin tuyển dụng nâng cao - Public</summary>
+        [HttpGet("filter")]
+        [AllowAnonymous]
+        public IActionResult LocTinTuyenDung(
+            [FromQuery] string? search,
+            [FromQuery] int[]? danhMuc,
+            [FromQuery] string? kinhNghiem,
+            [FromQuery] string? hinhThucLamViec,
+            [FromQuery] int[]? linhVuc,
+            [FromQuery] decimal? mucLuongMin,
+            [FromQuery] decimal? mucLuongMax,
+            [FromQuery] string? thanhPho)
+        {
+            var result = _service.LocTinTuyenDung(search, danhMuc, kinhNghiem, hinhThucLamViec, linhVuc, mucLuongMin, mucLuongMax, thanhPho);
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : BadRequest(new { success = false, message = result.message });
+        }
+
         /// <summary>Tin tuyển dụng theo công ty - Public</summary>
         [HttpGet("cong-ty/{maCongTy:int}")]
         [AllowAnonymous]

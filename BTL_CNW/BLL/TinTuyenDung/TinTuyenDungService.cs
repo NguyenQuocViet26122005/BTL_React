@@ -13,6 +13,7 @@ namespace BTL_CNW.BLL.TinTuyenDung
         (bool success, string message) CapNhat(int maTin, CapNhatTinDto dto);
         (bool success, string message) DoiTrangThai(int maTin, string trangThai, string? lyDo);
         (bool success, string message) Xoa(int maTin);
+        (bool success, string message, List<TinTuyenDungDto> data) LocTinTuyenDung(string? search, int[]? danhMuc, string? kinhNghiem, string? hinhThucLamViec, int[]? linhVuc, decimal? mucLuongMin, decimal? mucLuongMax, string? thanhPho);
     }
 
     public class TinTuyenDungService : ITinTuyenDungService
@@ -203,6 +204,96 @@ namespace BTL_CNW.BLL.TinTuyenDung
             catch (Exception ex)
             {
                 return (false, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
+
+        public (bool success, string message, List<TinTuyenDungDto> data) LocTinTuyenDung(
+            string? search, 
+            int[]? danhMuc, 
+            string? kinhNghiem, 
+            string? hinhThucLamViec, 
+            int[]? linhVuc, 
+            decimal? mucLuongMin, 
+            decimal? mucLuongMax, 
+            string? thanhPho)
+        {
+            try
+            {
+                var allJobs = _repo.LayDanhSach(null, null, null);
+                
+                // Filter by search text
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    allJobs = allJobs.Where(j => 
+                        j.TieuDe.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        (j.TenCongTy != null && j.TenCongTy.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                        (j.ThanhPho != null && j.ThanhPho.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    ).ToList();
+                }
+
+                // Filter by category
+                if (danhMuc != null && danhMuc.Length > 0)
+                {
+                    allJobs = allJobs.Where(j => j.MaDanhMuc.HasValue && danhMuc.Contains(j.MaDanhMuc.Value)).ToList();
+                }
+
+                // Filter by experience
+                if (!string.IsNullOrWhiteSpace(kinhNghiem) && kinhNghiem != "all")
+                {
+                    allJobs = allJobs.Where(j => 
+                        j.KinhNghiem != null && j.KinhNghiem.Contains(kinhNghiem, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+                }
+
+                // Filter by work type
+                if (!string.IsNullOrWhiteSpace(hinhThucLamViec) && hinhThucLamViec != "all")
+                {
+                    allJobs = allJobs.Where(j => 
+                        j.HinhThucLamViec.Contains(hinhThucLamViec, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+                }
+
+                // Filter by city
+                if (!string.IsNullOrWhiteSpace(thanhPho))
+                {
+                    allJobs = allJobs.Where(j => 
+                        j.ThanhPho != null && j.ThanhPho.Contains(thanhPho, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+                }
+
+                // Filter by salary range
+                if (mucLuongMin.HasValue && mucLuongMax.HasValue)
+                {
+                    // Nếu có cả min và max: việc làm phải nằm trong khoảng
+                    allJobs = allJobs.Where(j => 
+                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiThieu.Value >= mucLuongMin.Value && j.MucLuongToiThieu.Value <= mucLuongMax.Value) ||
+                        (j.MucLuongToiDa.HasValue && j.MucLuongToiDa.Value >= mucLuongMin.Value && j.MucLuongToiDa.Value <= mucLuongMax.Value) ||
+                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiDa.HasValue && 
+                         j.MucLuongToiThieu.Value <= mucLuongMax.Value && j.MucLuongToiDa.Value >= mucLuongMin.Value)
+                    ).ToList();
+                }
+                else if (mucLuongMin.HasValue)
+                {
+                    // Chỉ có min: lương tối đa phải >= min
+                    allJobs = allJobs.Where(j => 
+                        (j.MucLuongToiDa.HasValue && j.MucLuongToiDa.Value >= mucLuongMin.Value) ||
+                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiThieu.Value >= mucLuongMin.Value)
+                    ).ToList();
+                }
+                else if (mucLuongMax.HasValue)
+                {
+                    // Chỉ có max: lương tối thiểu phải <= max
+                    allJobs = allJobs.Where(j => 
+                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiThieu.Value <= mucLuongMax.Value) ||
+                        (!j.MucLuongToiThieu.HasValue && j.MucLuongToiDa.HasValue && j.MucLuongToiDa.Value <= mucLuongMax.Value)
+                    ).ToList();
+                }
+
+                return (true, $"Tìm thấy {allJobs.Count} việc làm", allJobs);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}", new List<TinTuyenDungDto>());
             }
         }
     }
