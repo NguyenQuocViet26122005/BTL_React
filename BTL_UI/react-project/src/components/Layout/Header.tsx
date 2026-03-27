@@ -1,10 +1,72 @@
-﻿import { Layout, Button, Space } from 'antd';
-import { useNavigate } from 'react-router-dom';
+﻿import { Layout, Button, Space, Dropdown } from 'antd';
+import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined } from '@ant-design/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import type { NguoiDung } from '../../types';
 
 const { Header: AntHeader } = Layout;
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [user, setUser] = useState<NguoiDung | null>(null);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        setUser(JSON.parse(userStr));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    navigate('/');
+  };
+
+  const menuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Thong tin ca nhan',
+      onClick: () => navigate('/profile')
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Cai dat',
+      onClick: () => {}
+    },
+    {
+      type: 'divider' as const
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Dang xuat',
+      onClick: handleLogout
+    }
+  ];
+
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  const getButtonStyle = (path: string) => ({
+    color: '#fff',
+    background: isActive(path) ? '#1890ff' : 'transparent',
+    borderRadius: '4px',
+    transition: 'all 0.3s ease',
+    transform: isActive(path) ? 'scale(1.05)' : 'scale(1)',
+  });
 
   return (
     <AntHeader style={{ 
@@ -22,26 +84,62 @@ const Header = () => {
           fontWeight: 'bold',
           cursor: 'pointer'
         }} onClick={() => navigate('/')}>
-          🇻🇳 VietHire
+          VietHire
         </div>
         
-        <Space>
-          <Button type="link" style={{ color: '#fff' }} onClick={() => navigate('/')}>
-            Trang chủ
+        <Space size="middle">
+          <Button 
+            type="link" 
+            style={getButtonStyle('/')} 
+            onClick={() => navigate('/')}
+          >
+            Trang chu
           </Button>
-          <Button type="link" style={{ color: '#fff' }} onClick={() => navigate('/jobs')}>
-            Việc làm
+          <Button 
+            type="link" 
+            style={getButtonStyle('/jobs')} 
+            onClick={() => navigate('/jobs')}
+          >
+            Viec lam
           </Button>
+          {user && user.maVaiTro === 2 && (
+            <Button 
+              type="link" 
+              style={getButtonStyle('/company/dashboard')} 
+              onClick={() => navigate('/company/dashboard')}
+            >
+              <DashboardOutlined /> Dashboard
+            </Button>
+          )}
         </Space>
       </div>
 
-      <Space>
-        <Button onClick={() => navigate('/login')}>
-          Đăng nhập
-        </Button>
-        <Button type="primary" onClick={() => navigate('/register')}>
-          Đăng ký
-        </Button>
+      <Space size="middle">
+        {user ? (
+          <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+            <Button 
+              type="link" 
+              style={{ 
+                color: '#fff',
+                background: '#1890ff',
+                borderRadius: '4px',
+                padding: '4px 15px',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <UserOutlined /> {user.hoTen}
+            </Button>
+          </Dropdown>
+        ) : (
+          <>
+            <Button onClick={() => navigate('/login')}>
+              Dang nhap
+            </Button>
+            <Button type="primary" onClick={() => navigate('/register')}>
+              Dang ky
+            </Button>
+          </>
+        )}
       </Space>
     </AntHeader>
   );

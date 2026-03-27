@@ -6,7 +6,7 @@ import { authService } from '../../services/authService';
 const { Title, Text } = Typography;
 
 interface LoginFormValues {
-  tenDangNhap: string;
+  email: string;
   matKhau: string;
 }
 
@@ -17,14 +17,21 @@ const LoginPage = () => {
   const onFinish = async (values: LoginFormValues) => {
     try {
       const response = await authService.login(values);
+      console.log('Login response:', response);
       
       if (response.success && response.data) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
         
-        message.success('Đăng nhập thành công!');
+        console.log('Backend user data:', response.data.user);
         
         const user = response.data.user;
+        
+        console.log('User data to save:', user);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        message.success('Dang nhap thanh cong!');
+        
+        // Redirect based on role
         if (user.maVaiTro === 1) {
           navigate('/admin/dashboard');
         } else if (user.maVaiTro === 2) {
@@ -34,7 +41,8 @@ const LoginPage = () => {
         }
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Đăng nhập thất bại!');
+      console.error('Login error:', error);
+      message.error(error.response?.data?.message || 'Dang nhap that bai!');
     }
   };
 
@@ -49,8 +57,8 @@ const LoginPage = () => {
     }}>
       <Card style={{ width: '100%', maxWidth: '500px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <Title level={2}>Đăng Nhập</Title>
-          <Text type="secondary">Chào mừng bạn quay trở lại!</Text>
+          <Title level={2}>Dang Nhap</Title>
+          <Text type="secondary">Chao mung ban quay tro lai!</Text>
         </div>
 
         <Form
@@ -61,36 +69,39 @@ const LoginPage = () => {
           size="large"
         >
           <Form.Item
-            name="tenDangNhap"
-            label="Tên đăng nhập"
-            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: 'Vui long nhap email!' },
+              { type: 'email', message: 'Email khong dung dinh dang!' }
+            ]}
           >
             <Input 
               prefix={<UserOutlined />} 
-              placeholder="Nhập tên đăng nhập"
+              placeholder="Nhap email"
             />
           </Form.Item>
 
           <Form.Item
             name="matKhau"
-            label="Mật khẩu"
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+            label="Mat khau"
+            rules={[{ required: true, message: 'Vui long nhap mat khau!' }]}
           >
             <Input.Password
               prefix={<LockOutlined />}
-              placeholder="Nhập mật khẩu"
+              placeholder="Nhap mat khau"
             />
           </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              Đăng nhập
+              Dang nhap
             </Button>
           </Form.Item>
 
           <div style={{ textAlign: 'center' }}>
-            <Text>Chưa có tài khoản? </Text>
-            <Link to="/register">Đăng ký ngay</Link>
+            <Text>Chua co tai khoan? </Text>
+            <Link to="/register">Dang ky ngay</Link>
           </div>
         </Form>
       </Card>

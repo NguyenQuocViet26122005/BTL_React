@@ -2,7 +2,7 @@
 
 export type NguoiDung = {
   maNguoiDung: number;
-  tenDangNhap: string;
+  tenDangNhap?: string;
   email: string;
   hoTen: string;
   maVaiTro: number;
@@ -12,8 +12,21 @@ export type NguoiDung = {
 };
 
 export type LoginRequest = {
-  tenDangNhap: string;
+  email: string;
   matKhau: string;
+};
+
+// Backend response types (PascalCase from C#)
+export type NguoiDungBackend = {
+  MaNguoiDung: number;
+  Email: string;
+  HoTen: string;
+  MaVaiTro: number;
+  TenVaiTro?: string;
+  SoDienThoai?: string;
+  NgayTao?: string;
+  DangHoatDong?: boolean;
+  AnhDaiDien?: string;
 };
 
 export type RegisterRequest = {

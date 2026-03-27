@@ -68,3 +68,8 @@ export const jobService = {
     return response.data;
   },
 };
+
+// Export individual functions for convenience
+export const getTinTuyenDungById = jobService.getJobById;
+export const getAllJobs = jobService.getAllJobs;
+export const filterJobs = jobService.filterJobs;
