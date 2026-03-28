@@ -33,13 +33,13 @@ const Header = () => {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: 'Thong tin ca nhan',
+      label: 'Thông tin cá nhân',
       onClick: () => navigate('/profile')
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: 'Cai dat',
+      label: 'Cài đặt',
       onClick: () => {}
     },
     {
@@ -48,7 +48,7 @@ const Header = () => {
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: 'Dang xuat',
+      label: 'Đăng xuất',
       onClick: handleLogout
     }
   ];
@@ -84,7 +84,7 @@ const Header = () => {
           fontWeight: 'bold',
           cursor: 'pointer'
         }} onClick={() => navigate('/')}>
-          VietHire
+          🇻🇳 VietHire
         </div>
         
         <Space size="middle">
@@ -93,14 +93,14 @@ const Header = () => {
             style={getButtonStyle('/')} 
             onClick={() => navigate('/')}
           >
-            Trang chu
+            Trang chủ
           </Button>
           <Button 
             type="link" 
             style={getButtonStyle('/jobs')} 
             onClick={() => navigate('/jobs')}
           >
-            Viec lam
+            Việc làm
           </Button>
           {user && user.maVaiTro === 2 && (
             <Button 
@@ -133,10 +133,10 @@ const Header = () => {
         ) : (
           <>
             <Button onClick={() => navigate('/login')}>
-              Dang nhap
+              Đăng nhập
             </Button>
             <Button type="primary" onClick={() => navigate('/register')}>
-              Dang ky
+              Đăng ký
             </Button>
           </>
         )}
