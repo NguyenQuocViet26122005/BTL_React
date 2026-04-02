@@ -5,6 +5,8 @@ using BTL_CNW.BLL.DonUngTuyen;
 using BTL_CNW.BLL.HoSoUngVien;
 using BTL_CNW.BLL.LichPhongVan;
 using BTL_CNW.BLL.DanhMuc;
+using BTL_CNW.BLL.Dashboard;
+using BTL_CNW.BLL.Profile;
 
 using BTL_CNW.DAL.Auth;
 using BTL_CNW.DAL.CongTy;
@@ -13,6 +15,8 @@ using BTL_CNW.DAL.DonUngTuyen;
 using BTL_CNW.DAL.HoSoUngVien;
 using BTL_CNW.DAL.LichPhongVan;
 using BTL_CNW.DAL.DanhMuc;
+using BTL_CNW.DAL.Dashboard;
+using BTL_CNW.DAL.Profile;
 
 using BTL_CNW.Models;
 using BTL_CNW.Services;
@@ -105,16 +109,26 @@ builder.Services.AddScoped<IDanhMucRepository, DanhMucRepository>();
 builder.Services.AddScoped<ILinhVucRepository, LinhVucRepository>();
 builder.Services.AddScoped<DanhMucService>();
 
+// Dashboard
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+// Profile
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+
 var app = builder.Build();
 
 // =====================
 // HTTP PIPELINE
 // =====================
-if (app.Environment.IsDevelopment())
+// Bật Swagger cho mọi môi trường để dễ test
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BTL_CNW API V1");
+    c.RoutePrefix = "swagger"; // Truy cập tại http://localhost:5000/swagger
+});
 
 app.UseHttpsRedirection();
 

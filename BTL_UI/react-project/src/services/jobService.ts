@@ -73,3 +73,9 @@ export const jobService = {
 export const getTinTuyenDungById = jobService.getJobById;
 export const getAllJobs = jobService.getAllJobs;
 export const filterJobs = jobService.filterJobs;
+
+// Additional exports for CompanyDashboard
+export const getTinTuyenDungByUser = jobService.getMyJobs;
+export const createTinTuyenDung = jobService.createJob;
+export const updateTinTuyenDung = jobService.updateJob;
+export const deleteTinTuyenDung = jobService.deleteJob;

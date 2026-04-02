@@ -1,5 +1,6 @@
 using BTL_CNW.DTO.TinTuyenDung;
 using BTL_CNW.DAL.TinTuyenDung;
+using BTL_CNW.DAL.CongTy;
 
 namespace BTL_CNW.BLL.TinTuyenDung
 {
@@ -19,12 +20,33 @@ namespace BTL_CNW.BLL.TinTuyenDung
     public class TinTuyenDungService : ITinTuyenDungService
     {
         private readonly ITinTuyenDungRepository _repo;
-        public TinTuyenDungService(ITinTuyenDungRepository repo) => _repo = repo;
+        private readonly ICongTyRepository _congTyRepo;
+        
+        public TinTuyenDungService(ITinTuyenDungRepository repo, ICongTyRepository congTyRepo)
+        {
+            _repo = repo;
+            _congTyRepo = congTyRepo;
+        }
 
         public (bool success, string message) TaoTin(TaoTinDto dto)
         {
             try
             {
+                // Validate người đăng
+                if (dto.MaNguoiDang <= 0)
+                    return (false, "Mã người đăng không hợp lệ");
+
+                // Kiểm tra công ty của người dùng
+                var congTy = _congTyRepo.LayTheoChuSoHuu(dto.MaNguoiDang);
+                if (congTy == null)
+                    return (false, "Bạn chưa có công ty. Vui lòng tạo công ty trước khi đăng tin tuyển dụng");
+
+                if (congTy.TrangThai != "Đã duyệt")
+                    return (false, "Công ty của bạn chưa được duyệt. Vui lòng chờ admin duyệt công ty");
+
+                // Tự động gán MaCongTy từ công ty của người dùng
+                dto.MaCongTy = congTy.MaCongTy;
+
                 // Validate input
                 if (string.IsNullOrWhiteSpace(dto.TieuDe))
                     return (false, "Tiêu đề không được để trống");
@@ -32,8 +54,16 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 if (string.IsNullOrWhiteSpace(dto.MoTa))
                     return (false, "Mô tả công việc không được để trống");
 
-                if (dto.MucLuong <= 0)
-                    return (false, "Mức lương phải lớn hơn 0");
+                // Validate mức lương
+                if (dto.MucLuongToiThieu.HasValue && dto.MucLuongToiThieu.Value <= 0)
+                    return (false, "Mức lương tối thiểu phải lớn hơn 0");
+
+                if (dto.MucLuongToiDa.HasValue && dto.MucLuongToiDa.Value <= 0)
+                    return (false, "Mức lương tối đa phải lớn hơn 0");
+
+                if (dto.MucLuongToiThieu.HasValue && dto.MucLuongToiDa.HasValue && 
+                    dto.MucLuongToiThieu.Value > dto.MucLuongToiDa.Value)
+                    return (false, "Mức lương tối thiểu không được lớn hơn mức lương tối đa");
 
                 if (dto.SoLuongTuyen <= 0)
                     return (false, "Số lượng tuyển phải lớn hơn 0");
@@ -129,8 +159,16 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 if (string.IsNullOrWhiteSpace(dto.MoTa))
                     return (false, "Mô tả công việc không được để trống");
 
-                if (dto.MucLuong <= 0)
-                    return (false, "Mức lương phải lớn hơn 0");
+                // Validate mức lương
+                if (dto.MucLuongToiThieu.HasValue && dto.MucLuongToiThieu.Value <= 0)
+                    return (false, "Mức lương tối thiểu phải lớn hơn 0");
+
+                if (dto.MucLuongToiDa.HasValue && dto.MucLuongToiDa.Value <= 0)
+                    return (false, "Mức lương tối đa phải lớn hơn 0");
+
+                if (dto.MucLuongToiThieu.HasValue && dto.MucLuongToiDa.HasValue && 
+                    dto.MucLuongToiThieu.Value > dto.MucLuongToiDa.Value)
+                    return (false, "Mức lương tối thiểu không được lớn hơn mức lương tối đa");
 
                 if (dto.SoLuongTuyen <= 0)
                     return (false, "Số lượng tuyển phải lớn hơn 0");

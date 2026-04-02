@@ -1,100 +1,128 @@
-﻿import { Card, Row, Col, Statistic, Button, Table, Tag } from 'antd';
+﻿import { Card, Row, Col, Statistic, Button, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, Select, message } from 'antd';
 import { PlusOutlined, FileTextOutlined, UserOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { getTinTuyenDungByUser, createTinTuyenDung } from '../../services/jobService';
+import type { TinTuyenDung } from '../../types';
+import dayjs from 'dayjs';
+
+const { TextArea } = Input;
 
 const CompanyDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [jobs, setJobs] = useState<TinTuyenDung[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
-      setUser(JSON.parse(userStr));
+      const userData = JSON.parse(userStr);
+      setUser(userData);
+      fetchJobs(userData.maNguoiDung);
     }
   }, []);
 
-  // Mock data for statistics
-  const stats = {
-    totalJobs: 12,
-    activeJobs: 8,
-    totalApplications: 45,
-    pendingApplications: 15
+  const fetchJobs = async (maNguoiDung: number) => {
+    try {
+      setLoading(true);
+      const response = await getTinTuyenDungByUser(maNguoiDung);
+      if (response.success && response.data) {
+        setJobs(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock data for recent jobs
-  const recentJobs = [
-    {
-      key: '1',
-      title: 'Senior Frontend Developer',
-      status: 'active',
-      applications: 12,
-      views: 156,
-      deadline: '2026-04-15'
-    },
-    {
-      key: '2',
-      title: 'Backend Developer',
-      status: 'active',
-      applications: 8,
-      views: 98,
-      deadline: '2026-04-20'
-    },
-    {
-      key: '3',
-      title: 'UI/UX Designer',
-      status: 'closed',
-      applications: 25,
-      views: 234,
-      deadline: '2026-03-25'
+  const handleCreateJob = async (values: any) => {
+    try {
+      const jobData = {
+        maCongTy: user.maCongTy || 1,
+        maNguoiDang: user.maNguoiDung,
+        tieuDe: values.tieuDe,
+        moTa: values.moTa,
+        yeuCau: values.yeuCau,
+        quyenLoi: values.quyenLoi,
+        hinhThucLamViec: values.hinhThucLamViec || 'ToanThoiGian',
+        kinhNghiem: values.kinhNghiem,
+        mucLuong: values.mucLuongToiThieu || values.mucLuongToiDa || 1000000,
+        mucLuongToiThieu: values.mucLuongToiThieu,
+        mucLuongToiDa: values.mucLuongToiDa,
+        diaDiem: values.diaDiem,
+        thanhPho: values.thanhPho,
+        hanNopHoSo: values.hanNopHoSo ? values.hanNopHoSo.format('YYYY-MM-DD') : null,
+        soLuongTuyen: values.soLuongTuyen || 1
+      };
+
+      const response = await createTinTuyenDung(jobData);
+      if (response.success) {
+        message.success('Đăng tin tuyển dụng thành công!');
+        setIsModalOpen(false);
+        form.resetFields();
+        fetchJobs(user.maNguoiDung);
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Đăng tin thất bại!');
     }
-  ];
+  };
+
+  const stats = {
+    totalJobs: jobs.length,
+    activeJobs: jobs.filter(j => j.trangThai === 'active' || j.trangThai === 'DaDuyet').length,
+    totalApplications: 0,
+    pendingApplications: 0
+  };
 
   const columns = [
     {
-      title: 'Tieu de',
-      dataIndex: 'title',
-      key: 'title',
+      title: 'Tiêu đề',
+      dataIndex: 'tieuDe',
+      key: 'tieuDe',
     },
     {
-      title: 'Trang thai',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color={status === 'active' ? 'green' : 'red'}>
-          {status === 'active' ? 'Dang tuyen' : 'Da dong'}
-        </Tag>
-      ),
+      title: 'Trạng thái',
+      dataIndex: 'trangThai',
+      key: 'trangThai',
+      render: (status: string) => {
+        const colorMap: any = {
+          'DaDuyet': 'green',
+          'ChoDuyet': 'orange',
+          'TuChoi': 'red',
+          'DaDong': 'default'
+        };
+        return <Tag color={colorMap[status] || 'default'}>{status}</Tag>;
+      },
     },
     {
-      title: 'Don ung tuyen',
-      dataIndex: 'applications',
-      key: 'applications',
+      title: 'Địa điểm',
+      dataIndex: 'diaDiem',
+      key: 'diaDiem',
     },
     {
-      title: 'Luot xem',
-      dataIndex: 'views',
-      key: 'views',
-    },
-    {
-      title: 'Han nop',
-      dataIndex: 'deadline',
-      key: 'deadline',
+      title: 'Hạn nộp',
+      dataIndex: 'hanNopHoSo',
+      key: 'hanNopHoSo',
+      render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : 'N/A',
     },
   ];
 
   return (
     <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <h1>Chao mung, {user?.hoTen || 'Nha tuyen dung'}</h1>
-        <p>Quan ly tin tuyen dung va ung vien cua ban</p>
+        <h1>Chào mừng, {user?.hoTen || 'Nhà tuyển dụng'}</h1>
+        <p>Quản lý tin tuyển dụng và ứng viên của bạn</p>
       </div>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tong tin tuyen dung"
+              title="Tổng tin tuyển dụng"
               value={stats.totalJobs}
               prefix={<FileTextOutlined />}
               valueStyle={{ color: '#3f8600' }}
@@ -104,7 +132,7 @@ const CompanyDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tin dang tuyen"
+              title="Tin đang tuyển"
               value={stats.activeJobs}
               prefix={<FileTextOutlined />}
               valueStyle={{ color: '#1890ff' }}
@@ -114,7 +142,7 @@ const CompanyDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tong don ung tuyen"
+              title="Tổng đơn ứng tuyển"
               value={stats.totalApplications}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#cf1322' }}
@@ -124,7 +152,7 @@ const CompanyDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Don cho duyet"
+              title="Đơn chờ duyệt"
               value={stats.pendingApplications}
               prefix={<EyeOutlined />}
               valueStyle={{ color: '#faad14' }}
@@ -134,15 +162,179 @@ const CompanyDashboard = () => {
       </Row>
 
       <Card
-        title="Tin tuyen dung gan day"
+        title="Tin tuyển dụng của bạn"
         extra={
-          <Button type="primary" icon={<PlusOutlined />}>
-            Dang tin moi
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />}
+            onClick={() => setIsModalOpen(true)}
+          >
+            Đăng tin mới
           </Button>
         }
       >
-        <Table columns={columns} dataSource={recentJobs} pagination={false} />
+        <Table 
+          columns={columns} 
+          dataSource={jobs} 
+          rowKey="maTin"
+          loading={loading}
+          pagination={{ pageSize: 10 }}
+        />
       </Card>
+
+      {/* Modal Đăng tin mới */}
+      <Modal
+        title="Đăng tin tuyển dụng mới"
+        open={isModalOpen}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        footer={null}
+        width={800}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleCreateJob}
+        >
+          <Form.Item
+            name="tieuDe"
+            label="Tiêu đề"
+            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+          >
+            <Input placeholder="VD: Senior Frontend Developer" />
+          </Form.Item>
+
+          <Form.Item
+            name="moTa"
+            label="Mô tả công việc"
+            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          >
+            <TextArea rows={4} placeholder="Mô tả chi tiết công việc..." />
+          </Form.Item>
+
+          <Form.Item
+            name="yeuCau"
+            label="Yêu cầu"
+          >
+            <TextArea rows={3} placeholder="Yêu cầu kinh nghiệm, kỹ năng..." />
+          </Form.Item>
+
+          <Form.Item
+            name="quyenLoi"
+            label="Quyền lợi"
+          >
+            <TextArea rows={3} placeholder="Chế độ phúc lợi, bảo hiểm..." />
+          </Form.Item>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="hinhThucLamViec"
+                label="Hình thức làm việc"
+              >
+                <Select placeholder="Chọn hình thức">
+                  <Select.Option value="ToanThoiGian">Toàn thời gian</Select.Option>
+                  <Select.Option value="BanThoiGian">Bán thời gian</Select.Option>
+                  <Select.Option value="ThucTap">Thực tập</Select.Option>
+                  <Select.Option value="FreeLance">Freelance</Select.Option>
+                  <Select.Option value="Remote">Remote</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="kinhNghiem"
+                label="Kinh nghiệm"
+              >
+                <Select placeholder="Chọn kinh nghiệm">
+                  <Select.Option value="MoiRa">Mới ra trường</Select.Option>
+                  <Select.Option value="Junior">Junior (1-2 năm)</Select.Option>
+                  <Select.Option value="Mid">Mid (2-5 năm)</Select.Option>
+                  <Select.Option value="Senior">Senior (5+ năm)</Select.Option>
+                  <Select.Option value="TruongNhom">Trưởng nhóm</Select.Option>
+                  <Select.Option value="QuanLy">Quản lý</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="mucLuongToiThieu"
+                label="Mức lương tối thiểu (VND)"
+              >
+                <InputNumber 
+                  style={{ width: '100%' }}
+                  min={0}
+                  step={1000000}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="mucLuongToiDa"
+                label="Mức lương tối đa (VND)"
+              >
+                <InputNumber 
+                  style={{ width: '100%' }}
+                  min={0}
+                  step={1000000}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="diaDiem"
+                label="Địa điểm"
+              >
+                <Input placeholder="VD: 123 Nguyễn Trãi, Thanh Xuân" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="thanhPho"
+                label="Thành phố"
+              >
+                <Input placeholder="VD: Hà Nội" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="hanNopHoSo"
+                label="Hạn nộp hồ sơ"
+              >
+                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="soLuongTuyen"
+                label="Số lượng tuyển"
+                initialValue={1}
+              >
+                <InputNumber style={{ width: '100%' }} min={1} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block size="large">
+              Đăng tin
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

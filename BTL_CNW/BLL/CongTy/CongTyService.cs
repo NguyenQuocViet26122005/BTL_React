@@ -27,11 +27,8 @@ namespace BTL_CNW.BLL.CongTy
                 if (string.IsNullOrWhiteSpace(dto.TenCongTy))
                     return (false, "Tên công ty không được để trống");
 
-                if (string.IsNullOrWhiteSpace(dto.Email))
-                    return (false, "Email không được để trống");
-
-                if (string.IsNullOrWhiteSpace(dto.SoDienThoai))
-                    return (false, "Số điện thoại không được để trống");
+                if (dto.MaChuSoHuu <= 0)
+                    return (false, "Mã chủ sở hữu không hợp lệ");
 
                 // Check if user already has a company
                 var existingCompany = _repo.LayTheoChuSoHuu(dto.MaChuSoHuu);
@@ -108,9 +105,6 @@ namespace BTL_CNW.BLL.CongTy
                 // Validate input
                 if (string.IsNullOrWhiteSpace(dto.TenCongTy))
                     return (false, "Tên công ty không được để trống");
-
-                if (string.IsNullOrWhiteSpace(dto.Email))
-                    return (false, "Email không được để trống");
 
                 // Check if company exists
                 var existingCompany = _repo.LayTheoId(maCongTy);

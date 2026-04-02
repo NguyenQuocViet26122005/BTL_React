@@ -1,6 +1,8 @@
 using BTL_CNW.BLL.CongTy;
 using BTL_CNW.DTO.CongTy;
 using BTL_CNW.Attributes;
+using BTL_CNW.Models;
+using BTL_CNW.DAL.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
@@ -55,6 +57,49 @@ namespace BTL_CNW.Controllers
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
                 : NotFound(new { success = false, message = result.message });
+        }
+
+        /// <summary>Lấy công ty theo email người dùng - Admin hoặc chính người dùng đó</summary>
+        [HttpGet("theo-email/{email}")]
+        [Authorize]
+        public IActionResult LayTheoChuSoHuuEmail(string email)
+        {
+            try
+            {
+                // Lấy thông tin người dùng từ email
+                var authRepo = HttpContext.RequestServices.GetService<IAuthRepository>();
+                if (authRepo == null)
+                    return StatusCode(500, new { success = false, message = "Lỗi hệ thống" });
+
+                // Tìm người dùng theo email (cần tạo method mới trong AuthRepository)
+                var nguoiDung = HttpContext.RequestServices
+                    .GetService<QuanLyViecLamContext>()?
+                    .NguoiDungs
+                    .FirstOrDefault(x => x.Email == email);
+
+                if (nguoiDung == null)
+                    return NotFound(new { success = false, message = "Không tìm thấy người dùng" });
+
+                var result = _service.LayTheoChuSoHuu(nguoiDung.MaNguoiDung);
+                
+                return Ok(new { 
+                    success = result.success, 
+                    message = result.message, 
+                    data = result.data,
+                    nguoiDung = new {
+                        maNguoiDung = nguoiDung.MaNguoiDung,
+                        hoTen = nguoiDung.HoTen,
+                        email = nguoiDung.Email
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = $"Lỗi hệ thống: {ex.Message}" 
+                });
+            }
         }
 
         /// <summary>Cập nhật thông tin công ty - Chỉ nhà tuyển dụng</summary>

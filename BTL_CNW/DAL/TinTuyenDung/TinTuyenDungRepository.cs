@@ -26,16 +26,17 @@ namespace BTL_CNW.DAL.TinTuyenDung
                     MoTa = dto.MoTa,
                     YeuCau = dto.YeuCau,
                     QuyenLoi = dto.QuyenLoi,
-                    HinhThucLamViec = dto.HinhThucLamViec,
+                    HinhThucLamViec = dto.HinhThucLamViec ?? "ToanThoiGian",
                     KinhNghiem = dto.KinhNghiem,
                     MucLuongToiThieu = dto.MucLuongToiThieu,
                     MucLuongToiDa = dto.MucLuongToiDa,
-                    DonViTien = dto.DonViTien,
+                    DonViTien = dto.DonViTien ?? "VND",
                     DiaDiem = dto.DiaDiem,
                     ThanhPho = dto.ThanhPho,
                     HanNopHoSo = dto.HanNopHoSo,
                     SoLuongTuyen = dto.SoLuongTuyen,
-                    TrangThai = "ChoXetDuyet"
+                    TrangThai = "ChoXetDuyet",
+                    LuotXem = 0
                 };
 
                 _context.TinTuyenDungs.Add(tinTuyenDung);
@@ -51,8 +52,11 @@ namespace BTL_CNW.DAL.TinTuyenDung
 
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
+                // Log lỗi để debug
+                Console.WriteLine($"Lỗi khi tạo tin: {ex.Message}");
+                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
                 return false;
             }
         }

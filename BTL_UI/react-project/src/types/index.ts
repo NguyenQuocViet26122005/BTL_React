@@ -116,3 +116,79 @@ export type ApiResponse<T> = {
   message: string;
   data?: T;
 };
+
+// Dashboard types
+export type DashboardStats = {
+  tongTinDang: number;
+  tinDangTuyen: number;
+  tinDaDong: number;
+  tinChoXetDuyet: number;
+  tongDonUngTuyen: number;
+  donMoi: number;
+  donDangXem: number;
+  donVaoDanhSach: number;
+  tongLuotXem: number;
+  lichPhongVanHomNay: number;
+  lichPhongVanTuanNay: number;
+};
+
+export type LichPhongVanSapToi = {
+  maLich: number;
+  maDon: number;
+  tenUngVien: string;
+  emailUngVien: string;
+  viTriUngTuyen: string;
+  vongPhongVan: number;
+  hinhThuc: string;
+  thoiGian: string;
+  thoiLuongPhut: number;
+  diaDiem?: string;
+  trangThai: string;
+};
+
+export type BieuDoLuotXem = {
+  ngay: string;
+  luotXem: number;
+};
+
+export type BieuDoDonUngTuyen = {
+  thang: string;
+  soDon: number;
+};
+
+// Profile types
+export type Profile = {
+  maNguoiDung: number;
+  hoTen: string;
+  email: string;
+  soDienThoai?: string;
+  anhDaiDien?: string;
+  dangHoatDong: boolean;
+  ngayTao: string;
+  maCongTy?: number;
+  tenCongTy?: string;
+  maSoThue?: string;
+  logo?: string;
+  website?: string;
+  maLinhVuc?: number;
+  tenLinhVuc?: string;
+  quyMo?: string;
+  diaChi?: string;
+  thanhPho?: string;
+  quocGia?: string;
+  moTa?: string;
+  daDuocDuyet?: boolean;
+  trangThaiCongTy?: string;
+};
+
+export type CapNhatProfile = {
+  hoTen: string;
+  soDienThoai?: string;
+  anhDaiDien?: string;
+};
+
+export type DoiMatKhau = {
+  matKhauCu: string;
+  matKhauMoi: string;
+  xacNhanMatKhau: string;
+};

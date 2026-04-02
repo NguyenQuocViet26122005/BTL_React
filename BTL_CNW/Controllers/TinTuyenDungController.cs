@@ -1,4 +1,5 @@
 using BTL_CNW.BLL.TinTuyenDung;
+using BTL_CNW.BLL.CongTy;
 using BTL_CNW.DTO.TinTuyenDung;
 using BTL_CNW.Attributes;
 using Microsoft.AspNetCore.Mvc;
@@ -88,6 +89,57 @@ namespace BTL_CNW.Controllers
             return result.success
                 ? Ok(new { success = true, message = result.message })
                 : BadRequest(new { success = false, message = result.message });
+        }
+
+        /// <summary>Kiểm tra trạng thái công ty trước khi đăng tin - Chỉ nhà tuyển dụng</summary>
+        [HttpGet("kiem-tra-cong-ty/{maNguoiDung:int}")]
+        [RoleAuthorize(UserRoles.NhaTuyenDung)]
+        public IActionResult KiemTraCongTy(int maNguoiDung)
+        {
+            try
+            {
+                // Lấy thông tin công ty
+                var congTyService = HttpContext.RequestServices.GetService<ICongTyService>();
+                if (congTyService == null)
+                    return StatusCode(500, new { success = false, message = "Lỗi hệ thống" });
+
+                var result = congTyService.LayTheoChuSoHuu(maNguoiDung);
+                
+                if (!result.success || result.data == null)
+                {
+                    return Ok(new { 
+                        success = false, 
+                        message = "Bạn chưa có công ty",
+                        canPost = false,
+                        needCreateCompany = true
+                    });
+                }
+
+                if (result.data.TrangThai != "Đã duyệt")
+                {
+                    return Ok(new { 
+                        success = false, 
+                        message = "Công ty của bạn chưa được duyệt",
+                        canPost = false,
+                        needApproval = true,
+                        company = result.data
+                    });
+                }
+
+                return Ok(new { 
+                    success = true, 
+                    message = "Bạn có thể đăng tin",
+                    canPost = true,
+                    company = result.data
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = $"Lỗi hệ thống: {ex.Message}" 
+                });
+            }
         }
 
         /// <summary>Cập nhật tin tuyển dụng - Chỉ nhà tuyển dụng</summary>
