@@ -1,10 +1,10 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
-import { Row, Col, Card, Input, Button, Typography, Tag, Space, Pagination, Spin, Radio, Checkbox, Select, Divider } from 'antd';
+import { Row, Col, Card, Input, Button, Typography, Tag, Space, Pagination, Spin, Radio, Checkbox, Divider } from 'antd';
 import { SearchOutlined, EnvironmentOutlined, DollarOutlined, ClockCircleOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { jobService } from '../../services/jobService';
 import filterService from '../../services/filterService';
-import type { DanhMucDto, LinhVucDto } from '../../services/filterService';
+import type { DanhMucDto } from '../../services/filterService';
 import dayjs from 'dayjs';
 
 const { Title, Text, Paragraph } = Typography;

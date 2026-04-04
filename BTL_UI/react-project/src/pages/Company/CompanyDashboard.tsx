@@ -1,19 +1,21 @@
-﻿import { Card, Row, Col, Statistic, Button, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, Select, message } from 'antd';
-import { PlusOutlined, FileTextOutlined, UserOutlined, EyeOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+﻿import { Card, Row, Col, Statistic, Button, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, Select, message, Space, Popconfirm } from 'antd';
+import { PlusOutlined, FileTextOutlined, UserOutlined, EyeOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { getTinTuyenDungByUser, createTinTuyenDung } from '../../services/jobService';
+import { getTinTuyenDungByUser, createTinTuyenDung, updateTinTuyenDung, deleteTinTuyenDung, getTinTuyenDungById } from '../../services/jobService';
 import type { TinTuyenDung } from '../../types';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
 
 const CompanyDashboard = () => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [jobs, setJobs] = useState<TinTuyenDung[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingJobId, setEditingJobId] = useState<number | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<TinTuyenDung | null>(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -39,6 +41,64 @@ const CompanyDashboard = () => {
     }
   };
 
+  const handleViewDetail = async (maTin: number) => {
+    try {
+      setLoading(true);
+      const response = await getTinTuyenDungById(maTin);
+      if (response.success && response.data) {
+        setSelectedJob(response.data);
+        setIsDetailModalOpen(true);
+      }
+    } catch (error) {
+      message.error('Khong the tai chi tiet tin tuyen dung!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = async (maTin: number) => {
+    try {
+      setLoading(true);
+      const response = await getTinTuyenDungById(maTin);
+      if (response.success && response.data) {
+        const job = response.data;
+        form.setFieldsValue({
+          tieuDe: job.tieuDe,
+          moTa: job.moTa,
+          yeuCau: job.yeuCau,
+          quyenLoi: job.quyenLoi,
+          hinhThucLamViec: job.hinhThucLamViec,
+          kinhNghiem: job.kinhNghiem,
+          mucLuongToiThieu: job.mucLuongToiThieu,
+          mucLuongToiDa: job.mucLuongToiDa,
+          diaDiem: job.diaDiem,
+          thanhPho: job.thanhPho,
+          hanNopHoSo: job.hanNopHoSo ? dayjs(job.hanNopHoSo) : null,
+          soLuongTuyen: job.soLuongTuyen
+        });
+        setEditingJobId(maTin);
+        setIsEditMode(true);
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      message.error('Khong the tai thong tin tin tuyen dung!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (maTin: number) => {
+    try {
+      const response = await deleteTinTuyenDung(maTin);
+      if (response.success) {
+        message.success('Xoa tin tuyen dung thanh cong!');
+        fetchJobs(user.maNguoiDung);
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Xoa tin that bai!');
+    }
+  };
+
   const handleCreateJob = async (values: any) => {
     try {
       const jobData = {
@@ -59,16 +119,35 @@ const CompanyDashboard = () => {
         soLuongTuyen: values.soLuongTuyen || 1
       };
 
-      const response = await createTinTuyenDung(jobData);
-      if (response.success) {
-        message.success('Đăng tin tuyển dụng thành công!');
-        setIsModalOpen(false);
-        form.resetFields();
-        fetchJobs(user.maNguoiDung);
+      if (isEditMode && editingJobId) {
+        const response = await updateTinTuyenDung(editingJobId, jobData);
+        if (response.success) {
+          message.success('Cap nhat tin tuyen dung thanh cong!');
+          setIsModalOpen(false);
+          setIsEditMode(false);
+          setEditingJobId(null);
+          form.resetFields();
+          fetchJobs(user.maNguoiDung);
+        }
+      } else {
+        const response = await createTinTuyenDung(jobData);
+        if (response.success) {
+          message.success('Dang tin tuyen dung thanh cong!');
+          setIsModalOpen(false);
+          form.resetFields();
+          fetchJobs(user.maNguoiDung);
+        }
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Đăng tin thất bại!');
+      message.error(error.response?.data?.message || (isEditMode ? 'Cap nhat tin that bai!' : 'Dang tin that bai!'));
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setIsEditMode(false);
+    setEditingJobId(null);
+    form.resetFields();
   };
 
   const stats = {
@@ -80,12 +159,12 @@ const CompanyDashboard = () => {
 
   const columns = [
     {
-      title: 'Tiêu đề',
+      title: 'Tieu de',
       dataIndex: 'tieuDe',
       key: 'tieuDe',
     },
     {
-      title: 'Trạng thái',
+      title: 'Trang thai',
       dataIndex: 'trangThai',
       key: 'trangThai',
       render: (status: string) => {
@@ -99,77 +178,110 @@ const CompanyDashboard = () => {
       },
     },
     {
-      title: 'Địa điểm',
+      title: 'Dia diem',
       dataIndex: 'diaDiem',
       key: 'diaDiem',
     },
     {
-      title: 'Hạn nộp',
+      title: 'Han nop',
       dataIndex: 'hanNopHoSo',
       key: 'hanNopHoSo',
       render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : 'N/A',
+    },
+    {
+      title: 'Thao tac',
+      key: 'action',
+      render: (_: any, record: TinTuyenDung) => (
+        <Space size="middle">
+          <Button 
+            type="link" 
+            icon={<InfoCircleOutlined />}
+            onClick={() => handleViewDetail(record.maTin)}
+          >
+            Chi tiet
+          </Button>
+          <Button 
+            type="link" 
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record.maTin)}
+          >
+            Sua
+          </Button>
+          <Popconfirm
+            title="Xoa tin tuyen dung"
+            description="Ban co chac chan muon xoa tin nay?"
+            onConfirm={() => handleDelete(record.maTin)}
+            okText="Xoa"
+            cancelText="Huy"
+          >
+            <Button 
+              type="link" 
+              danger
+              icon={<DeleteOutlined />}
+            >
+              Xoa
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
   return (
     <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <h1>Chào mừng, {user?.hoTen || 'Nhà tuyển dụng'}</h1>
-        <p>Quản lý tin tuyển dụng và ứng viên của bạn</p>
+        <h1>Chao mung, {user?.hoTen || 'Nha tuyen dung'}</h1>
+        <p>Quan ly tin tuyen dung va ung vien cua ban</p>
       </div>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tổng tin tuyển dụng"
+              title="Tong tin tuyen dung"
               value={stats.totalJobs}
               prefix={<FileTextOutlined />}
-              valueStyle={{ color: '#3f8600' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tin đang tuyển"
+              title="Tin dang tuyen"
               value={stats.activeJobs}
               prefix={<FileTextOutlined />}
-              valueStyle={{ color: '#1890ff' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tổng đơn ứng tuyển"
+              title="Tong don ung tuyen"
               value={stats.totalApplications}
               prefix={<UserOutlined />}
-              valueStyle={{ color: '#cf1322' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Đơn chờ duyệt"
+              title="Don cho duyet"
               value={stats.pendingApplications}
               prefix={<EyeOutlined />}
-              valueStyle={{ color: '#faad14' }}
             />
           </Card>
         </Col>
       </Row>
 
       <Card
-        title="Tin tuyển dụng của bạn"
+        title="Tin tuyen dung cua ban"
         extra={
           <Button 
             type="primary" 
             icon={<PlusOutlined />}
             onClick={() => setIsModalOpen(true)}
           >
-            Đăng tin mới
+            Dang tin moi
           </Button>
         }
       >
@@ -182,14 +294,10 @@ const CompanyDashboard = () => {
         />
       </Card>
 
-      {/* Modal Đăng tin mới */}
       <Modal
-        title="Đăng tin tuyển dụng mới"
+        title={isEditMode ? "Sua tin tuyen dung" : "Dang tin tuyen dung moi"}
         open={isModalOpen}
-        onCancel={() => {
-          setIsModalOpen(false);
-          form.resetFields();
-        }}
+        onCancel={handleCloseModal}
         footer={null}
         width={800}
       >
@@ -200,44 +308,44 @@ const CompanyDashboard = () => {
         >
           <Form.Item
             name="tieuDe"
-            label="Tiêu đề"
-            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+            label="Tieu de"
+            rules={[{ required: true, message: 'Vui long nhap tieu de!' }]}
           >
             <Input placeholder="VD: Senior Frontend Developer" />
           </Form.Item>
 
           <Form.Item
             name="moTa"
-            label="Mô tả công việc"
-            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+            label="Mo ta cong viec"
+            rules={[{ required: true, message: 'Vui long nhap mo ta!' }]}
           >
-            <TextArea rows={4} placeholder="Mô tả chi tiết công việc..." />
+            <TextArea rows={4} placeholder="Mo ta chi tiet cong viec..." />
           </Form.Item>
 
           <Form.Item
             name="yeuCau"
-            label="Yêu cầu"
+            label="Yeu cau"
           >
-            <TextArea rows={3} placeholder="Yêu cầu kinh nghiệm, kỹ năng..." />
+            <TextArea rows={3} placeholder="Yeu cau kinh nghiem, ky nang..." />
           </Form.Item>
 
           <Form.Item
             name="quyenLoi"
-            label="Quyền lợi"
+            label="Quyen loi"
           >
-            <TextArea rows={3} placeholder="Chế độ phúc lợi, bảo hiểm..." />
+            <TextArea rows={3} placeholder="Che do phuc loi, bao hiem..." />
           </Form.Item>
 
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="hinhThucLamViec"
-                label="Hình thức làm việc"
+                label="Hinh thuc lam viec"
               >
-                <Select placeholder="Chọn hình thức">
-                  <Select.Option value="ToanThoiGian">Toàn thời gian</Select.Option>
-                  <Select.Option value="BanThoiGian">Bán thời gian</Select.Option>
-                  <Select.Option value="ThucTap">Thực tập</Select.Option>
+                <Select placeholder="Chon hinh thuc">
+                  <Select.Option value="ToanThoiGian">Toan thoi gian</Select.Option>
+                  <Select.Option value="BanThoiGian">Ban thoi gian</Select.Option>
+                  <Select.Option value="ThucTap">Thuc tap</Select.Option>
                   <Select.Option value="FreeLance">Freelance</Select.Option>
                   <Select.Option value="Remote">Remote</Select.Option>
                 </Select>
@@ -246,15 +354,15 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="kinhNghiem"
-                label="Kinh nghiệm"
+                label="Kinh nghiem"
               >
-                <Select placeholder="Chọn kinh nghiệm">
-                  <Select.Option value="MoiRa">Mới ra trường</Select.Option>
-                  <Select.Option value="Junior">Junior (1-2 năm)</Select.Option>
-                  <Select.Option value="Mid">Mid (2-5 năm)</Select.Option>
-                  <Select.Option value="Senior">Senior (5+ năm)</Select.Option>
-                  <Select.Option value="TruongNhom">Trưởng nhóm</Select.Option>
-                  <Select.Option value="QuanLy">Quản lý</Select.Option>
+                <Select placeholder="Chon kinh nghiem">
+                  <Select.Option value="MoiRa">Moi ra truong</Select.Option>
+                  <Select.Option value="Junior">Junior (1-2 nam)</Select.Option>
+                  <Select.Option value="Mid">Mid (2-5 nam)</Select.Option>
+                  <Select.Option value="Senior">Senior (5+ nam)</Select.Option>
+                  <Select.Option value="TruongNhom">Truong nhom</Select.Option>
+                  <Select.Option value="QuanLy">Quan ly</Select.Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -264,7 +372,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="mucLuongToiThieu"
-                label="Mức lương tối thiểu (VND)"
+                label="Muc luong toi thieu (VND)"
               >
                 <InputNumber 
                   style={{ width: '100%' }}
@@ -277,7 +385,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="mucLuongToiDa"
-                label="Mức lương tối đa (VND)"
+                label="Muc luong toi da (VND)"
               >
                 <InputNumber 
                   style={{ width: '100%' }}
@@ -293,17 +401,17 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="diaDiem"
-                label="Địa điểm"
+                label="Dia diem"
               >
-                <Input placeholder="VD: 123 Nguyễn Trãi, Thanh Xuân" />
+                <Input placeholder="VD: 123 Nguyen Trai, Thanh Xuan" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="thanhPho"
-                label="Thành phố"
+                label="Thanh pho"
               >
-                <Input placeholder="VD: Hà Nội" />
+                <Input placeholder="VD: Ha Noi" />
               </Form.Item>
             </Col>
           </Row>
@@ -312,7 +420,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="hanNopHoSo"
-                label="Hạn nộp hồ sơ"
+                label="Han nop ho so"
               >
                 <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
               </Form.Item>
@@ -320,7 +428,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="soLuongTuyen"
-                label="Số lượng tuyển"
+                label="So luong tuyen"
                 initialValue={1}
               >
                 <InputNumber style={{ width: '100%' }} min={1} />
@@ -330,10 +438,43 @@ const CompanyDashboard = () => {
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block size="large">
-              Đăng tin
+              {isEditMode ? 'Cap nhat' : 'Dang tin'}
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Chi tiet tin tuyen dung"
+        open={isDetailModalOpen}
+        onCancel={() => setIsDetailModalOpen(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsDetailModalOpen(false)}>
+            Dong
+          </Button>
+        ]}
+        width={800}
+      >
+        {selectedJob && (
+          <div>
+            <h2>{selectedJob.tieuDe}</h2>
+            <p><strong>Trang thai:</strong> <Tag color={selectedJob.trangThai === 'DaDuyet' ? 'green' : 'orange'}>{selectedJob.trangThai}</Tag></p>
+            <p><strong>Hinh thuc:</strong> {selectedJob.hinhThucLamViec}</p>
+            <p><strong>Kinh nghiem:</strong> {selectedJob.kinhNghiem}</p>
+            <p><strong>Muc luong:</strong> {selectedJob.mucLuongToiThieu?.toLocaleString()} - {selectedJob.mucLuongToiDa?.toLocaleString()} VND</p>
+            <p><strong>Dia diem:</strong> {selectedJob.diaDiem}, {selectedJob.thanhPho}</p>
+            <p><strong>Han nop:</strong> {selectedJob.hanNopHoSo ? dayjs(selectedJob.hanNopHoSo).format('DD/MM/YYYY') : 'N/A'}</p>
+            <p><strong>So luong tuyen:</strong> {selectedJob.soLuongTuyen}</p>
+            <p><strong>Luot xem:</strong> {selectedJob.luotXem || 0}</p>
+            <hr />
+            <h3>Mo ta cong viec</h3>
+            <p>{selectedJob.moTa}</p>
+            <h3>Yeu cau</h3>
+            <p>{selectedJob.yeuCau}</p>
+            <h3>Quyen loi</h3>
+            <p>{selectedJob.quyenLoi}</p>
+          </div>
+        )}
       </Modal>
     </div>
   );

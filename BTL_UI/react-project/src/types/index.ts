@@ -46,12 +46,16 @@ export type TinTuyenDung = {
   moTa: string;
   yeuCau: string;
   quyenLoi: string;
+  hinhThucLamViec?: string;
+  kinhNghiem?: string;
   mucLuong?: number;
   mucLuongToiThieu?: number;
   mucLuongToiDa?: number;
   diaDiem: string;
   thanhPho: string;
   hanNopHoSo: string;
+  soLuongTuyen?: number;
+  luotXem?: number;
   trangThai: string;
   ngayDang?: string;
 };
