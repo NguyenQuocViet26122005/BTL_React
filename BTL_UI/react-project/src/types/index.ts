@@ -59,14 +59,21 @@ export type TinTuyenDung = {
 export type CongTy = {
   maCongTy: number;
   tenCongTy: string;
-  email: string;
+  email?: string;
   soDienThoai?: string;
+  maSoThue?: string;
+  logo?: string;
   website?: string;
+  maLinhVuc?: number;
   quyMo?: string;
   diaChi?: string;
   thanhPho?: string;
+  quocGia?: string;
   moTa?: string;
+  daDuocDuyet?: boolean;
   trangThai?: string;
+  ngayTao?: string;
+  ngayCapNhat?: string;
 };
 
 export type HoSoUngVien = {
