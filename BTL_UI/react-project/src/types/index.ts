@@ -1,4 +1,4 @@
-// Types cho toàn bộ ứng dụng
+﻿// Types cho toàn bộ ứng dụng
 
 export type NguoiDung = {
   maNguoiDung: number;

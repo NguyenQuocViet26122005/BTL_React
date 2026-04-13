@@ -10,6 +10,8 @@ import JobDetailPage from './pages/Jobs/JobDetailPage';
 import JobFilterPage from './pages/Jobs/JobFilterPage';
 import CompanyDashboard from './pages/Company/CompanyDashboard';
 import ProfilePage from './pages/Profile/ProfilePage';
+import MyApplicationsPage from './pages/Candidate/MyApplicationsPage';
+import CandidateResumePage from './pages/Candidate/CandidateResumePage';
 import TestConnection from './pages/TestConnection';
 import './App.css';
 

@@ -9,7 +9,7 @@ export const applicationService = {
   },
 
   // Nộp đơn ứng tuyển
-  submitApplication: async (data: { maTin: number; thuGioiThieu?: string }) => {
+  submitApplication: async (data: { maTin: number; maUngVien: number; maFileCV: number; thuGioiThieu?: string }) => {
     const response = await api.post<ApiResponse<void>>('/don-ung-tuyen', data);
     return response.data;
   },

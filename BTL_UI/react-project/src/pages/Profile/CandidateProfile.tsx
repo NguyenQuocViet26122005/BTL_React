@@ -1,8 +1,9 @@
-﻿import { Card, Avatar, Typography, Row, Col, Empty, Button, Divider } from 'antd';
+import { Card, Avatar, Typography, Row, Col, Empty, Button, Divider } from 'antd';
 import { UserOutlined, FileTextOutlined, HeartOutlined, MailOutlined, LockOutlined, CreditCardOutlined, LogoutOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NguoiDung } from '../../types';
+import { CandidateResumeContent } from '../Candidate/CandidateResumePage';
 
 const { Title, Text } = Typography;
 
@@ -79,7 +80,20 @@ const CandidateProfile = () => {
     },
   ];
 
+  const handleMenuClick = (key: string) => {
+    setActiveMenu(key);
+  };
+
   const renderContent = () => {
+    if (activeMenu === 'my-cv') {
+      return (
+        <div style={{ padding: '24px' }}>
+          <Title level={4} style={{ marginBottom: 24 }}>CV của tôi</Title>
+          <CandidateResumeContent />
+        </div>
+      );
+    }
+
     if (activeMenu === 'applied-jobs') {
       return (
         <div style={{ textAlign: 'center', padding: '80px 20px' }}>
