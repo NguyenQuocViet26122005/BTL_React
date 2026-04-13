@@ -1,0 +1,60 @@
+﻿import { Card, Row, Col, Statistic, Button, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, Select, message, Space, Popconfirm, List } from 'antd';
+import { PlusOutlined, FileTextOutlined, UserOutlined, EyeOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CalendarOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
+import { getTinTuyenDungByUser, createTinTuyenDung, updateTinTuyenDung, deleteTinTuyenDung, getTinTuyenDungById } from '../../services/jobService';
+import { getDashboardStats, getLichPhongVanSapToi } from '../../services/dashboardService';
+import type { TinTuyenDung, DashboardStats, LichPhongVanSapToi } from '../../types';
+import dayjs from 'dayjs';
+
+const { TextArea } = Input;
+
+const CompanyDashboard = () => {
+  const [user, setUser] = useState<any>(null);
+  const [jobs, setJobs] = useState<TinTuyenDung[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [upcomingInterviews, setUpcomingInterviews] = useState<LichPhongVanSapToi[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingJobId, setEditingJobId] = useState<number | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<TinTuyenDung | null>(null);
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      setUser(userData);
+      fetchDashboardData(userData.maNguoiDung);
+    }
+  }, []);
+
+  const fetchDashboardData = async (maNguoiDung: number) => {
+    try {
+      setLoading(true);
+      const [jobsRes, statsRes, interviewsRes] = await Promise.all([
+        getTinTuyenDungByUser(maNguoiDung),
+        getDashboardStats(maNguoiDung),
+        getLichPhongVanSapToi(maNguoiDung, 7)
+      ]);
+      
+      if (jobsRes.success && jobsRes.data) {
+        setJobs(jobsRes.data);
+      }
+      if (statsRes.success && statsRes.data) {
+        setStats(statsRes.data);
+      }
+      if (interviewsRes.success && interviewsRes.data) {
+        setUpcomingInterviews(interviewsRes.data);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchJobs = async (maNguoiDung: number) => {
+    fetchDashboardData(maNguoiDung);
+  };

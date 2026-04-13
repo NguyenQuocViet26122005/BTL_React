@@ -10,6 +10,7 @@ import JobDetailPage from './pages/Jobs/JobDetailPage';
 import JobFilterPage from './pages/Jobs/JobFilterPage';
 import CompanyDashboard from './pages/Company/CompanyDashboard';
 import ProfilePage from './pages/Profile/ProfilePage';
+import RecruiterProfile from './pages/Profile/RecruiterProfile';
 import MyApplicationsPage from './pages/Candidate/MyApplicationsPage';
 import CandidateResumePage from './pages/Candidate/CandidateResumePage';
 import TestConnection from './pages/TestConnection';
@@ -32,6 +33,7 @@ function App() {
             <Route path="jobs/filter" element={<JobFilterPage />} />
             <Route path="company/dashboard" element={<CompanyDashboard />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="recruiter/profile" element={<RecruiterProfile />} />
             <Route path="test-connection" element={<TestConnection />} />
           </Route>
         </Routes>
