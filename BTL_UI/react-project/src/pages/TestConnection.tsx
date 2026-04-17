@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Card, Button, Space, Typography, Alert, Spin, Descriptions, Tag } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, ApiOutlined } from '@ant-design/icons';
 import { jobService } from '../services/jobService';
@@ -42,7 +42,7 @@ const TestConnection = () => {
 
     try {
       const response = await authService.login({
-        tenDangNhap: 'admin',
+        email: 'admin@test.com',
         matKhau: 'admin123'
       });
       setResult({
@@ -180,3 +180,4 @@ const TestConnection = () => {
 };
 
 export default TestConnection;
+

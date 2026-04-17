@@ -30,9 +30,6 @@ namespace BTL_CNW.BLL.HoSoUngVien
                 if (string.IsNullOrWhiteSpace(dto.SoDienThoai))
                     return (false, "Số điện thoại không được để trống");
 
-                if (dto.NgaySinh == default)
-                    return (false, "Ngày sinh không hợp lệ");
-
                 // Check if user already has a profile
                 var existingProfile = _repo.LayTheoNguoiDung(dto.MaNguoiDung);
                 if (existingProfile != null)
@@ -91,16 +88,6 @@ namespace BTL_CNW.BLL.HoSoUngVien
             {
                 if (maHoSo <= 0)
                     return (false, "Mã hồ sơ không hợp lệ");
-
-                // Validate input
-                if (string.IsNullOrWhiteSpace(dto.HoTen))
-                    return (false, "Họ tên không được để trống");
-
-                if (string.IsNullOrWhiteSpace(dto.Email))
-                    return (false, "Email không được để trống");
-
-                if (string.IsNullOrWhiteSpace(dto.SoDienThoai))
-                    return (false, "Số điện thoại không được để trống");
 
                 // Check if profile exists
                 var existingProfile = _repo.LayTheoId(maHoSo);

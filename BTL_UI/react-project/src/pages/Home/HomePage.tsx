@@ -71,7 +71,7 @@ const HomePage = () => {
                   title="Việc làm"
                   value={1234}
                   prefix={<RocketOutlined style={{ color: '#1890ff' }} />}
-                  styles={{ value: { color: '#1890ff' } }}
+                  
                 />
               </Card>
             </Col>
@@ -89,7 +89,7 @@ const HomePage = () => {
                   title="Công ty"
                   value={567}
                   prefix={<TeamOutlined style={{ color: '#52c41a' }} />}
-                  styles={{ value: { color: '#52c41a' } }}
+                  
                 />
               </Card>
             </Col>
@@ -107,7 +107,7 @@ const HomePage = () => {
                   title="Ứng viên"
                   value={8901}
                   prefix={<SafetyOutlined style={{ color: '#faad14' }} />}
-                  styles={{ value: { color: '#faad14' } }}
+                  
                 />
               </Card>
             </Col>
@@ -125,7 +125,7 @@ const HomePage = () => {
                   title="Tuyển dụng thành công"
                   value={2345}
                   prefix={<TrophyOutlined style={{ color: '#f5222d' }} />}
-                  styles={{ value: { color: '#f5222d' } }}
+                  
                 />
               </Card>
             </Col>

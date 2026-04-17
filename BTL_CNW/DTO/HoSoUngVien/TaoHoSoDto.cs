@@ -1,4 +1,4 @@
-namespace BTL_CNW.DTO.HoSoUngVien
+﻿namespace BTL_CNW.DTO.HoSoUngVien
 {
     public class TaoHoSoDto
     {
@@ -8,7 +8,7 @@ namespace BTL_CNW.DTO.HoSoUngVien
         public string SoDienThoai { get; set; } = null!;
         public string? TieuDe { get; set; }
         public string? TomTat { get; set; }
-        public DateOnly NgaySinh { get; set; }
+        public DateOnly? NgaySinh { get; set; }
         public string? GioiTinh { get; set; }
         public string? DiaChi { get; set; }
         public string? ThanhPho { get; set; }

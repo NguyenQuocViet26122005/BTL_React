@@ -33,7 +33,7 @@ function App() {
             <Route path="jobs/filter" element={<JobFilterPage />} />
             <Route path="company/dashboard" element={<CompanyDashboard />} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route path="recruiter/profile" element={<RecruiterProfile />} />
+            <Route path="recruiter/profile" element={<RecruiterProfile />} /><Route path="candidate/applications" element={<MyApplicationsPage />} />`n            <Route path="candidate/resume" element={<CandidateResumePage />} />
             <Route path="test-connection" element={<TestConnection />} />
           </Route>
         </Routes>

@@ -30,7 +30,9 @@ namespace BTL_CNW.DAL.HoSoUngVien
                     GitHub = dto.GitHub,
                     Portfolio = dto.Portfolio,
                     TinhTrangTimViec = dto.TinhTrangTimViec,
-                    MucLuongMongMuon = dto.MucLuongMongMuon
+                    MucLuongMongMuon = dto.MucLuongMongMuon,
+                    NgayTao = DateTime.Now,
+                    NgayCapNhat = DateTime.Now
                 };
 
                 _context.HoSoUngViens.Add(hoSo);
@@ -118,11 +120,14 @@ namespace BTL_CNW.DAL.HoSoUngVien
                 hoSo.Portfolio = dto.Portfolio;
                 hoSo.TinhTrangTimViec = dto.TinhTrangTimViec;
                 hoSo.MucLuongMongMuon = dto.MucLuongMongMuon;
+                hoSo.NgayCapNhat = DateTime.Now;
 
-                return _context.SaveChanges() > 0;
+                _context.SaveChanges();
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error updating resume: {ex.Message}");
                 return false;
             }
         }

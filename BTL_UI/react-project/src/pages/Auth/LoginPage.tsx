@@ -32,9 +32,9 @@ const LoginPage = () => {
         message.success('Dang nhap thanh cong!');
         
         // Redirect based on role
-        if (user.maVaiTro === 1) {
+        if (user.MaVaiTro === 1) {
           navigate('/admin/dashboard');
-        } else if (user.maVaiTro === 2) {
+        } else if (user.MaVaiTro === 2) {
           navigate('/company/dashboard');
         } else {
           navigate('/');

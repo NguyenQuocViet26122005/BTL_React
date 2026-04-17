@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Form, Input, Button, DatePicker, Select, InputNumber, message, Spin, Row, Col, Divider } from 'antd';
 import { SaveOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -101,12 +101,18 @@ export const CandidateResumeContent = () => {
         await resumeService.updateResume(resumeId, resumeData);
         message.success('Cap nhat ho so thanh cong!');
       } else {
-        await resumeService.createResume(resumeData);
+        console.log('Creating resume with data:', resumeData);
+        const response = await resumeService.createResume(resumeData);
+        console.log('Create resume response:', response);
         message.success('Tao ho so thanh cong!');
         fetchResume(user.maNguoiDung);
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Co loi xay ra!');
+      console.error('Error creating resume:', error);
+      console.error('Error response:', error.response?.data);
+      const errorMsg = error.response?.data?.message || error.message || 'Co loi xay ra!';
+      message.error(errorMsg);
+      alert('LOI CHI TIET: ' + JSON.stringify(error.response?.data, null, 2));
     } finally {
       setSubmitting(false);
     }
