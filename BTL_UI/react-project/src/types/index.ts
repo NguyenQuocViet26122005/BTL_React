@@ -105,8 +105,12 @@ export type DonUngTuyen = {
   tieuDeTin?: string;
   maUngVien: number;
   tenUngVien?: string;
+  emailUngVien?: string;
+  maFileCV?: number;
+  tenFileCV?: string;
   trangThai: string;
   ngayNop: string;
+  ngayCapNhat?: string;
   thuGioiThieu?: string;
 };
 

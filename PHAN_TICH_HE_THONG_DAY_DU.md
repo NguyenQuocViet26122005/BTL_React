@@ -1,438 +1,449 @@
-# PHÂN TÍCH HỆ THỐNG QUẢN LÝ VIỆC LÀM - ĐẦY ĐỦ
+# PHÂN TÍCH HỆ THỐNG QUẢN LÝ VIỆC LÀM - TRẠNG THÁI HIỆN TẠI
 
-## 📊 TỔNG QUAN HỆ THỐNG
+## 1. TỔNG QUAN HỆ THỐNG
 
-### Công nghệ sử dụng:
-- **Backend:** ASP.NET Core 8.0, Entity Framework Core, SQL Server
-- **Frontend:** React 18, TypeScript, Ant Design, Vite
-- **Authentication:** JWT Bearer Token
-- **Architecture:** 3-tier (DAL - BLL - Controllers)
+### Backend: ASP.NET Core 8.0
+- Port: https://localhost:44314
+- Database: SQL Server
+- Authentication: JWT Bearer Token
+- Architecture: 3-layer (Controller → Service → Repository)
 
----
-
-## 🗄️ PHÂN TÍCH CƠ SỞ DỮ LIỆU
-
-### 1. BẢNG CHÍNH (13 bảng)
-
-#### 1.1. Quản lý người dùng & vai trò
-- ✅ **VaiTro** (3 vai trò: QuanTriVien, NhaTuyenDung, UngVien)
-- ✅ **NguoiDung** (Thông tin người dùng, email, mật khẩu, vai trò)
-
-#### 1.2. Quản lý công ty
-- ✅ **LinhVuc** (Lĩnh vực kinh doanh)
-- ✅ **CongTy** (Thông tin công ty, logo, website, quy mô)
-
-#### 1.3. Quản lý tin tuyển dụng
-- ✅ **DanhMucViecLam** (Danh mục công việc)
-- ✅ **TinTuyenDung** (Tin tuyển dụng với đầy đủ thông tin)
-- ✅ **KyNang** (Danh sách kỹ năng)
-- ✅ **KyNangTin** (Kỹ năng yêu cầu cho mỗi tin)
-
-#### 1.4. Quản lý hồ sơ ứng viên
-- ✅ **HoSoUngVien** (Profile ứng viên)
-- ✅ **KyNangUngVien** (Kỹ năng của ứng viên)
-- ✅ **HocVan** (Học vấn)
-- ✅ **KinhNghiemLamViec** (Kinh nghiệm làm việc)
-- ✅ **FileCV** (File CV upload)
-
-#### 1.5. Quản lý ứng tuyển & phỏng vấn
-- ✅ **DonUngTuyen** (Đơn ứng tuyển)
-- ✅ **LichPhongVan** (Lịch phỏng vấn)
-- ✅ **KetQuaPhongVan** (Kết quả phỏng vấn)
-
-#### 1.6. Quản lý offer & thông báo
-- ✅ **ThuMoiLamViec** (Thư mời làm việc - Offer letter)
-- ✅ **ThongBao** (Hệ thống thông báo)
-
-#### 1.7. Tính năng bổ sung
-- ✅ **GoiYViecLam** (Gợi ý việc làm dựa trên kỹ năng)
-- ✅ **TinDaLuu** (Lưu tin yêu thích)
-- ✅ **NhatKyXemCV** (Nhật ký xem CV - bảo mật)
-
-### 2. VIEW & TRIGGER
-- ✅ **v_ThongKeTinCongTy** - Thống kê tin theo công ty
-- ✅ **v_PipelineTuyenDung** - Pipeline tuyển dụng chi tiết
-- ✅ **Triggers** - Tự động cập nhật NgayCapNhat
-
-### 3. FULL-TEXT SEARCH
-- ✅ Đã cấu hình Full-text search cho TinTuyenDung (TieuDe, MoTa)
+### Frontend: React + TypeScript + Vite
+- Port: http://localhost:5173
+- UI Framework: Ant Design
+- State Management: React Hooks
+- Routing: React Router v6
 
 ---
 
-## 🔧 PHÂN TÍCH BACKEND (API)
+## 2. CÁC CHỨC NĂNG ĐÃ CÓ
 
-### ✅ ĐÃ CÓ - Controllers (9 controllers)
+### 2.1. XÁC THỰC & PHÂN QUYỀN ✅
+**Backend:**
+- `AuthController`: Đăng ký, đăng nhập, JWT token
+- `RoleAuthorizeAttribute`: Phân quyền theo vai trò
+- 3 vai trò: Admin (1), Nhà tuyển dụng (2), Ứng viên (3)
 
-#### 1. AuthController ✅
-```
-POST /api/auth/dang-ky - Đăng ký tài khoản
-POST /api/auth/dang-nhap - Đăng nhập
-```
+**Frontend:**
+- `LoginPage`: Đăng nhập
+- `RegisterPage`: Đăng ký
+- `authService`: API calls cho auth
+- LocalStorage: Lưu token và user info
 
-#### 2. TinTuyenDungController ✅
-```
-GET    /api/tin-tuyen-dung - Danh sách tin (public)
-GET    /api/tin-tuyen-dung/{id} - Chi tiết tin
-GET    /api/tin-tuyen-dung/cua-toi/{maNguoiDung} - Tin của tôi
-POST   /api/tin-tuyen-dung - Tạo tin mới
-PUT    /api/tin-tuyen-dung/{id} - Cập nhật tin
-DELETE /api/tin-tuyen-dung/{id} - Xóa tin
-```
-
-#### 3. DonUngTuyenController ✅
-```
-POST /api/don-ung-tuyen - Nộp đơn
-GET  /api/don-ung-tuyen/cua-toi/{maUngVien} - Đơn của ứng viên
-GET  /api/don-ung-tuyen/theo-tin/{maTin} - Đơn theo tin
-GET  /api/don-ung-tuyen/{maDon} - Chi tiết đơn
-PUT  /api/don-ung-tuyen/{maDon}/trang-thai - Cập nhật trạng thái
-```
-
-#### 4. HoSoUngVienController ✅
-```
-POST /api/ho-so - Tạo hồ sơ
-GET  /api/ho-so/cua-toi/{maNguoiDung} - Hồ sơ của tôi
-GET  /api/ho-so/{maHoSo} - Chi tiết hồ sơ
-PUT  /api/ho-so/{maHoSo} - Cập nhật hồ sơ
-```
-
-#### 5. LichPhongVanController ✅
-```
-POST /api/lich-phong-van - Tạo lịch
-GET  /api/lich-phong-van/theo-don/{maDon} - Lịch theo đơn
-GET  /api/lich-phong-van/{maLich} - Chi tiết lịch
-PUT  /api/lich-phong-van/{maLich}/trang-thai - Cập nhật trạng thái
-```
-
-#### 6. DashboardController ✅
-```
-GET /api/dashboard/thong-ke/{maNguoiDung} - Thống kê tổng quan
-GET /api/dashboard/lich-phong-van-sap-toi/{maNguoiDung} - Lịch sắp tới
-GET /api/dashboard/bieu-do-luot-xem/{maNguoiDung} - Biểu đồ lượt xem
-GET /api/dashboard/bieu-do-don-ung-tuyen/{maNguoiDung} - Biểu đồ đơn
-```
-
-#### 7. ProfileController ✅
-```
-GET  /api/profile/{maNguoiDung} - Lấy profile
-PUT  /api/profile/{maNguoiDung} - Cập nhật profile
-POST /api/profile/{maNguoiDung}/doi-mat-khau - Đổi mật khẩu
-```
-
-#### 8. CongTyController ✅
-```
-POST /api/cong-ty - Tạo công ty
-GET  /api/cong-ty - Lấy tất cả (admin)
-GET  /api/cong-ty/{id} - Chi tiết công ty
-GET  /api/cong-ty/email/{email} - Công ty theo email
-PUT  /api/cong-ty/{id} - Cập nhật công ty
-```
-
-#### 9. DanhMucController ✅
-```
-GET /api/danhmuc - Lấy danh mục việc làm
-```
-
-### ❌ THIẾU - Backend APIs
-
-#### 1. KetQuaPhongVanController ❌
-```
-POST /api/ket-qua-phong-van - Tạo kết quả phỏng vấn
-GET  /api/ket-qua-phong-van/{maLich} - Lấy kết quả theo lịch
-PUT  /api/ket-qua-phong-van/{maKetQua} - Cập nhật kết quả
-```
-
-#### 2. ThuMoiLamViecController ❌
-```
-POST /api/thu-moi - Gửi thư mời
-GET  /api/thu-moi/{maDon} - Lấy thư mời theo đơn
-PUT  /api/thu-moi/{maThuMoi}/phan-hoi - Phản hồi thư mời
-```
-
-#### 3. ThongBaoController ❌
-```
-GET  /api/thong-bao/{maNguoiDung} - Lấy thông báo
-PUT  /api/thong-bao/{maThongBao}/da-doc - Đánh dấu đã đọc
-POST /api/thong-bao - Tạo thông báo mới
-```
-
-#### 4. TinDaLuuController ❌
-```
-POST   /api/tin-da-luu - Lưu tin
-DELETE /api/tin-da-luu/{maNguoiDung}/{maTin} - Bỏ lưu tin
-GET    /api/tin-da-luu/{maNguoiDung} - Danh sách tin đã lưu
-```
-
-#### 5. GoiYViecLamController ❌
-```
-GET /api/goi-y/{maHoSo} - Gợi ý việc làm cho ứng viên
-POST /api/goi-y/tinh-toan - Tính toán gợi ý dựa trên kỹ năng
-```
-
-#### 6. HocVanController ❌
-```
-POST /api/hoc-van - Thêm học vấn
-PUT  /api/hoc-van/{maHocVan} - Cập nhật học vấn
-DELETE /api/hoc-van/{maHocVan} - Xóa học vấn
-GET  /api/hoc-van/ho-so/{maHoSo} - Lấy học vấn theo hồ sơ
-```
-
-#### 7. KinhNghiemController ❌
-```
-POST /api/kinh-nghiem - Thêm kinh nghiệm
-PUT  /api/kinh-nghiem/{maKinhNghiem} - Cập nhật
-DELETE /api/kinh-nghiem/{maKinhNghiem} - Xóa
-GET  /api/kinh-nghiem/ho-so/{maHoSo} - Lấy theo hồ sơ
-```
-
-#### 8. FileCVController ❌
-```
-POST /api/file-cv/upload - Upload CV
-GET  /api/file-cv/{maFileCV} - Download CV
-DELETE /api/file-cv/{maFileCV} - Xóa CV
-GET  /api/file-cv/ho-so/{maHoSo} - Danh sách CV theo hồ sơ
-```
+**Trạng thái:** HOÀN THÀNH ✅
 
 ---
 
-## 💻 PHÂN TÍCH FRONTEND
+### 2.2. QUẢN LÝ TIN TUYỂN DỤNG ✅
+**Backend:**
+- `TinTuyenDungController`: CRUD tin tuyển dụng
+- `TinTuyenDungService`: Business logic
+- `TinTuyenDungRepository`: Database access
 
-### ✅ ĐÃ CÓ - Pages (11 pages)
+**Frontend:**
+- `HomePage`: Trang chủ hiển thị tin nổi bật
+- `JobListPage`: Danh sách tất cả tin tuyển dụng
+- `JobDetailPage`: Chi tiết tin tuyển dụng
+- `JobFilterPage`: Lọc tin theo tiêu chí
+- `jobService`: API calls
 
-#### 1. Authentication ✅
-- LoginPage.tsx
-- RegisterPage.tsx
-
-#### 2. Job Pages ✅
-- JobListPage.tsx - Danh sách việc làm
-- JobDetailPage.tsx - Chi tiết việc làm
-- JobFilterPage.tsx - Lọc việc làm
-
-#### 3. Company Pages ✅
-- CompanyDashboard.tsx - Dashboard với CRUD tin tuyển dụng
-
-#### 4. Profile Pages ✅
-- ProfilePage.tsx - Profile chung
-- CandidateProfile.tsx - Profile ứng viên
-- RecruiterProfile.tsx - Profile nhà tuyển dụng
-
-#### 5. Candidate Pages ✅
-- MyApplicationsPage.tsx - Đơn ứng tuyển của tôi
-- CandidateResumePage.tsx - Hồ sơ ứng viên (form đầy đủ)
-
-#### 6. Other ✅
-- HomePage.tsx
-- TestConnection.tsx
-
-### ✅ ĐÃ CÓ - Services (9 services)
-
-1. ✅ api.ts - Axios instance
-2. ✅ authService.ts - Đăng nhập, đăng ký
-3. ✅ jobService.ts - CRUD tin tuyển dụng
-4. ✅ applicationService.ts - Quản lý đơn ứng tuyển
-5. ✅ resumeService.ts - Quản lý hồ sơ
-6. ✅ dashboardService.ts - Dashboard stats
-7. ✅ profileService.ts - Profile nhà tuyển dụng
-8. ✅ companyService.ts - Quản lý công ty
-9. ✅ filterService.ts - Lọc việc làm
-
-### ❌ THIẾU - Frontend Pages
-
-#### 1. ApplicationManagement.tsx ❌ (QUAN TRỌNG NHẤT)
-**Mục đích:** Nhà tuyển dụng quản lý đơn ứng tuyển
-**Chức năng:**
-- Xem danh sách đơn ứng tuyển theo tin
-- Lọc theo trạng thái (Mới, Đang xem, Vào danh sách, Từ chối)
-- Xem chi tiết đơn và CV
-- Cập nhật trạng thái đơn
-- Tạo lịch phỏng vấn cho ứng viên
-- Gửi thư mời làm việc
-
-#### 2. InterviewSchedule.tsx ❌
-**Mục đích:** Nhà tuyển dụng quản lý lịch phỏng vấn
-**Chức năng:**
-- Xem danh sách lịch phỏng vấn
-- Tạo lịch phỏng vấn mới
-- Cập nhật thông tin lịch
-- Cập nhật trạng thái (Đã lên, Hoàn thành, Hủy bỏ, Vắng mặt)
-- Nhập kết quả phỏng vấn
-
-#### 3. MyInterviews.tsx ❌
-**Mục đích:** Ứng viên xem lịch phỏng vấn của mình
-**Chức năng:**
-- Xem danh sách lịch phỏng vấn
-- Xem chi tiết lịch (thời gian, địa điểm, link meeting)
-- Xem kết quả phỏng vấn (nếu có)
-
-#### 4. CompanyProfile.tsx ❌
-**Mục đích:** Nhà tuyển dụng quản lý thông tin công ty
-**Chức năng:**
-- Tạo công ty mới (nếu chưa có)
-- Cập nhật thông tin công ty
-- Upload logo
-- Quản lý lĩnh vực, quy mô
-
-#### 5. SavedJobs.tsx ❌
-**Mục đích:** Ứng viên xem tin đã lưu
-**Chức năng:**
-- Danh sách tin đã lưu
-- Bỏ lưu tin
-- Ứng tuyển nhanh
-
-#### 6. JobRecommendations.tsx ❌
-**Mục đích:** Gợi ý việc làm cho ứng viên
-**Chức năng:**
-- Hiển thị việc làm phù hợp dựa trên kỹ năng
-- Điểm phù hợp
-- Lý do gợi ý
-
-#### 7. Notifications.tsx ❌
-**Mục đích:** Quản lý thông báo
-**Chức năng:**
-- Danh sách thông báo
-- Đánh dấu đã đọc
-- Xóa thông báo
-
-#### 8. OfferManagement.tsx ❌
-**Mục đích:** Quản lý thư mời làm việc
-**Chức năng:**
-- Nhà tuyển dụng: Gửi offer, xem trạng thái
-- Ứng viên: Xem offer, chấp nhận/từ chối
-
-### ❌ THIẾU - Frontend Services
-
-1. ❌ interviewService.ts - Quản lý lịch phỏng vấn
-2. ❌ notificationService.ts - Quản lý thông báo
-3. ❌ savedJobService.ts - Tin đã lưu
-4. ❌ recommendationService.ts - Gợi ý việc làm
-5. ❌ offerService.ts - Thư mời làm việc
-6. ❌ educationService.ts - Học vấn
-7. ❌ experienceService.ts - Kinh nghiệm
-8. ❌ fileCVService.ts - Upload/Download CV
+**Trạng thái:** HOÀN THÀNH ✅
 
 ---
 
-## 🎯 SO SÁNH CSDL VỚI CODE
+### 2.3. QUẢN LÝ CÔNG TY ✅
+**Backend:**
+- `CongTyController`: CRUD công ty
+- `CongTyService`: Business logic
+- `CongTyRepository`: Database access
 
-### ✅ ĐÃ TRIỂN KHAI (Có trong CSDL và Code)
+**Frontend:**
+- `CompanyDashboard`: Dashboard nhà tuyển dụng
+- `companyService`: API calls
 
-| Bảng CSDL | Backend API | Frontend Page | Frontend Service | Trạng thái |
-|-----------|-------------|---------------|------------------|------------|
-| VaiTro | ✅ | ✅ | ✅ | Hoàn thành |
-| NguoiDung | ✅ | ✅ | ✅ | Hoàn thành |
-| CongTy | ✅ | ⚠️ | ✅ | Thiếu page quản lý |
-| LinhVuc | ✅ | ✅ | ✅ | Hoàn thành |
-| TinTuyenDung | ✅ | ✅ | ✅ | Hoàn thành |
-| DonUngTuyen | ✅ | ⚠️ | ✅ | Thiếu page quản lý cho NTD |
-| HoSoUngVien | ✅ | ✅ | ✅ | Hoàn thành |
-| LichPhongVan | ✅ | ❌ | ❌ | Chưa có frontend |
-| DanhMucViecLam | ✅ | ✅ | ✅ | Hoàn thành |
-| Dashboard | ✅ | ⚠️ | ✅ | Chưa tích hợp API |
-| Profile | ✅ | ✅ | ✅ | Hoàn thành |
-
-### ❌ CHƯA TRIỂN KHAI (Có trong CSDL nhưng chưa có Code)
-
-| Bảng CSDL | Backend API | Frontend | Mức độ quan trọng |
-|-----------|-------------|----------|-------------------|
-| KetQuaPhongVan | ❌ | ❌ | Cao |
-| ThuMoiLamViec | ❌ | ❌ | Cao |
-| ThongBao | ❌ | ❌ | Trung bình |
-| GoiYViecLam | ❌ | ❌ | Trung bình |
-| TinDaLuu | ❌ | ❌ | Thấp |
-| NhatKyXemCV | ❌ | ❌ | Thấp |
-| HocVan | ❌ | ❌ | Trung bình |
-| KinhNghiemLamViec | ❌ | ❌ | Trung bình |
-| FileCV | ❌ | ❌ | Cao |
-| KyNang | ⚠️ | ⚠️ | Trung bình |
-| KyNangTin | ❌ | ❌ | Thấp |
-| KyNangUngVien | ❌ | ❌ | Thấp |
+**Trạng thái:** HOÀN THÀNH ✅
 
 ---
 
-## 📊 THỐNG KÊ TỔNG QUAN
+### 2.4. QUẢN LÝ HỒ SƠ ỨNG VIÊN ✅
+**Backend:**
+- `HoSoUngVienController`: CRUD hồ sơ
+- `HoSoUngVienService`: Business logic (đã fix validation)
+- `HoSoUngVienRepository`: Database access (đã fix NgayTao, NgayCapNhat)
 
-### Backend API
-- ✅ Đã có: 9/17 controllers (53%)
-- ❌ Còn thiếu: 8 controllers (47%)
+**Frontend:**
+- `CandidateProfile`: Trang profile ứng viên với 3 tabs
+  - Tab 1: Thông tin cá nhân (tieuDe, tomTat, ngaySinh, gioiTinh, diaChi, thanhPho, linkedIn, gitHub, portfolio, tinhTrangTimViec, mucLuongMongMuon)
+  - Tab 2: Đơn ứng tuyển
+  - Tab 3: Bảo mật (đổi mật khẩu)
+- `CandidateResumePage`: Tạo/cập nhật hồ sơ
+- `resumeService`: API calls
 
-### Frontend Pages
-- ✅ Đã có: 11/19 pages (58%)
-- ❌ Còn thiếu: 8 pages (42%)
-
-### Frontend Services
-- ✅ Đã có: 9/17 services (53%)
-- ❌ Còn thiếu: 8 services (47%)
-
-### Tính năng theo CSDL
-- ✅ Hoàn thành: 11/23 bảng (48%)
-- ⚠️ Một phần: 4/23 bảng (17%)
-- ❌ Chưa làm: 8/23 bảng (35%)
+**Trạng thái:** HOÀN THÀNH ✅ (vừa fix xong)
 
 ---
 
-## 🚀 KẾ HOẠCH HOÀN THIỆN
+### 2.5. QUẢN LÝ ĐƠN ỨNG TUYỂN ✅
+**Backend:**
+- `DonUngTuyenController`: CRUD đơn ứng tuyển
+- `DonUngTuyenService`: Business logic
+- `DonUngTuyenRepository`: Database access
 
-### GIAI ĐOẠN 1: CẤP THIẾT (1-2 tuần)
-1. ✅ Sửa 10 lỗi TypeScript
-2. ❌ ApplicationManagement page + service
-3. ❌ InterviewSchedule page + interviewService
-4. ❌ MyInterviews page
-5. ❌ FileCVController + fileCVService (Upload/Download CV)
+**Frontend:**
+- `MyApplicationsPage`: Danh sách đơn đã nộp
+- `applicationService`: API calls
+- Hiển thị trong CandidateProfile tab 2
 
-### GIAI ĐOẠN 2: QUAN TRỌNG (2-3 tuần)
-6. ❌ KetQuaPhongVanController + page
-7. ❌ ThuMoiLamViecController + OfferManagement page
-8. ❌ CompanyProfile page
-9. ❌ HocVanController + ExperienceController
-10. ❌ Tích hợp Dashboard API vào CompanyDashboard
-
-### GIAI ĐOẠN 3: BỔ SUNG (3-4 tuần)
-11. ❌ ThongBaoController + Notifications page
-12. ❌ TinDaLuuController + SavedJobs page
-13. ❌ GoiYViecLamController + JobRecommendations page
-14. ❌ KyNang management (CRUD kỹ năng)
+**Trạng thái:** HOÀN THÀNH ✅
 
 ---
 
-## 💡 ĐIỂM MẠNH CỦA HỆ THỐNG
+### 2.6. QUẢN LÝ LỊCH PHỎNG VẤN ✅
+**Backend:**
+- `LichPhongVanController`: CRUD lịch phỏng vấn
+- `LichPhongVanService`: Business logic
+- `LichPhongVanRepository`: Database access
 
-1. ✅ CSDL thiết kế rất tốt, đầy đủ, chuẩn hóa
-2. ✅ Backend architecture 3-tier rõ ràng
-3. ✅ JWT authentication đã hoàn chỉnh
-4. ✅ Full-text search đã cấu hình
-5. ✅ Triggers tự động cập nhật timestamp
-6. ✅ Views báo cáo đã có sẵn
-7. ✅ Frontend component structure tốt
-8. ✅ TypeScript type safety
-9. ✅ Ant Design UI đẹp và nhất quán
+**Frontend:**
+- Chưa có UI
 
-## ⚠️ ĐIỂM CẦN CẢI THIỆN
-
-1. ❌ Thiếu nhiều API controllers quan trọng
-2. ❌ Thiếu trang quản lý đơn ứng tuyển cho NTD
-3. ❌ Chưa có upload/download CV
-4. ❌ Chưa có quản lý lịch phỏng vấn
-5. ❌ Chưa có hệ thống thông báo
-6. ❌ Chưa tích hợp dashboard API
-7. ⚠️ Một số lỗi TypeScript nhỏ
+**Trạng thái:** Backend HOÀN THÀNH ✅ | Frontend THIẾU ❌
 
 ---
 
-## 🎓 KẾT LUẬN
+### 2.7. DASHBOARD & THỐNG KÊ ✅
+**Backend:**
+- `DashboardController`: Thống kê cho nhà tuyển dụng
+- `DashboardService`: Business logic
+- `DashboardRepository`: Database access
 
-Hệ thống của bạn đã hoàn thành **khoảng 50-55%** so với thiết kế CSDL ban đầu.
+**Frontend:**
+- `CompanyDashboard`: Dashboard cơ bản
+- `dashboardService`: API calls
 
-**Những gì đã có:**
-- ✅ Core features: Auth, Job posting, Application, Resume
-- ✅ CSDL thiết kế xuất sắc
-- ✅ Backend architecture tốt
-- ✅ Frontend UI đẹp
+**Trạng thái:** HOÀN THÀNH ✅
 
-**Những gì cần làm tiếp:**
-- ❌ Quản lý đơn ứng tuyển cho nhà tuyển dụng (QUAN TRỌNG NHẤT)
-- ❌ Quản lý lịch phỏng vấn
-- ❌ Upload/Download CV
-- ❌ Thư mời làm việc (Offer)
-- ❌ Hệ thống thông báo
+---
 
-Nếu tập trung làm **GIAI ĐOẠN 1** (các tính năng cấp thiết), hệ thống sẽ đạt **75-80%** hoàn thiện và có thể demo/sử dụng được!
+### 2.8. DANH MỤC & LĨNH VỰC ✅
+**Backend:**
+- `DanhMucController`: Lấy danh mục việc làm, lĩnh vực
+- `DanhMucService`: Business logic
+- `DanhMucRepository`: Database access
+
+**Frontend:**
+- `filterService`: API calls cho filter
+
+**Trạng thái:** HOÀN THÀNH ✅
+
+---
+
+### 2.9. PROFILE NGƯỜI DÙNG ✅
+**Backend:**
+- `ProfileController`: Xem/cập nhật profile, đổi mật khẩu
+- `ProfileService`: Business logic
+- `ProfileRepository`: Database access
+
+**Frontend:**
+- `ProfilePage`: Router dựa trên vai trò
+- `RecruiterProfile`: Profile nhà tuyển dụng
+- `CandidateProfile`: Profile ứng viên
+- `profileService`: API calls
+
+**Trạng thái:** HOÀN THÀNH ✅
+
+---
+
+## 3. CÁC CHỨC NĂNG THIẾU
+
+### 3.1. UPLOAD CV (FILE PDF/DOCX) ❌
+**Database Model:** `FileCv` đã có
+- MaFileCv, MaHoSo, TenFile, DuongDanFile, KichThuoc, LoaiFile, LaMacDinh, NgayTai
+
+**Backend:** THIẾU
+- Controller để upload file
+- Service xử lý file storage
+- Repository lưu metadata
+
+**Frontend:** THIẾU
+- UI upload CV trong CandidateResumePage
+- Hiển thị danh sách CV đã upload
+- Download/xóa CV
+
+**Ưu tiên:** CAO 🔴
+
+---
+
+### 3.2. QUẢN LÝ HỌC VẤN ❌
+**Database Model:** `HocVan` đã có
+- MaHocVan, MaHoSo, TenTruong, BangCap, ChuyenNganh, TuNam, DenNam, MoTa
+
+**Backend:** THIẾU
+- Controller CRUD học vấn
+- Service & Repository
+
+**Frontend:** THIẾU
+- UI thêm/sửa/xóa học vấn trong CandidateProfile
+- Hiển thị danh sách học vấn
+
+**Ưu tiên:** TRUNG BÌNH 🟡
+
+---
+
+### 3.3. QUẢN LÝ KINH NGHIỆM LÀM VIỆC ❌
+**Database Model:** `KinhNghiemLamViec` đã có
+- MaKinhNghiem, MaHoSo, CongTy, ViTri, TuThang, DenThang, MoTaCongViec, DangLamViec
+
+**Backend:** THIẾU
+- Controller CRUD kinh nghiệm
+- Service & Repository
+
+**Frontend:** THIẾU
+- UI thêm/sửa/xóa kinh nghiệm trong CandidateProfile
+- Hiển thị timeline kinh nghiệm
+
+**Ưu tiên:** TRUNG BÌNH 🟡
+
+---
+
+### 3.4. QUẢN LÝ KỸ NĂNG ❌
+**Database Model:** 
+- `KyNang`: Danh sách kỹ năng (MaKyNang, TenKyNang)
+- `KyNangUngVien`: Kỹ năng của ứng viên (MaHoSo, MaKyNang, CapDo)
+
+**Backend:** THIẾU
+- Controller CRUD kỹ năng
+- Service & Repository
+
+**Frontend:** THIẾU
+- UI chọn kỹ năng và đánh giá cấp độ
+- Hiển thị kỹ năng dạng tags/badges
+
+**Ưu tiên:** TRUNG BÌNH 🟡
+
+---
+
+### 3.5. LỊCH PHỎNG VẤN (UI) ❌
+**Backend:** ĐÃ CÓ ✅
+**Frontend:** THIẾU
+- UI xem lịch phỏng vấn cho ứng viên
+- UI tạo/quản lý lịch phỏng vấn cho nhà tuyển dụng
+- Calendar view
+- Thông báo lịch phỏng vấn
+
+**Ưu tiên:** CAO 🔴
+
+---
+
+### 3.6. KẾT QUẢ PHỎNG VẤN ❌
+**Database Model:** `KetQuaPhongVan` đã có
+- MaKetQua, MaLich, NhanXet, DiemDanhGia, KetQua, NgayCapNhat
+
+**Backend:** THIẾU
+- Controller CRUD kết quả phỏng vấn
+- Service & Repository
+
+**Frontend:** THIẾU
+- UI nhập kết quả phỏng vấn (nhà tuyển dụng)
+- UI xem kết quả (ứng viên)
+
+**Ưu tiên:** THẤP 🟢
+
+---
+
+### 3.7. THÔNG BÁO ❌
+**Database Model:** `ThongBao` đã có
+- MaThongBao, MaNguoiDung, TieuDe, NoiDung, LoaiThongBao, DaDoc, NgayTao
+
+**Backend:** THIẾU
+- Controller CRUD thông báo
+- Service & Repository
+- Real-time notification (SignalR?)
+
+**Frontend:** THIẾU
+- Bell icon với số lượng thông báo chưa đọc
+- Dropdown hiển thị thông báo
+- Trang danh sách thông báo
+
+**Ưu tiên:** TRUNG BÌNH 🟡
+
+---
+
+### 3.8. LƯU TIN TUYỂN DỤNG ❌
+**Database Model:** `TinDaLuu` đã có
+- MaTinDaLuu, MaNguoiDung, MaTin, NgayLuu
+
+**Backend:** THIẾU
+- Controller lưu/bỏ lưu tin
+- Service & Repository
+
+**Frontend:** THIẾU
+- Nút "Lưu tin" trong JobDetailPage
+- Trang "Tin đã lưu"
+
+**Ưu tiên:** THẤP 🟢
+
+---
+
+### 3.9. GỢI Ý VIỆC LÀM ❌
+**Database Model:** `GoiYviecLam` đã có
+- MaGoiY, MaHoSo, MaTin, DiemPhuHop, NgayGoiY
+
+**Backend:** THIẾU
+- Algorithm gợi ý dựa trên hồ sơ
+- Controller lấy gợi ý
+- Service & Repository
+
+**Frontend:** THIẾU
+- Section "Việc làm phù hợp" trong HomePage
+- Trang "Gợi ý cho bạn"
+
+**Ưu tiên:** THẤP 🟢
+
+---
+
+### 3.10. THƯ MỜI LÀM VIỆC ❌
+**Database Model:** `ThuMoiLamViec` đã có
+- MaThuMoi, MaCongTy, MaUngVien, TieuDe, NoiDung, TrangThai, NgayGui
+
+**Backend:** THIẾU
+- Controller gửi/quản lý thư mời
+- Service & Repository
+
+**Frontend:** THIẾU
+- UI gửi thư mời (nhà tuyển dụng)
+- UI xem thư mời (ứng viên)
+
+**Ưu tiên:** THẤP 🟢
+
+---
+
+### 3.11. NHẬT KÝ XEM CV ❌
+**Database Model:** `NhatKyXemCv` đã có
+- MaNhatKy, MaFileCv, MaCongTy, NgayXem
+
+**Backend:** THIẾU
+- Tracking khi nhà tuyển dụng xem CV
+- Controller lấy lịch sử xem
+
+**Frontend:** THIẾU
+- Hiển thị "Ai đã xem CV của bạn"
+
+**Ưu tiên:** THẤP 🟢
+
+---
+
+### 3.12. PIPELINE TUYỂN DỤNG ❌
+**Database Model:** `VPipelineTuyenDung` (View) đã có
+
+**Backend:** ĐÃ CÓ (View)
+**Frontend:** THIẾU
+- Kanban board hiển thị pipeline
+- Drag & drop để chuyển trạng thái đơn
+
+**Ưu tiên:** TRUNG BÌNH 🟡
+
+---
+
+## 4. LỖI CẦN FIX
+
+### 4.1. Cập nhật hồ sơ ứng viên ⚠️
+**Vấn đề:** Backend validation yêu cầu hoTen, email, soDienThoai nhưng frontend không có
+**Giải pháp:** Đã fix - bỏ validation trong `HoSoUngVienService.CapNhat()`
+**Trạng thái:** CHỜ RESTART BACKEND
+
+### 4.2. Warning useForm ⚠️
+**Vấn đề:** "Instance created by useForm is not connected to any Form element"
+**Giải pháp:** Không ảnh hưởng chức năng, có thể bỏ qua
+**Trạng thái:** KHÔNG QUAN TRỌNG
+
+---
+
+## 5. ƯU TIÊN PHÁT TRIỂN
+
+### Giai đoạn 1 (CAO - Cần làm ngay) 🔴
+1. **Upload CV** - Ứng viên cần upload CV để ứng tuyển
+2. **UI Lịch phỏng vấn** - Nhà tuyển dụng cần quản lý lịch phỏng vấn
+
+### Giai đoạn 2 (TRUNG BÌNH) 🟡
+3. **Học vấn** - Bổ sung thông tin hồ sơ
+4. **Kinh nghiệm** - Bổ sung thông tin hồ sơ
+5. **Kỹ năng** - Bổ sung thông tin hồ sơ
+6. **Thông báo** - Cải thiện UX
+7. **Pipeline tuyển dụng** - Quản lý đơn ứng tuyển tốt hơn
+
+### Giai đoạn 3 (THẤP) 🟢
+8. **Lưu tin** - Nice to have
+9. **Gợi ý việc làm** - Nice to have
+10. **Thư mời làm việc** - Nice to have
+11. **Kết quả phỏng vấn** - Nice to have
+12. **Nhật ký xem CV** - Nice to have
+
+---
+
+## 6. KIẾN TRÚC HỆ THỐNG
+
+### Database Tables (23 tables)
+✅ NguoiDung, VaiTro
+✅ CongTy, LinhVuc
+✅ TinTuyenDung, DanhMucViecLam
+✅ HoSoUngVien, DonUngTuyen
+✅ LichPhongVan
+❌ FileCv (chưa có API)
+❌ HocVan (chưa có API)
+❌ KinhNghiemLamViec (chưa có API)
+❌ KyNang, KyNangUngVien (chưa có API)
+❌ KetQuaPhongVan (chưa có API)
+❌ ThongBao (chưa có API)
+❌ TinDaLuu (chưa có API)
+❌ GoiYviecLam (chưa có API)
+❌ ThuMoiLamViec (chưa có API)
+❌ NhatKyXemCv (chưa có API)
+
+### Backend Controllers (9 controllers)
+✅ AuthController
+✅ CongTyController
+✅ DanhMucController
+✅ DashboardController
+✅ DonUngTuyenController
+✅ HoSoUngVienController
+✅ LichPhongVanController
+✅ ProfileController
+✅ TinTuyenDungController
+
+### Frontend Pages (13 pages)
+✅ LoginPage, RegisterPage
+✅ HomePage
+✅ JobListPage, JobDetailPage, JobFilterPage
+✅ CompanyDashboard
+✅ ProfilePage, RecruiterProfile, CandidateProfile
+✅ MyApplicationsPage
+✅ CandidateResumePage
+✅ TestConnection
+
+---
+
+## 7. KẾT LUẬN
+
+### Đã hoàn thành:
+- Xác thực & phân quyền
+- Quản lý tin tuyển dụng (CRUD đầy đủ)
+- Quản lý công ty
+- Quản lý hồ sơ ứng viên (thông tin cơ bản)
+- Quản lý đơn ứng tuyển
+- Dashboard thống kê
+- Profile người dùng
+
+### Còn thiếu:
+- Upload CV (QUAN TRỌNG)
+- UI lịch phỏng vấn (QUAN TRỌNG)
+- Học vấn, kinh nghiệm, kỹ năng
+- Thông báo
+- Các tính năng phụ (lưu tin, gợi ý, thư mời, v.v.)
+
+### Tỷ lệ hoàn thành:
+- Backend: ~60% (9/15 controllers)
+- Frontend: ~55% (13/24 pages dự kiến)
+- Tổng thể: ~57%
+
+**Hệ thống đã có đủ chức năng cơ bản để vận hành, nhưng cần bổ sung upload CV và UI lịch phỏng vấn để hoàn thiện.**
