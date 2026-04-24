@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, DatePicker, Select, InputNumber, message, Tag, Space } from 'antd';
-import { PlusOutlined, CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { PlusOutlined, CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, FormOutlined } from '@ant-design/icons';
 import { interviewService } from '../../services/interviewService';
 import type { LichPhongVan, TaoLichDto } from '../../services/interviewService';
 import { applicationService } from '../../services/applicationService';
+import { interviewResultService } from '../../services/interviewResultService';
+import type { TaoKetQuaDto } from '../../services/interviewResultService';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
@@ -13,7 +15,10 @@ const InterviewSchedulePage = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [resultModalVisible, setResultModalVisible] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState<LichPhongVan | null>(null);
   const [form] = Form.useForm();
+  const [resultForm] = Form.useForm();
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -97,6 +102,36 @@ const InterviewSchedulePage = () => {
     }
   };
 
+  const handleOpenResultModal = (interview: LichPhongVan) => {
+    setSelectedInterview(interview);
+    setResultModalVisible(true);
+  };
+
+  const handleSubmitResult = async (values: any) => {
+    if (!selectedInterview) return;
+    setLoading(true);
+    try {
+      const data: TaoKetQuaDto = {
+        maLich: selectedInterview.maLich,
+        diemTongQuat: values.diemTongQuat,
+        diemKyThuat: values.diemKyThuat,
+        diemKyNangMem: values.diemKyNangMem,
+        ketQua: values.ketQua,
+        nhanXet: values.nhanXet
+      };
+      await interviewResultService.create(data);
+      message.success('Nhap ket qua phong van thanh cong');
+      setResultModalVisible(false);
+      resultForm.resetFields();
+      setSelectedInterview(null);
+      if (user) loadApplications(user.maNguoiDung);
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Nhap ket qua that bai');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     const colors: any = {
       'ChuaPhongVan': 'blue',
@@ -116,6 +151,7 @@ const InterviewSchedulePage = () => {
     };
     return texts[status] || status;
   };
+
   const columns = [
     {
       title: 'Ung vien',
@@ -188,6 +224,16 @@ const InterviewSchedulePage = () => {
               </Button>
             </>
           )}
+          {record.trangThai === 'DaPhongVan' && (
+            <Button 
+              size="small" 
+              type="primary" 
+              icon={<FormOutlined />}
+              onClick={() => handleOpenResultModal(record)}
+            >
+              Nhap ket qua
+            </Button>
+          )}
         </Space>
       )
     }
@@ -216,6 +262,79 @@ const InterviewSchedulePage = () => {
           pagination={{ pageSize: 10 }}
         />
       </Card>
+
+      <Modal
+        title="Nhap ket qua phong van"
+        open={resultModalVisible}
+        onCancel={() => {
+          setResultModalVisible(false);
+          resultForm.resetFields();
+          setSelectedInterview(null);
+        }}
+        footer={null}
+        width={600}
+      >
+        <Form form={resultForm} layout="vertical" onFinish={handleSubmitResult}>
+          {selectedInterview && (
+            <div style={{ marginBottom: 16, padding: 12, background: '#f5f5f5', borderRadius: 4 }}>
+              <div><strong>Ung vien:</strong> {selectedInterview.tenUngVien}</div>
+              <div><strong>Vi tri:</strong> {selectedInterview.viTriUngTuyen}</div>
+              <div><strong>Thoi gian:</strong> {dayjs(selectedInterview.thoiGian).format('DD/MM/YYYY HH:mm')}</div>
+            </div>
+          )}
+
+          <Form.Item
+            name="diemTongQuat"
+            label="Diem tong quat (0-100)"
+            rules={[{ required: true, message: 'Vui long nhap diem tong quat' }]}
+          >
+            <InputNumber min={0} max={100} style={{ width: '100%' }} placeholder="Nhap diem tong quat" />
+          </Form.Item>
+
+          <Form.Item
+            name="diemKyThuat"
+            label="Diem ky thuat (0-100)"
+            rules={[{ required: true, message: 'Vui long nhap diem ky thuat' }]}
+          >
+            <InputNumber min={0} max={100} style={{ width: '100%' }} placeholder="Nhap diem ky thuat" />
+          </Form.Item>
+
+          <Form.Item
+            name="diemKyNangMem"
+            label="Diem ky nang mem (0-100)"
+            rules={[{ required: true, message: 'Vui long nhap diem ky nang mem' }]}
+          >
+            <InputNumber min={0} max={100} style={{ width: '100%' }} placeholder="Nhap diem ky nang mem" />
+          </Form.Item>
+
+          <Form.Item
+            name="ketQua"
+            label="Ket qua"
+            rules={[{ required: true, message: 'Vui long chon ket qua' }]}
+          >
+            <Select placeholder="Chon ket qua">
+              <Select.Option value="Dat">Dat</Select.Option>
+              <Select.Option value="KhongDat">Khong dat</Select.Option>
+              <Select.Option value="CanXemXet">Can xem xet</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="nhanXet" label="Nhan xet">
+            <TextArea rows={4} placeholder="Nhap nhan xet ve ung vien..." />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+              <Button onClick={() => { setResultModalVisible(false); resultForm.resetFields(); setSelectedInterview(null); }}>
+                Huy
+              </Button>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Luu ket qua
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
 
       <Modal
         title="Tao lich phong van"

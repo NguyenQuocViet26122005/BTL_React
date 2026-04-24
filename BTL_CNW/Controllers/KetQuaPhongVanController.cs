@@ -41,7 +41,7 @@ namespace BTL_CNW.Controllers
 
         /// <summary>Lay ket qua cua ung vien - Ung vien</summary>
         [HttpGet("ung-vien/{maUngVien}")]
-        [RoleAuthorize("3")] // Ung vien
+        [RoleAuthorize("UngVien")] // Ung vien
         public IActionResult LayTheoUngVien(int maUngVien)
         {
             var result = _service.LayTheoUngVien(maUngVien);
@@ -50,7 +50,7 @@ namespace BTL_CNW.Controllers
 
         /// <summary>Tao ket qua phong van - Nha tuyen dung</summary>
         [HttpPost]
-        [RoleAuthorize("2")] // Nha tuyen dung
+        [RoleAuthorize("NhaTuyenDung")] // Nha tuyen dung
         public IActionResult Tao([FromBody] TaoKetQuaDto dto)
         {
             var maNguoiDanhGia = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
@@ -62,7 +62,7 @@ namespace BTL_CNW.Controllers
 
         /// <summary>Cap nhat ket qua phong van - Nha tuyen dung</summary>
         [HttpPut("{maKetQua}")]
-        [RoleAuthorize("2")] // Nha tuyen dung
+        [RoleAuthorize("NhaTuyenDung")] // Nha tuyen dung
         public IActionResult CapNhat(int maKetQua, [FromBody] TaoKetQuaDto dto)
         {
             var result = _service.CapNhat(maKetQua, dto);
@@ -73,7 +73,7 @@ namespace BTL_CNW.Controllers
 
         /// <summary>Xoa ket qua phong van - Nha tuyen dung</summary>
         [HttpDelete("{maKetQua}")]
-        [RoleAuthorize("2")] // Nha tuyen dung
+        [RoleAuthorize("NhaTuyenDung")] // Nha tuyen dung
         public IActionResult Xoa(int maKetQua)
         {
             var result = _service.Xoa(maKetQua);

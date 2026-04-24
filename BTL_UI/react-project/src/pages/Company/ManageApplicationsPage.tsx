@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Card, Table, Tag, Button, Space, message, Modal, Form, Input, InputNumber, DatePicker, Descriptions } from 'antd';
-import { EyeOutlined, GiftOutlined, UserOutlined, FileOutlined } from '@ant-design/icons';
+﻿import { useEffect, useState } from 'react';
+import { Card, Table, Tag, Button, Space, message, Modal, Form, Input, InputNumber, DatePicker, Descriptions, Alert, Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
+import { EyeOutlined, GiftOutlined, UserOutlined, FileOutlined, DownloadOutlined, FilePdfOutlined, MoreOutlined, CheckOutlined, CloseOutlined, CalendarOutlined } from '@ant-design/icons';
 import { applicationService } from '../../services/applicationService';
 import { offerService } from '../../services/offerService';
 import type { DonUngTuyen } from '../../types';
@@ -12,6 +13,7 @@ const ManageApplicationsPage = () => {
   const [applications, setApplications] = useState<DonUngTuyen[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [cvModalOpen, setCvModalOpen] = useState(false);
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<DonUngTuyen | null>(null);
   const [sending, setSending] = useState(false);
@@ -43,6 +45,21 @@ const ManageApplicationsPage = () => {
   const handleViewDetail = (app: DonUngTuyen) => {
     setSelectedApp(app);
     setDetailModalOpen(true);
+  };
+
+  const handleViewCV = (app: DonUngTuyen) => {
+    setSelectedApp(app);
+    setCvModalOpen(true);
+  };
+
+  const handleDownloadCV = (cvPath: string, cvName: string) => {
+    const link = document.createElement('a');
+    link.href = `https://localhost:44314${cvPath}`;
+    link.download = cvName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleOpenOfferModal = (app: DonUngTuyen) => {
@@ -126,12 +143,48 @@ const ManageApplicationsPage = () => {
     return textMap[status] || status;
   };
 
+  const getActionMenuItems = (record: DonUngTuyen): MenuProps['items'] => {
+    const items: MenuProps['items'] = [];
+
+    if (record.trangThai === 'DaNop') {
+      items.push({
+        key: 'mark-viewed',
+        label: 'Danh dau da xem',
+        icon: <CheckOutlined />,
+        onClick: () => handleUpdateStatus(record.maDon, 'DangXem')
+      });
+    }
+
+    if (record.trangThai === 'DaNop' || record.trangThai === 'DangXem') {
+      items.push({
+        key: 'invite-interview',
+        label: 'Moi phong van',
+        icon: <CalendarOutlined />,
+        onClick: () => handleUpdateStatus(record.maDon, 'PhongVan')
+      });
+      items.push({
+        key: 'reject',
+        label: 'Tu choi',
+        icon: <CloseOutlined />,
+        danger: true,
+        onClick: () => handleUpdateStatus(record.maDon, 'TuChoi')
+      });
+    }
+
+    return items;
+  };
+
   const columns = [
     {
       title: 'Ung vien',
       dataIndex: 'tenUngVien',
       key: 'tenUngVien',
-      render: (text: string) => <strong><UserOutlined /> {text}</strong>,
+      render: (text: string) => (
+        <div>
+          <UserOutlined style={{ marginRight: 8 }} />
+          <strong>{text}</strong>
+        </div>
+      ),
     },
     {
       title: 'Vi tri ung tuyen',
@@ -157,59 +210,50 @@ const ManageApplicationsPage = () => {
     {
       title: 'Thao tac',
       key: 'action',
-      render: (_: any, record: DonUngTuyen) => (
-        <Space size="small" direction="vertical">
-          <Space size="small">
-            <Button 
-              type="link" 
-              size="small"
-              icon={<EyeOutlined />}
-              onClick={() => handleViewDetail(record)}
-            >
-              Chi tiet
-            </Button>
-            <Button 
-              type="link" 
-              size="small"
-              icon={<GiftOutlined />}
-              style={{ color: '#52c41a' }}
-              onClick={() => handleOpenOfferModal(record)}
-            >
-              Gui thu moi
-            </Button>
-          </Space>
-          <Space size="small">
-            {record.trangThai === 'DaNop' && (
+      width: 280,
+      render: (_: any, record: DonUngTuyen) => {
+        const menuItems = getActionMenuItems(record);
+        
+        return (
+          <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space size={4} wrap>
               <Button 
-                type="link" 
+                type="primary"
                 size="small"
-                onClick={() => handleUpdateStatus(record.maDon, 'DangXem')}
+                icon={<EyeOutlined />}
+                onClick={() => handleViewDetail(record)}
               >
-                Danh dau da xem
+                Chi tiet
               </Button>
-            )}
-            {(record.trangThai === 'DaNop' || record.trangThai === 'DangXem') && (
-              <>
-                <Button 
-                  type="link" 
-                  size="small"
-                  onClick={() => handleUpdateStatus(record.maDon, 'PhongVan')}
-                >
-                  Moi phong van
+              <Button 
+                size="small"
+                icon={<FilePdfOutlined />}
+                onClick={() => handleViewCV(record)}
+                disabled={!record.duongDanFileCV}
+              >
+                Xem CV
+              </Button>
+              <Button 
+                type="default"
+                size="small"
+                icon={<GiftOutlined />}
+                style={{ borderColor: '#52c41a', color: '#52c41a' }}
+                onClick={() => handleOpenOfferModal(record)}
+              >
+                Gui thu moi
+              </Button>
+            </Space>
+            
+            {menuItems && menuItems.length > 0 && (
+              <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                <Button size="small" block icon={<MoreOutlined />}>
+                  Cap nhat trang thai
                 </Button>
-                <Button 
-                  type="link" 
-                  size="small"
-                  danger
-                  onClick={() => handleUpdateStatus(record.maDon, 'TuChoi')}
-                >
-                  Tu choi
-                </Button>
-              </>
+              </Dropdown>
             )}
           </Space>
-        </Space>
-      ),
+        );
+      },
     },
   ];
 
@@ -268,6 +312,16 @@ const ManageApplicationsPage = () => {
                 <Space>
                   <FileOutlined />
                   {selectedApp.tenFileCV || 'Khong co thong tin'}
+                  {selectedApp.duongDanFileCV && (
+                    <Button 
+                      type="link" 
+                      size="small" 
+                      icon={<DownloadOutlined />}
+                      onClick={() => handleDownloadCV(selectedApp.duongDanFileCV!, selectedApp.tenFileCV || 'CV.pdf')}
+                    >
+                      Tai xuong
+                    </Button>
+                  )}
                 </Space>
               </Descriptions.Item>
             </Descriptions>
@@ -281,6 +335,101 @@ const ManageApplicationsPage = () => {
                   </p>
                 </Card>
               </>
+            )}
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title="Xem CV ung vien"
+        open={cvModalOpen}
+        onCancel={() => {
+          setCvModalOpen(false);
+          setSelectedApp(null);
+        }}
+        width={900}
+        footer={[
+          selectedApp?.duongDanFileCV && (
+            <Button 
+              key="download" 
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={() => handleDownloadCV(selectedApp.duongDanFileCV!, selectedApp.tenFileCV || 'CV.pdf')}
+            >
+              Tai xuong CV
+            </Button>
+          ),
+          <Button key="close" onClick={() => {
+            setCvModalOpen(false);
+            setSelectedApp(null);
+          }}>
+            Dong
+          </Button>
+        ]}
+      >
+        {selectedApp && (
+          <div>
+            <Alert 
+              message={`CV cua ung vien: ${selectedApp.tenUngVien}`}
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+
+            <Descriptions column={2} bordered style={{ marginBottom: 16 }}>
+              <Descriptions.Item label="Ten file" span={2}>
+                <Space>
+                  <FilePdfOutlined style={{ fontSize: 20, color: '#ff4d4f' }} />
+                  <strong>{selectedApp.tenFileCV || 'CV.pdf'}</strong>
+                </Space>
+              </Descriptions.Item>
+              <Descriptions.Item label="Vi tri ung tuyen" span={2}>
+                {selectedApp.tieuDeTin}
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngay nop">
+                {dayjs(selectedApp.ngayNop).format('DD/MM/YYYY HH:mm')}
+              </Descriptions.Item>
+              <Descriptions.Item label="Trang thai">
+                <Tag color={getStatusColor(selectedApp.trangThai)}>
+                  {getStatusText(selectedApp.trangThai)}
+                </Tag>
+              </Descriptions.Item>
+            </Descriptions>
+
+            {selectedApp.duongDanFileCV ? (
+              <div style={{ 
+                border: '1px solid #d9d9d9', 
+                borderRadius: '4px', 
+                padding: '16px',
+                background: '#fafafa',
+                textAlign: 'center'
+              }}>
+                <FilePdfOutlined style={{ fontSize: 64, color: '#ff4d4f', marginBottom: 16 }} />
+                <p style={{ marginBottom: 16 }}>
+                  <strong>File CV: {selectedApp.tenFileCV}</strong>
+                </p>
+                <Space>
+                  <Button 
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={() => handleDownloadCV(selectedApp.duongDanFileCV!, selectedApp.tenFileCV || 'CV.pdf')}
+                  >
+                    Tai xuong de xem
+                  </Button>
+                  <Button 
+                    icon={<EyeOutlined />}
+                    onClick={() => window.open(`https://localhost:44314${selectedApp.duongDanFileCV}`, '_blank')}
+                  >
+                    Xem trong tab moi
+                  </Button>
+                </Space>
+              </div>
+            ) : (
+              <Alert 
+                message="Ung vien chua upload CV"
+                type="warning"
+                showIcon
+              />
             )}
           </div>
         )}

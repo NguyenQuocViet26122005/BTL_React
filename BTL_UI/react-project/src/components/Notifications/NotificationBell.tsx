@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Badge, Button } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -13,22 +13,25 @@ const NotificationBell = ({ maNguoiDung }: NotificationBellProps) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    loadUnreadCount();
-    
-    // Poll every 30 seconds for new notifications
-    const interval = setInterval(loadUnreadCount, 30000);
-    
-    return () => clearInterval(interval);
+    if (maNguoiDung) {
+      loadUnreadCount();
+      
+      // Poll every 30 seconds for new notifications
+      const interval = setInterval(loadUnreadCount, 30000);
+      
+      return () => clearInterval(interval);
+    }
   }, [maNguoiDung]);
 
   const loadUnreadCount = async () => {
     try {
       const response = await notificationService.getUnreadCount(maNguoiDung);
-      if (response.success) {
-        setUnreadCount((response.data as any).count || 0);
+      if (response?.success && response?.data) {
+        setUnreadCount(response.data.count || 0);
       }
     } catch (error) {
-      console.error('Khong the dem thong bao chua doc');
+      console.error('Khong the dem thong bao chua doc:', error);
+      setUnreadCount(0);
     }
   };
 
