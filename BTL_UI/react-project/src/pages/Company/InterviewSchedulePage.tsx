@@ -1,11 +1,11 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, DatePicker, Select, InputNumber, message, Tag, Space } from 'antd';
 import { PlusOutlined, CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, FormOutlined } from '@ant-design/icons';
 import { interviewService } from '../../services/interviewService';
 import type { LichPhongVan, TaoLichDto } from '../../services/interviewService';
 import { applicationService } from '../../services/applicationService';
 import { interviewResultService } from '../../services/interviewResultService';
-import type { TaoKetQuaDto } from '../../services/interviewResultService';
+import { type TaoKetQuaDto } from '../../services/interviewResultService';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
@@ -26,7 +26,7 @@ const InterviewSchedulePage = () => {
     if (userStr) {
       const userData = JSON.parse(userStr);
       setUser(userData);
-      if (user) loadApplications(user.maNguoiDung);
+      loadApplications(userData.maNguoiDung);
     }
   }, []);
 
@@ -34,12 +34,18 @@ const InterviewSchedulePage = () => {
     setLoading(true);
     try {
       const res = await applicationService.getCompanyApplications(maNguoiDung);
+      console.log('Applications loaded:', res);
       if (res.success && res.data) {
+        console.log('Total applications:', res.data.length);
+        console.log('Applications for interview:', res.data.filter((app: any) => app.trangThai === 'VaoDanhSach' || app.trangThai === 'DangXem').length);
         setApplications(res.data);
         loadAllInterviews(res.data);
+      } else {
+        message.warning('Khong co don ung tuyen nao');
       }
     } catch (error) {
       console.error('Error loading applications:', error);
+      message.error('Khong the tai danh sach don ung tuyen');
     } finally {
       setLoading(false);
     }
@@ -134,20 +140,20 @@ const InterviewSchedulePage = () => {
 
   const getStatusColor = (status: string) => {
     const colors: any = {
-      'ChuaPhongVan': 'blue',
-      'DaPhongVan': 'green',
+      'DaLen': 'blue',
+      'HoanThanh': 'green',
       'HuyBo': 'red',
-      'DoiLich': 'orange'
+      'VangMat': 'orange'
     };
     return colors[status] || 'default';
   };
 
   const getStatusText = (status: string) => {
     const texts: any = {
-      'ChuaPhongVan': 'Chua phong van',
-      'DaPhongVan': 'Da phong van',
+      'DaLen': 'Da len lich',
+      'HoanThanh': 'Hoan thanh',
       'HuyBo': 'Huy bo',
-      'DoiLich': 'Doi lich'
+      'VangMat': 'Vang mat'
     };
     return texts[status] || status;
   };
@@ -212,35 +218,70 @@ const InterviewSchedulePage = () => {
     {
       title: 'Thao tac',
       key: 'action',
-      render: (_: any, record: LichPhongVan) => (
-        <Space>
-          {record.trangThai === 'ChuaPhongVan' && (
-            <>
-              <Button size="small" onClick={() => handleUpdateStatus(record.maLich, 'DaPhongVan')}>
+      width: 250,
+      render: (_: any, record: LichPhongVan) => {
+        // DaLen and ChuaPhongVan both show same actions
+        if (record.trangThai === 'DaLen') {
+          return (
+            <Space size={4} wrap>
+              <Button size="small" type="primary" onClick={() => handleUpdateStatus(record.maLich, 'HoanThanh')}>
                 Hoan thanh
               </Button>
               <Button size="small" danger onClick={() => handleUpdateStatus(record.maLich, 'HuyBo')}>
                 Huy
               </Button>
-            </>
-          )}
-          {record.trangThai === 'DaPhongVan' && (
+            </Space>
+          );
+        }
+        
+        if (record.trangThai === 'HoanThanh') {
+          return (
             <Button 
               size="small" 
               type="primary" 
               icon={<FormOutlined />}
               onClick={() => handleOpenResultModal(record)}
+              block
             >
               Nhap ket qua
             </Button>
-          )}
-        </Space>
-      )
+          );
+        }
+        
+        if (record.trangThai === 'HuyBo') {
+          return (
+            <Button size="small" type="default" block disabled>
+              Da huy
+            </Button>
+          );
+        }
+        
+        if (record.trangThai === 'VangMat') {
+          return (
+            <Button size="small" type="default" block disabled>
+              Da doi lich
+            </Button>
+          );
+        }
+        
+        // Fallback: treat unknown status like DaLen/ChuaPhongVan
+        return (
+          <Space size={4} wrap>
+            <Button size="small" type="primary" onClick={() => handleUpdateStatus(record.maLich, 'HoanThanh')}>
+              Hoan thanh
+            </Button>
+            <Button size="small" danger onClick={() => handleUpdateStatus(record.maLich, 'HuyBo')}>
+              Huy
+            </Button>
+          </Space>
+        );
+      }
     }
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <Card
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -285,26 +326,26 @@ const InterviewSchedulePage = () => {
 
           <Form.Item
             name="diemTongQuat"
-            label="Diem tong quat (0-100)"
+            label="Diem tong quat (1-5)"
             rules={[{ required: true, message: 'Vui long nhap diem tong quat' }]}
           >
-            <InputNumber min={0} max={100} style={{ width: '100%' }} placeholder="Nhap diem tong quat" />
+            <InputNumber min={1} max={5} style={{ width: '100%' }} placeholder="Nhap diem tu 1-5" />
           </Form.Item>
 
           <Form.Item
             name="diemKyThuat"
-            label="Diem ky thuat (0-100)"
+            label="Diem ky thuat (1-5)"
             rules={[{ required: true, message: 'Vui long nhap diem ky thuat' }]}
           >
-            <InputNumber min={0} max={100} style={{ width: '100%' }} placeholder="Nhap diem ky thuat" />
+            <InputNumber min={1} max={5} style={{ width: '100%' }} placeholder="Nhap diem tu 1-5" />
           </Form.Item>
 
           <Form.Item
             name="diemKyNangMem"
-            label="Diem ky nang mem (0-100)"
+            label="Diem ky nang mem (1-5)"
             rules={[{ required: true, message: 'Vui long nhap diem ky nang mem' }]}
           >
-            <InputNumber min={0} max={100} style={{ width: '100%' }} placeholder="Nhap diem ky nang mem" />
+            <InputNumber min={1} max={5} style={{ width: '100%' }} placeholder="Nhap diem tu 1-5" />
           </Form.Item>
 
           <Form.Item
@@ -315,7 +356,7 @@ const InterviewSchedulePage = () => {
             <Select placeholder="Chon ket qua">
               <Select.Option value="Dat">Dat</Select.Option>
               <Select.Option value="KhongDat">Khong dat</Select.Option>
-              <Select.Option value="CanXemXet">Can xem xet</Select.Option>
+              <Select.Option value="ChoDanh">Cho danh gia</Select.Option>
             </Select>
           </Form.Item>
 
@@ -352,12 +393,19 @@ const InterviewSchedulePage = () => {
             label="Don ung tuyen"
             rules={[{ required: true, message: 'Vui long chon don ung tuyen' }]}
           >
-            <Select placeholder="Chon don ung tuyen" showSearch optionFilterProp="children">
-              {applications.map(app => (
-                <Select.Option key={app.maDon} value={app.maDon}>
-                  {app.tenUngVien} - {app.tieuDeTin}
-                </Select.Option>
-              ))}
+            <Select 
+              placeholder="Chon don ung tuyen" 
+              showSearch 
+              optionFilterProp="children"
+              notFoundContent={applications.length === 0 ? "Chua co don ung tuyen nao" : "Khong tim thay"}
+            >
+              {applications
+                .filter(app => app.trangThai === 'VaoDanhSach' || app.trangThai === 'DangXem')
+                .map(app => (
+                  <Select.Option key={app.maDon} value={app.maDon}>
+                    {app.tenUngVien} - {app.tieuDeTin} ({app.trangThai === 'VaoDanhSach' ? 'Vao danh sach' : 'Dang xem'})
+                  </Select.Option>
+                ))}
             </Select>
           </Form.Item>
 
@@ -414,7 +462,7 @@ const InterviewSchedulePage = () => {
             </Space>
           </Form.Item>
         </Form>
-      </Modal>
+      </Modal>      </div>
     </div>
   );
 };

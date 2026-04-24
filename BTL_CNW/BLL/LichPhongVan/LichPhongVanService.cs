@@ -35,7 +35,7 @@ namespace BTL_CNW.BLL.LichPhongVan
 
                 // Check if interview already exists for this application
                 var existingInterviews = _repo.LayTheoDon(dto.MaDon);
-                if (existingInterviews.Any(x => x.TrangThai == "Đã lên lịch" || x.TrangThai == "Đang diễn ra"))
+                if (existingInterviews.Any(x => x.TrangThai == "DaLen"))
                     return (false, "Đơn ứng tuyển này đã có lịch phỏng vấn rồi");
 
                 var result = _repo.TaoLich(dto);
@@ -93,7 +93,7 @@ namespace BTL_CNW.BLL.LichPhongVan
                 if (string.IsNullOrWhiteSpace(trangThai))
                     return (false, "Trạng thái không được để trống");
 
-                var validStates = new[] { "Đã lên lịch", "Đang diễn ra", "Hoàn thành", "Hủy bỏ", "Hoãn lại" };
+                var validStates = new[] { "DaLen", "HoanThanh", "HuyBo", "VangMat" };
                 if (!validStates.Contains(trangThai))
                     return (false, "Trạng thái không hợp lệ");
 
@@ -106,7 +106,7 @@ namespace BTL_CNW.BLL.LichPhongVan
                     return (false, $"Lịch phỏng vấn đã ở trạng thái '{trangThai}' rồi");
 
                 // Business logic validation
-                if (existingInterview.TrangThai == "Hoàn thành" && trangThai != "Hoàn thành")
+                if (existingInterview.TrangThai == "HoanThanh" && trangThai != "HoanThanh")
                     return (false, "Không thể thay đổi trạng thái của lịch phỏng vấn đã hoàn thành");
 
                 var result = _repo.DoiTrangThai(maLich, trangThai);

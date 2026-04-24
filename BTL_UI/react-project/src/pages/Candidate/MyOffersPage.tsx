@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Card, Table, Tag, Button, Space, message, Empty, Modal, Descriptions, Alert, Divider, Input } from 'antd';
 import { FileTextOutlined, CheckOutlined, CloseOutlined, EyeOutlined, DollarOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -65,12 +65,12 @@ const MyOffersPage = () => {
     try {
       setResponding(true);
       const response = await offerService.respond(selectedOffer.maThuMoi, {
-        trangThai: respondType === 'accept' ? 'DaChapNhan' : 'DaTuChoi',
+        trangThai: respondType === 'accept' ? 'DaDongY' : 'DaTuChoi',
         ghiChu: respondNote
       });
 
       if (response.success) {
-        message.success(respondType === 'accept' ? 'Da chap nhan thu moi!' : 'Da tu choi thu moi!');
+        message.success(respondType === 'accept' ? 'Da dong y thu moi!' : 'Da tu choi thu moi!');
         setRespondModalOpen(false);
         setSelectedOffer(null);
         setRespondNote('');
@@ -93,8 +93,8 @@ const MyOffersPage = () => {
 
   const getStatusColor = (status: string) => {
     const colorMap: any = {
-      'ChoXacNhan': 'orange',
-      'DaChapNhan': 'green',
+      'ChoPhanHoi': 'orange',
+      'DaDongY': 'green',
       'DaTuChoi': 'red',
       'HetHan': 'gray'
     };
@@ -103,8 +103,8 @@ const MyOffersPage = () => {
 
   const getStatusText = (status: string) => {
     const textMap: any = {
-      'ChoXacNhan': 'Cho xac nhan',
-      'DaChapNhan': 'Da chap nhan',
+      'ChoPhanHoi': 'Cho phan hoi',
+      'DaDongY': 'Da dong y',
       'DaTuChoi': 'Da tu choi',
       'HetHan': 'Het han'
     };
@@ -161,7 +161,7 @@ const MyOffersPage = () => {
           >
             Chi tiet
           </Button>
-          {record.trangThai === 'ChoXacNhan' && (
+          {record.trangThai === 'ChoPhanHoi' && (
             <>
               <Button 
                 type="link" 
@@ -169,7 +169,7 @@ const MyOffersPage = () => {
                 style={{ color: '#52c41a' }}
                 onClick={() => handleOpenRespond(record, 'accept')}
               >
-                Chap nhan
+                Dong y
               </Button>
               <Button 
                 type="link" 
@@ -235,7 +235,7 @@ const MyOffersPage = () => {
           <div>
             <Alert 
               message={`Trang thai: ${getStatusText(selectedOffer.trangThai)}`}
-              type={selectedOffer.trangThai === 'DaChapNhan' ? 'success' : selectedOffer.trangThai === 'DaTuChoi' ? 'error' : 'warning'}
+              type={selectedOffer.trangThai === 'DaDongY' ? 'success' : selectedOffer.trangThai === 'DaTuChoi' ? 'error' : 'warning'}
               showIcon
               style={{ marginBottom: 16 }}
             />
@@ -284,7 +284,7 @@ const MyOffersPage = () => {
       </Modal>
 
       <Modal
-        title={respondType === 'accept' ? 'Chap nhan thu moi' : 'Tu choi thu moi'}
+        title={respondType === 'accept' ? 'Dong y thu moi' : 'Tu choi thu moi'}
         open={respondModalOpen}
         onCancel={() => {
           setRespondModalOpen(false);
@@ -293,7 +293,7 @@ const MyOffersPage = () => {
         }}
         onOk={handleRespond}
         confirmLoading={responding}
-        okText={respondType === 'accept' ? 'Chap nhan' : 'Tu choi'}
+        okText={respondType === 'accept' ? 'Dong y' : 'Tu choi'}
         cancelText="Huy"
         okButtonProps={{ 
           danger: respondType === 'reject',
@@ -304,7 +304,7 @@ const MyOffersPage = () => {
           <div>
             <Alert 
               message={respondType === 'accept' 
-                ? 'Ban co chac chan muon chap nhan thu moi lam viec nay?' 
+                ? 'Ban co chac chan muon dong y thu moi lam viec nay?' 
                 : 'Ban co chac chan muon tu choi thu moi lam viec nay?'}
               type={respondType === 'accept' ? 'success' : 'warning'}
               showIcon

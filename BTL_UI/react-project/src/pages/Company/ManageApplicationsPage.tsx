@@ -125,9 +125,9 @@ const ManageApplicationsPage = () => {
     const colorMap: any = {
       'DaNop': 'blue',
       'DangXem': 'orange',
-      'PhongVan': 'purple',
+      'VaoDanhSach': 'purple',
       'TuChoi': 'red',
-      'ChapNhan': 'green'
+      'RutDon': 'gray'
     };
     return colorMap[status] || 'default';
   };
@@ -136,9 +136,9 @@ const ManageApplicationsPage = () => {
     const textMap: any = {
       'DaNop': 'Da nop',
       'DangXem': 'Dang xem',
-      'PhongVan': 'Phong van',
+      'VaoDanhSach': 'Vao danh sach',
       'TuChoi': 'Tu choi',
-      'ChapNhan': 'Chap nhan'
+      'RutDon': 'Rut don'
     };
     return textMap[status] || status;
   };
@@ -158,9 +158,9 @@ const ManageApplicationsPage = () => {
     if (record.trangThai === 'DaNop' || record.trangThai === 'DangXem') {
       items.push({
         key: 'invite-interview',
-        label: 'Moi phong van',
+        label: 'Vao danh sach',
         icon: <CalendarOutlined />,
-        onClick: () => handleUpdateStatus(record.maDon, 'PhongVan')
+        onClick: () => handleUpdateStatus(record.maDon, 'VaoDanhSach')
       });
       items.push({
         key: 'reject',
@@ -215,7 +215,7 @@ const ManageApplicationsPage = () => {
         const menuItems = getActionMenuItems(record);
         
         return (
-          <Space direction="vertical" size={4} style={{ width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
             <Space size={4} wrap>
               <Button 
                 type="primary"
@@ -251,14 +251,15 @@ const ManageApplicationsPage = () => {
                 </Button>
               </Dropdown>
             )}
-          </Space>
+          </div>
         );
       },
     },
   ];
 
   return (
-    <div style={{ padding: '24px', maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <div style={{ marginBottom: 24 }}>
         <h1>Quan ly don ung tuyen</h1>
         <p>Xem va xu ly cac don ung tuyen tu ung vien</p>
@@ -527,7 +528,7 @@ const ManageApplicationsPage = () => {
             </Form>
           </>
         )}
-      </Modal>
+      </Modal>      </div>
     </div>
   );
 };

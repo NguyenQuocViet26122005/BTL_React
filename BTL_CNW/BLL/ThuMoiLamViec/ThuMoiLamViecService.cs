@@ -64,7 +64,7 @@ namespace BTL_CNW.BLL.ThuMoiLamViec
                 DonViTien = dto.DonViTien ?? "VND",
                 NgayBatDauDuKien = dto.NgayBatDauDuKien,
                 NgayHetHan = dto.NgayHetHan,
-                TrangThai = "ChoXacNhan",
+                TrangThai = "ChoPhanHoi",
                 GhiChu = dto.GhiChu,
                 NgayTao = DateTime.Now,
                 NgayCapNhat = DateTime.Now
@@ -80,10 +80,10 @@ namespace BTL_CNW.BLL.ThuMoiLamViec
             if (thuMoi == null)
                 return (false, "Khong tim thay thu moi");
 
-            if (thuMoi.TrangThai != "ChoXacNhan")
+            if (thuMoi.TrangThai != "ChoPhanHoi")
                 return (false, "Thu moi da duoc phan hoi");
 
-            var validTrangThai = new[] { "DaChapNhan", "DaTuChoi" };
+            var validTrangThai = new[] { "DaDongY", "DaTuChoi" };
             if (!validTrangThai.Contains(dto.TrangThai))
                 return (false, "Trang thai khong hop le");
 

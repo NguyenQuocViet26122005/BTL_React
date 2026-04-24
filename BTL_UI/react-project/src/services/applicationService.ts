@@ -44,5 +44,11 @@ export const applicationService = {
     }
 
     return { success: true, message: 'Thanh cong', data: allApplications };
+  },
+
+  // Cập nhật trạng thái đơn ứng tuyển (cho nhà tuyển dụng)
+  updateStatus: async (maDon: number, data: { trangThai: string }) => {
+    const response = await api.put<ApiResponse<void>>(`/don-ung-tuyen/${maDon}/trang-thai`, data);
+    return response.data;
   }
 };

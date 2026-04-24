@@ -45,20 +45,20 @@ const MyInterviewsPage = () => {
 
   const getStatusColor = (status: string) => {
     const colors: any = {
-      'ChuaPhongVan': 'blue',
-      'DaPhongVan': 'green',
+      'DaLen': 'blue',
+      'HoanThanh': 'green',
       'HuyBo': 'red',
-      'DoiLich': 'orange'
+      'VangMat': 'orange'
     };
     return colors[status] || 'default';
   };
 
   const getStatusText = (status: string) => {
     const texts: any = {
-      'ChuaPhongVan': 'Chua phong van',
-      'DaPhongVan': 'Da phong van',
+      'DaLen': 'Da len lich',
+      'HoanThanh': 'Hoan thanh',
       'HuyBo': 'Huy bo',
-      'DoiLich': 'Doi lich'
+      'VangMat': 'Vang mat'
     };
     return texts[status] || status;
   };

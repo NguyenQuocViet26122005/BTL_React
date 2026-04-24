@@ -54,7 +54,7 @@ namespace BTL_CNW.BLL.KetQuaPhongVan
             if (string.IsNullOrWhiteSpace(dto.KetQua))
                 return (false, "Ket qua khong duoc de trong", 0);
 
-            var validKetQua = new[] { "Dat", "KhongDat", "CanXemXet" };
+            var validKetQua = new[] { "Dat", "KhongDat", "ChoDanh" };
             if (!validKetQua.Contains(dto.KetQua))
                 return (false, "Ket qua khong hop le", 0);
 
@@ -89,7 +89,7 @@ namespace BTL_CNW.BLL.KetQuaPhongVan
             if (string.IsNullOrWhiteSpace(dto.KetQua))
                 return (false, "Ket qua khong duoc de trong");
 
-            var validKetQua = new[] { "Dat", "KhongDat", "CanXemXet" };
+            var validKetQua = new[] { "Dat", "KhongDat", "ChoDanh" };
             if (!validKetQua.Contains(dto.KetQua))
                 return (false, "Ket qua khong hop le");
 

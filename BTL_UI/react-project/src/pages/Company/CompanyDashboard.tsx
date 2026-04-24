@@ -275,7 +275,8 @@ const CompanyDashboard = () => {
   ];
 
   return (
-    <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <div style={{ marginBottom: 24 }}>
         <h1>Chao mung, {user?.hoTen || 'Nha tuyen dung'}</h1>
         <p>Quan ly tin tuyen dung va ung vien cua ban</p>
@@ -522,7 +523,7 @@ const CompanyDashboard = () => {
             <p>{selectedJob.quyenLoi}</p>
           </div>
         )}
-      </Modal>
+      </Modal>      </div>
     </div>
   );
 };
