@@ -58,6 +58,7 @@ export type TinTuyenDung = {
   luotXem?: number;
   trangThai: string;
   ngayDang?: string;
+  ngayTao?: string;
 };
 
 export type CongTy = {
@@ -206,4 +207,15 @@ export type DoiMatKhau = {
   matKhauCu: string;
   matKhauMoi: string;
   xacNhanMatKhau: string;
+};
+
+export type FileCv = {
+  maFileCv: number;
+  maHoSo: number;
+  tenFile: string;
+  duongDanFile: string;
+  kichThuoc?: number;
+  loaiFile?: string;
+  laMacDinh: boolean;
+  ngayTai: string;
 };

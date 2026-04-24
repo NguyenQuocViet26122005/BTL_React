@@ -96,5 +96,5 @@ export const updateJobStatus = async (maTin: number, trangThai: string, lyDo?: s
 };
 
 // Add to jobService object
-jobService.getAllJobsForAdmin = getAllJobsForAdmin;
-jobService.updateJobStatus = updateJobStatus;
+(jobService as any).getAllJobsForAdmin = getAllJobsForAdmin;
+(jobService as any).updateJobStatus = updateJobStatus;

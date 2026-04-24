@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, DatePicker, Select, InputNumber, message, Tag, Space } from 'antd';
 import { PlusOutlined, CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { interviewService } from '../../services/interviewService';
@@ -21,7 +21,7 @@ const InterviewSchedulePage = () => {
     if (userStr) {
       const userData = JSON.parse(userStr);
       setUser(userData);
-      loadApplications(userData.maNguoiDung);
+      if (user) loadApplications(user.maNguoiDung);
     }
   }, []);
 
@@ -79,7 +79,7 @@ const InterviewSchedulePage = () => {
       message.success('Tao lich phong van thanh cong');
       setModalVisible(false);
       form.resetFields();
-      loadApplications(userData.maNguoiDung);
+      if (user) loadApplications(user.maNguoiDung);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Tao lich that bai');
     } finally {
@@ -91,7 +91,7 @@ const InterviewSchedulePage = () => {
     try {
       await interviewService.updateStatus(maLich, trangThai);
       message.success('Cap nhat trang thai thanh cong');
-      loadApplications(userData.maNguoiDung);
+      if (user) loadApplications(user.maNguoiDung);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Cap nhat that bai');
     }

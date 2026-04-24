@@ -1,7 +1,7 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Table, Tag, Button, Space, message, Modal, Popconfirm, Input } from 'antd';
 import { CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
-import { jobService } from '../../services/jobService';
+import { getAllJobsForAdmin, updateJobStatus, getTinTuyenDungById } from '../../services/jobService';
 import { eventBus, EVENTS } from '../../utils/eventBus';
 import type { TinTuyenDung } from '../../types';
 import dayjs from 'dayjs';
@@ -24,7 +24,7 @@ const AdminJobApprovalPage = () => {
   const fetchAllJobs = async () => {
     setLoading(true);
     try {
-      const response = await jobService.getAllJobsForAdmin();
+      const response = await getAllJobsForAdmin();
       if (response.success && response.data) {
         setJobs(response.data);
       }
@@ -38,7 +38,7 @@ const AdminJobApprovalPage = () => {
 
   const handleApprove = async (maTin: number) => {
     try {
-      const response = await jobService.updateJobStatus(maTin, 'DaDuyet');
+      const response = await updateJobStatus(maTin, 'DaDuyet');
       if (response.success) {
         message.success('Da duyet tin tuyen dung');
         fetchAllJobs();
@@ -53,7 +53,7 @@ const AdminJobApprovalPage = () => {
     if (!rejectingJobId) return;
     
     try {
-      const response = await jobService.updateJobStatus(rejectingJobId, 'TuChoi', rejectReason);
+      const response = await updateJobStatus(rejectingJobId, 'TuChoi', rejectReason);
       if (response.success) {
         message.success('Da tu choi tin tuyen dung');
         setIsRejectModalOpen(false);
@@ -69,7 +69,7 @@ const AdminJobApprovalPage = () => {
 
   const handleViewDetail = async (maTin: number) => {
     try {
-      const response = await jobService.getTinTuyenDungById(maTin);
+      const response = await getTinTuyenDungById(maTin);
       if (response.success && response.data) {
         setSelectedJob(response.data);
         setIsDetailModalOpen(true);
