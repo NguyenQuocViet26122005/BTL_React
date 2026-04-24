@@ -501,3 +501,343 @@ He thong quan ly tuyen dung truc tuyen ket noi giua:
               ↓
 [Khong den] → HuyBo
 ```
+
+
+---
+
+## 5. CAC TRUONG HOP DAC BIET
+
+### 5.1. Truong hop Ung vien
+1. **Ung tuyen nhung chua co ho so**:
+   - He thong yeu cau tao ho so truoc
+   - Chuyen den trang tao ho so
+
+2. **Ung tuyen nhung chua co CV**:
+   - He thong yeu cau upload CV truoc
+   - Chuyen den trang quan ly CV
+
+3. **Ung tuyen tin da ung tuyen**:
+   - He thong bao loi "Da ung tuyen tin nay"
+   - Khong cho ung tuyen lai
+
+4. **Ung tuyen tin het han**:
+   - He thong bao loi "Tin da het han nop ho so"
+   - Khong cho ung tuyen
+
+5. **Xem lich phong van nhung chua co lich**:
+   - Hien thi "Chua co lich phong van nao"
+   - Goi y tim viec va ung tuyen
+
+### 5.2. Truong hop Nha tuyen dung
+1. **Dang tin nhung chua co thong tin cong ty**:
+   - He thong yeu cau cap nhat thong tin cong ty
+   - Chuyen den trang profile
+
+2. **Tin bi admin tu choi**:
+   - Nha tuyen dung thay ly do tu choi
+   - Sua tin va gui lai de duyet
+
+3. **Khong co don ung tuyen nao**:
+   - Dashboard hien thi 0
+   - Goi y kiem tra tin co hap dan khong
+
+4. **Tao lich cho don chua vao danh sach**:
+   - He thong bao loi
+   - Yeu cau cap nhat trang thai don truoc
+
+5. **Xoa tin da co don ung tuyen**:
+   - He thong canh bao
+   - Yeu cau xac nhan
+   - Cac don lien quan van ton tai
+
+### 5.3. Truong hop Admin
+1. **Duyet tin khong hop le**:
+   - Admin tu choi va ghi ro ly do
+   - Nha tuyen dung sua lai
+
+2. **Tin spam hoac lua dao**:
+   - Admin tu choi vinh vien
+   - Co the khoa tai khoan cong ty
+
+3. **Nhieu tin cho duyet cung luc**:
+   - Hien thi danh sach uu tien theo ngay tao
+   - Duyet lan luot
+
+---
+
+## 6. TICH HOP VA TUONG TAC
+
+### 6.1. Event Bus (Real-time updates)
+He thong su dung Event Bus de dong bo du lieu:
+
+1. **JOB_CREATED**: Khi tao tin moi
+   - Dashboard cap nhat so luong tin
+   - Danh sach tin tu dong refresh
+
+2. **JOB_UPDATED**: Khi sua tin
+   - Danh sach tin cap nhat
+   - Chi tiet tin cap nhat
+
+3. **JOB_DELETED**: Khi xoa tin
+   - Danh sach tin cap nhat
+   - Dashboard cap nhat thong ke
+
+4. **APPLICATION_SUBMITTED**: Khi nop don
+   - Dashboard nha tuyen dung cap nhat so don moi
+   - Danh sach don tu dong refresh
+
+5. **APPLICATION_UPDATED**: Khi cap nhat trang thai don
+   - Danh sach don cap nhat
+   - Thong ke cap nhat
+
+6. **INTERVIEW_CREATED**: Khi tao lich phong van
+   - Danh sach lich cap nhat
+   - Ung vien thay lich moi
+
+7. **INTERVIEW_UPDATED**: Khi cap nhat lich
+   - Danh sach lich cap nhat
+   - Thong bao cho ung vien (neu co)
+
+### 6.2. Luong du lieu
+```
+[Ung vien] → [Don ung tuyen] → [Nha tuyen dung]
+                ↓
+         [Lich phong van]
+                ↓
+         [Ket qua phong van]
+                ↓
+         [Tuyen dung/Tu choi]
+```
+
+---
+
+## 7. BAO CAO VA THONG KE
+
+### 7.1. Thong ke cho Nha tuyen dung
+1. **Tong quan**:
+   - So tin dang tuyen
+   - So don ung tuyen
+   - So lich phong van
+   - Luot xem tin
+
+2. **Bieu do**:
+   - Luot xem theo ngay (7 ngay gan nhat)
+   - Don ung tuyen theo thang (6 thang gan nhat)
+
+3. **Hieu qua tuyen dung**:
+   - Ty le chuyen doi: Luot xem → Don ung tuyen
+   - Thoi gian trung binh xu ly don
+   - Ty le ung vien dat phong van
+
+### 7.2. Thong ke cho Admin (Chua implement)
+1. **Tong quan he thong**:
+   - Tong nguoi dung
+   - Tong cong ty
+   - Tong tin tuyen dung
+   - Tong don ung tuyen
+
+2. **Hoat dong**:
+   - Nguoi dung moi theo ngay
+   - Tin moi theo ngay
+   - Don moi theo ngay
+
+3. **Chat luong**:
+   - Ty le tin bi tu choi
+   - Ty le cong ty uy tin
+   - Ty le ung vien thanh cong
+
+---
+
+## 8. TINH NANG MO RONG (Chua implement)
+
+### 8.1. Luu tin yeu thich
+**Muc dich**: Ung vien luu tin de xem lai sau
+**Nghiep vu**:
+- Ung vien click "Luu tin"
+- Tin duoc luu vao danh sach yeu thich
+- Xem lai trong "Tin da luu"
+- Bo luu khi khong quan tam
+
+### 8.2. Goi y viec lam
+**Muc dich**: Goi y viec phu hop cho ung vien
+**Nghiep vu**:
+- He thong phan tich ho so ung vien
+- Tim tin tuyen dung phu hop:
+  - Theo ky nang
+  - Theo kinh nghiem
+  - Theo muc luong mong muon
+  - Theo dia diem
+- Hien thi danh sach goi y
+- Ung vien ung tuyen truc tiep
+
+### 8.3. Nhat ky xem CV
+**Muc dich**: Ung vien biet ai da xem CV
+**Nghiep vu**:
+- Nha tuyen dung xem CV ung vien
+- He thong ghi nhat ky
+- Ung vien xem duoc:
+  - Cong ty nao da xem
+  - Thoi gian xem
+  - So lan xem
+
+### 8.4. Thu moi lam viec
+**Muc dich**: Nha tuyen dung moi ung vien truc tiep
+**Nghiep vu**:
+- Nha tuyen dung tim kiem ung vien
+- Gui thu moi cho ung vien phu hop
+- Ung vien nhan thong bao
+- Ung vien xem thu moi
+- Ung vien chap nhan hoac tu choi
+
+### 8.5. Ket qua phong van
+**Muc dich**: Ghi nhan ket qua sau phong van
+**Nghiep vu**:
+- Sau phong van, nha tuyen dung ghi ket qua:
+  - Danh gia (1-5 sao)
+  - Nhan xet
+  - Quyet dinh: Qua vong / Khong qua
+- Neu qua vong, tao lich vong tiep theo
+- Neu khong qua, cap nhat trang thai don "TuChoi"
+- Neu qua tat ca vong, tuyen dung
+
+### 8.6. Quan ly ky nang, hoc van, kinh nghiem
+**Muc dich**: Ho so ung vien day du hon
+**Nghiep vu**:
+- Ung vien them ky nang:
+  - Ten ky nang
+  - Muc do (1-5)
+- Ung vien them hoc van:
+  - Truong
+  - Chuyen nganh
+  - Bang cap
+  - Thoi gian
+- Ung vien them kinh nghiem:
+  - Cong ty
+  - Vi tri
+  - Mo ta cong viec
+  - Thoi gian
+
+### 8.7. Thong bao
+**Muc dich**: Cap nhat thong tin kip thoi
+**Nghiep vu**:
+- He thong gui thong bao khi:
+  - Co don ung tuyen moi (cho nha tuyen dung)
+  - Trang thai don thay doi (cho ung vien)
+  - Co lich phong van moi (cho ung vien)
+  - Lich phong van thay doi (cho ung vien)
+  - Tin bi tu choi (cho nha tuyen dung)
+  - Tin duoc duyet (cho nha tuyen dung)
+- Nguoi dung xem thong bao
+- Danh dau da doc
+
+### 8.8. Email thong bao
+**Muc dich**: Thong bao qua email
+**Nghiep vu**:
+- Gui email khi co su kien quan trong
+- Email chua link den he thong
+- Nguoi dung click link de xem chi tiet
+
+---
+
+## 9. KET LUAN
+
+### 9.1. Diem manh cua he thong
+1. ✅ Luong nghiep vu ro rang, logic
+2. ✅ Phan quyen ro ret
+3. ✅ Trang thai chuyen doi hop ly
+4. ✅ Co kiem duyet (Admin) dam bao chat luong
+5. ✅ Event Bus giup dong bo du lieu real-time
+6. ✅ Dashboard truc quan, thong ke tot
+
+### 9.2. Diem can cai thien
+1. ⚠️ Chua co thong bao real-time
+2. ⚠️ Chua co email thong bao
+3. ⚠️ Chua co goi y viec lam thong minh
+4. ⚠️ Chua co tim kiem ung vien cho nha tuyen dung
+5. ⚠️ Chua co quan ly ky nang, hoc van chi tiet
+6. ⚠️ Chua co ket qua phong van
+
+### 9.3. Uu tien phat trien
+**Uu tien cao** (1-2 tuan):
+1. Tich hop CV vao form ung tuyen
+2. Them tab quan ly CV vao profile
+3. Cho nha tuyen dung xem CV ung vien
+
+**Uu tien trung binh** (2-4 tuan):
+1. Quan ly ky nang, hoc van, kinh nghiem
+2. Ket qua phong van
+3. He thong thong bao
+4. Luu tin yeu thich
+
+**Uu tien thap** (1+ thang):
+1. Goi y viec lam
+2. Email thong bao
+3. Tim kiem ung vien
+4. Thu moi lam viec
+5. Nhat ky xem CV
+
+---
+
+## PHU LUC: SO DO NGHIEP VU
+
+### A. So do Use Case tong quan
+```
+[Khach]
+  - Xem viec lam
+  - Tim kiem viec lam
+  - Dang ky
+  - Dang nhap
+
+[Ung vien] (ke thua Khach)
+  - Tao ho so
+  - Upload CV
+  - Ung tuyen
+  - Xem don da nop
+  - Xem lich phong van
+  - Cap nhat profile
+
+[Nha tuyen dung]
+  - Dang tin tuyen dung
+  - Quan ly tin
+  - Xem don ung tuyen
+  - Cap nhat trang thai don
+  - Tao lich phong van
+  - Xem thong ke
+  - Cap nhat thong tin cong ty
+
+[Admin]
+  - Duyet tin tuyen dung
+  - Tu choi tin
+  - Xem tat ca tin
+  - Quan ly he thong
+```
+
+### B. Quan he giua cac doi tuong
+```
+NguoiDung (1) ----< (n) HoSoUngVien
+HoSoUngVien (1) ----< (n) FileCv
+NguoiDung (1) ----< (n) DonUngTuyen
+TinTuyenDung (1) ----< (n) DonUngTuyen
+FileCv (1) ----< (n) DonUngTuyen
+DonUngTuyen (1) ----< (n) LichPhongVan
+CongTy (1) ----< (n) TinTuyenDung
+NguoiDung (1) ----< (1) CongTy
+```
+
+### C. Chu trinh song cua Don ung tuyen
+```
+1. Ung vien tao ho so
+2. Ung vien upload CV
+3. Ung vien tim viec lam
+4. Ung vien ung tuyen (tao Don)
+5. Nha tuyen dung xem don
+6. Nha tuyen dung cap nhat trang thai
+7. Nha tuyen dung tao lich phong van
+8. Phong van
+9. Ghi ket qua
+10. Tuyen dung hoac tu choi
+```
+
+---
+
+**Ket thuc phan tich nghiep vu**

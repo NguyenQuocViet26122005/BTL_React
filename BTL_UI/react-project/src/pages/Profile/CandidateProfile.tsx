@@ -1,11 +1,12 @@
-import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty, Table } from 'antd';
-import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileTextOutlined, EyeOutlined } from '@ant-design/icons';
+﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty, Table, Alert } from 'antd';
+import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileTextOutlined, EyeOutlined, FileOutlined, InfoCircleOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NguoiDung, HoSoUngVien, DonUngTuyen } from '../../types';
 import { resumeService } from '../../services/resumeService';
 import { profileService } from '../../services/profileService';
 import { applicationService } from '../../services/applicationService';
+import CvManager from '../../components/CV/CvManager';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -21,6 +22,8 @@ const CandidateProfile = () => {
   const [hasResume, setHasResume] = useState(false);
   const [applications, setApplications] = useState<DonUngTuyen[]>([]);
   const [loadingApplications, setLoadingApplications] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<DonUngTuyen | null>(null);
 
   const [personalForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
@@ -106,7 +109,11 @@ const CandidateProfile = () => {
     } finally {
       setLoadingApplications(false);
     }
+  };  const handleViewDetail = (app: DonUngTuyen) => {
+    setSelectedApp(app);
+    setDetailModalOpen(true);
   };
+
 
   const getStatusColor = (status: string) => {
     const colorMap: any = {
@@ -339,7 +346,14 @@ const CandidateProfile = () => {
                   title: 'Thao tac',
                   key: 'action',
                   render: (_: any, record: DonUngTuyen) => (
-                    <Space size="middle">
+                    <Space size="middle">                      <Button 
+                        type="link" 
+                        icon={<InfoCircleOutlined />}
+                        onClick={() => handleViewDetail(record)}
+                      >
+                        Chi tiet
+                      </Button>
+
                       <Button 
                         type="link" 
                         icon={<EyeOutlined />}
@@ -359,7 +373,12 @@ const CandidateProfile = () => {
           )}
         </Card>
       ),
+    },    {
+      key: 'cv',
+      label: <span><FileOutlined /> Quan ly CV</span>,
+      children: hoSo ? <CvManager maHoSo={hoSo.maHoSo} /> : <Empty description="Vui long tao ho so truoc" />,
     },
+
     {
       key: 'security',
       label: <span><LockOutlined /> Bao mat</span>,
@@ -402,6 +421,78 @@ const CandidateProfile = () => {
           <Tabs items={tabItems} />
         </Card>
       </div>
+      <Modal
+        title="Chi tiet don ung tuyen"
+        open={detailModalOpen}
+        onCancel={() => {
+          setDetailModalOpen(false);
+          setSelectedApp(null);
+        }}
+        width={800}
+        footer={[
+          <Button key="viewJob" onClick={() => {
+            if (selectedApp) navigate(`/jobs/${selectedApp.maTin}`);
+          }}>
+            Xem tin tuyen dung
+          </Button>,
+          <Button key="close" type="primary" onClick={() => {
+            setDetailModalOpen(false);
+            setSelectedApp(null);
+          }}>
+            Dong
+          </Button>
+        ]}
+      >
+        {selectedApp && (
+          <div>
+            <Descriptions column={2} bordered style={{ marginBottom: 16 }}>
+              <Descriptions.Item label="Vi tri ung tuyen" span={2}>
+                <strong style={{ fontSize: 16 }}>{selectedApp.tieuDeTin}</strong>
+              </Descriptions.Item>
+              <Descriptions.Item label="Trang thai">
+                <Tag color={getStatusColor(selectedApp.trangThai)}>
+                  {getStatusText(selectedApp.trangThai)}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngay nop">
+                {dayjs(selectedApp.ngayNop).format('DD/MM/YYYY HH:mm')}
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngay cap nhat" span={2}>
+                {selectedApp.ngayCapNhat ? dayjs(selectedApp.ngayCapNhat).format('DD/MM/YYYY HH:mm') : 'Chua cap nhat'}
+              </Descriptions.Item>
+              <Descriptions.Item label="CV da su dung" span={2}>
+                <Space>
+                  <FileOutlined />
+                  {selectedApp.tenFileCV || 'Khong co thong tin'}
+                  {selectedApp.duongDanFileCV && (
+                    <Button 
+                      type="link" 
+                      size="small" 
+                      icon={<DownloadOutlined />}
+                      href={`https://localhost:44314${selectedApp.duongDanFileCV}`}
+                      target="_blank"
+                    >
+                      Tai xuong
+                    </Button>
+                  )}
+                </Space>
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Divider>Thu gioi thieu</Divider>
+            {selectedApp.thuGioiThieu ? (
+              <Card style={{ backgroundColor: '#f5f5f5' }}>
+                <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>
+                  {selectedApp.thuGioiThieu}
+                </p>
+              </Card>
+            ) : (
+              <Alert message="Khong co thu gioi thieu" type="info" />
+            )}
+          </div>
+        )}
+      </Modal>
+
 
       <Modal
         title="Doi mat khau"

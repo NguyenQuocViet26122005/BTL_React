@@ -7,7 +7,6 @@ using BTL_CNW.BLL.LichPhongVan;
 using BTL_CNW.BLL.DanhMuc;
 using BTL_CNW.BLL.Dashboard;
 using BTL_CNW.BLL.Profile;
-using BTL_CNW.BLL.FileCv;
 
 using BTL_CNW.DAL.Auth;
 using BTL_CNW.DAL.CongTy;
@@ -18,7 +17,6 @@ using BTL_CNW.DAL.LichPhongVan;
 using BTL_CNW.DAL.DanhMuc;
 using BTL_CNW.DAL.Dashboard;
 using BTL_CNW.DAL.Profile;
-using BTL_CNW.DAL.FileCv;
 
 using BTL_CNW.Models;
 using BTL_CNW.Services;
@@ -118,10 +116,6 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 // Profile
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
-
-// File CV
-builder.Services.AddScoped<IFileCvRepository, FileCvRepository>();
-builder.Services.AddScoped<IFileCvService, FileCvService>();
 
 var app = builder.Build();
 

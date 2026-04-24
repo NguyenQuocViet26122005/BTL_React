@@ -1,9 +1,11 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Button, Tag, Descriptions, Spin, message, Row, Col, Modal, Form, Input } from 'antd';
-import { EnvironmentOutlined, DollarOutlined, CalendarOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { Card, Button, Tag, Descriptions, Spin, message, Row, Col, Modal, Form, Input, Select, Alert } from 'antd';
+import { EnvironmentOutlined, DollarOutlined, CalendarOutlined, ArrowLeftOutlined, FileOutlined } from '@ant-design/icons';
 import { getTinTuyenDungById } from '../../services/jobService';
 import { applicationService } from '../../services/applicationService';
+import cvService, { type FileCv } from '../../services/cvService';
+import { resumeService } from '../../services/resumeService';
 import { eventBus, EVENTS } from '../../utils/eventBus';
 import type { TinTuyenDung } from '../../types';
 import dayjs from 'dayjs';
@@ -17,6 +19,9 @@ const JobDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [cvList, setCvList] = useState<FileCv[]>([]);
+  const [loadingCv, setLoadingCv] = useState(false);
+  const [hasResume, setHasResume] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -43,6 +48,30 @@ const JobDetailPage = () => {
     }
   };
 
+  const loadCvList = async (maNguoiDung: number) => {
+    setLoadingCv(true);
+    try {
+      const resResume = await resumeService.getMyResume(maNguoiDung);
+      if (resResume.success && resResume.data) {
+        setHasResume(true);
+        const resCv = await cvService.getCvByHoSo(resResume.data.maHoSo);
+        if (resCv.success && resCv.data) {
+          setCvList(resCv.data);
+          const defaultCv = resCv.data.find(cv => cv.laMacDinh);
+          if (defaultCv) {
+            form.setFieldValue('maFileCV', defaultCv.maFileCv);
+          }
+        }
+      } else {
+        setHasResume(false);
+      }
+    } catch (error) {
+      console.error('Error loading CV:', error);
+    } finally {
+      setLoadingCv(false);
+    }
+  };
+
   const handleApply = () => {
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
@@ -59,6 +88,7 @@ const JobDetailPage = () => {
       return;
     }
 
+    loadCvList(user.maNguoiDung);
     setIsModalOpen(true);
   };
 
@@ -72,11 +102,16 @@ const JobDetailPage = () => {
       }
       
       const user = JSON.parse(userStr);
+
+      if (!values.maFileCV) {
+        message.error('Vui long chon CV!');
+        return;
+      }
       
       const response = await applicationService.submitApplication({
         maTin: parseInt(id!),
         maUngVien: user.maNguoiDung,
-        maFileCV: 1,
+        maFileCV: values.maFileCV,
         thuGioiThieu: values.thuGioiThieu
       });
 
@@ -203,37 +238,81 @@ const JobDetailPage = () => {
           <p>{job?.tenCongTy}</p>
         </div>
 
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmitApplication}
-        >
-          <Form.Item
-            name="thuGioiThieu"
-            label="Thu gioi thieu"
-            rules={[
-              { required: true, message: 'Vui long nhap thu gioi thieu!' },
-              { min: 50, message: 'Thu gioi thieu phai co it nhat 50 ky tu!' }
-            ]}
+        {!hasResume ? (
+          <Alert
+            message="Ban chua co ho so ung vien"
+            description="Vui long tao ho so ung vien truoc khi ung tuyen"
+            type="warning"
+            showIcon
+            action={
+              <Button size="small" type="primary" onClick={() => navigate('/candidate/resume')}>
+                Tao ho so
+              </Button>
+            }
+          />
+        ) : cvList.length === 0 ? (
+          <Alert
+            message="Ban chua co CV nao"
+            description="Vui long tai len CV truoc khi ung tuyen"
+            type="warning"
+            showIcon
+            action={
+              <Button size="small" type="primary" onClick={() => navigate('/profile')}>
+                Tai len CV
+              </Button>
+            }
+          />
+        ) : (
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmitApplication}
           >
-            <TextArea 
-              rows={6} 
-              placeholder="Gioi thieu ban than, kinh nghiem va ly do ban phu hop voi vi tri nay..."
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              block 
-              size="large"
-              loading={submitting}
+            <Form.Item
+              name="maFileCV"
+              label="Chon CV"
+              rules={[{ required: true, message: 'Vui long chon CV!' }]}
             >
-              Nop don ung tuyen
-            </Button>
-          </Form.Item>
-        </Form>
+              <Select
+                placeholder="Chon CV de ung tuyen"
+                loading={loadingCv}
+                size="large"
+              >
+                {cvList.map(cv => (
+                  <Select.Option key={cv.maFileCv} value={cv.maFileCv}>
+                    <FileOutlined /> {cv.tenFile} {cv.laMacDinh && <Tag color="gold">Mac dinh</Tag>}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="thuGioiThieu"
+              label="Thu gioi thieu"
+              rules={[
+                { required: true, message: 'Vui long nhap thu gioi thieu!' },
+                { min: 50, message: 'Thu gioi thieu phai co it nhat 50 ky tu!' }
+              ]}
+            >
+              <TextArea 
+                rows={6} 
+                placeholder="Gioi thieu ban than, kinh nghiem va ly do ban phu hop voi vi tri nay..."
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                block 
+                size="large"
+                loading={submitting}
+              >
+                Nop don ung tuyen
+              </Button>
+            </Form.Item>
+          </Form>
+        )}
       </Modal>
     </div>
   );

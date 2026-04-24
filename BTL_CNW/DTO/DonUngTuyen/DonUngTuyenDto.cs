@@ -10,6 +10,7 @@ namespace BTL_CNW.DTO.DonUngTuyen
         public string? EmailUngVien { get; set; }
         public int MaFileCV { get; set; }
         public string? TenFileCV { get; set; }
+        public string? DuongDanFileCV { get; set; }
         public string? ThuGioiThieu { get; set; }
         public string TrangThai { get; set; } = null!;
         public DateTime NgayNop { get; set; }

@@ -15,11 +15,10 @@ export type FileCv = {
 export const cvService = {
   uploadCv: async (maHoSo: number, file: File, laMacDinh: boolean = false) => {
     const formData = new FormData();
-    formData.append('MaHoSo', maHoSo.toString());
-    formData.append('File', file);
-    formData.append('LaMacDinh', laMacDinh.toString());
+    formData.append('file', file);
+    formData.append('laMacDinh', laMacDinh.toString());
 
-    const response = await api.post<ApiResponse<FileCv>>('/file-cv/upload', formData, {
+    const response = await api.post<ApiResponse<FileCv>>(`/ho-so/${maHoSo}/cv/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -28,22 +27,22 @@ export const cvService = {
   },
 
   getCvByHoSo: async (maHoSo: number) => {
-    const response = await api.get<ApiResponse<FileCv[]>>(`/file-cv/ho-so/${maHoSo}`);
+    const response = await api.get<ApiResponse<FileCv[]>>(`/ho-so/${maHoSo}/cv`);
     return response.data;
   },
 
   getCvDetail: async (maFileCv: number) => {
-    const response = await api.get<ApiResponse<FileCv>>(`/file-cv/${maFileCv}`);
+    const response = await api.get<ApiResponse<FileCv>>(`/ho-so/cv/${maFileCv}`);
     return response.data;
   },
 
   setDefaultCv: async (maFileCv: number, maHoSo: number) => {
-    const response = await api.put<ApiResponse<void>>(`/file-cv/${maFileCv}/mac-dinh?maHoSo=${maHoSo}`);
+    const response = await api.put<ApiResponse<void>>(`/ho-so/cv/${maFileCv}/mac-dinh?maHoSo=${maHoSo}`);
     return response.data;
   },
 
   deleteCv: async (maFileCv: number) => {
-    const response = await api.delete<ApiResponse<void>>(`/file-cv/${maFileCv}`);
+    const response = await api.delete<ApiResponse<void>>(`/ho-so/cv/${maFileCv}`);
     return response.data;
   }
 };
