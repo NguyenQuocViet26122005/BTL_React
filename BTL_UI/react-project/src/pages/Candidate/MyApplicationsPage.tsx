@@ -1,6 +1,6 @@
-﻿import { useEffect, useState } from 'react';
-import { Card, Table, Tag, Button, Space, message, Empty } from 'antd';
-import { EyeOutlined, FileTextOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
+import { Card, Table, Tag, Button, Space, message, Empty, Modal, Descriptions, Alert, Divider } from 'antd';
+import { EyeOutlined, FileTextOutlined, InfoCircleOutlined, FileOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { applicationService } from '../../services/applicationService';
 import type { DonUngTuyen } from '../../types';
@@ -10,6 +10,8 @@ const MyApplicationsPage = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState<DonUngTuyen[]>([]);
   const [loading, setLoading] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<DonUngTuyen | null>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -25,15 +27,11 @@ const MyApplicationsPage = () => {
   const fetchApplications = async (maUngVien: number) => {
     try {
       setLoading(true);
-      console.log('Fetching applications for user:', maUngVien);
       const response = await applicationService.getMyApplications(maUngVien);
-      console.log('API Response:', response);
       
       if (response.success && response.data) {
-        console.log('Applications data:', response.data);
         setApplications(response.data);
       } else {
-        console.log('No data or failed:', response);
         message.warning(response.message || 'Khong co don ung tuyen nao');
       }
     } catch (error: any) {
@@ -42,6 +40,11 @@ const MyApplicationsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewDetail = (app: DonUngTuyen) => {
+    setSelectedApp(app);
+    setDetailModalOpen(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -96,17 +99,17 @@ const MyApplicationsPage = () => {
         <Space size="middle">
           <Button 
             type="link" 
+            icon={<InfoCircleOutlined />}
+            onClick={() => handleViewDetail(record)}
+          >
+            Chi tiet
+          </Button>
+          <Button 
+            type="link" 
             icon={<EyeOutlined />}
             onClick={() => navigate(`/jobs/${record.maTin}`)}
           >
             Xem tin
-          </Button>
-          <Button 
-            type="link" 
-            icon={<FileTextOutlined />}
-            onClick={() => message.info('Chuc nang xem chi tiet don dang phat trien')}
-          >
-            Chi tiet
           </Button>
         </Space>
       ),
@@ -140,6 +143,78 @@ const MyApplicationsPage = () => {
           />
         )}
       </Card>
+
+      <Modal
+        title="Chi tiet don ung tuyen"
+        open={detailModalOpen}
+        onCancel={() => {
+          setDetailModalOpen(false);
+          setSelectedApp(null);
+        }}
+        width={800}
+        footer={[
+          <Button key="viewJob" onClick={() => {
+            if (selectedApp) navigate(`/jobs/${selectedApp.maTin}`);
+          }}>
+            Xem tin tuyen dung
+          </Button>,
+          <Button key="close" type="primary" onClick={() => {
+            setDetailModalOpen(false);
+            setSelectedApp(null);
+          }}>
+            Dong
+          </Button>
+        ]}
+      >
+        {selectedApp && (
+          <div>
+            <Descriptions column={2} bordered style={{ marginBottom: 16 }}>
+              <Descriptions.Item label="Vi tri ung tuyen" span={2}>
+                <strong style={{ fontSize: 16 }}>{selectedApp.tieuDeTin}</strong>
+              </Descriptions.Item>
+              <Descriptions.Item label="Trang thai">
+                <Tag color={getStatusColor(selectedApp.trangThai)}>
+                  {getStatusText(selectedApp.trangThai)}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngay nop">
+                {dayjs(selectedApp.ngayNop).format('DD/MM/YYYY HH:mm')}
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngay cap nhat" span={2}>
+                {selectedApp.ngayCapNhat ? dayjs(selectedApp.ngayCapNhat).format('DD/MM/YYYY HH:mm') : 'Chua cap nhat'}
+              </Descriptions.Item>
+              <Descriptions.Item label="CV da su dung" span={2}>
+                <Space>
+                  <FileOutlined />
+                  {selectedApp.tenFileCV || 'Khong co thong tin'}
+                  {selectedApp.duongDanFileCV && (
+                    <Button 
+                      type="link" 
+                      size="small" 
+                      icon={<DownloadOutlined />}
+                      href={`https://localhost:44314${selectedApp.duongDanFileCV}`}
+                      target="_blank"
+                    >
+                      Tai xuong
+                    </Button>
+                  )}
+                </Space>
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Divider>Thu gioi thieu</Divider>
+            {selectedApp.thuGioiThieu ? (
+              <Card style={{ backgroundColor: '#f5f5f5' }}>
+                <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>
+                  {selectedApp.thuGioiThieu}
+                </p>
+              </Card>
+            ) : (
+              <Alert message="Khong co thu gioi thieu" type="info" />
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

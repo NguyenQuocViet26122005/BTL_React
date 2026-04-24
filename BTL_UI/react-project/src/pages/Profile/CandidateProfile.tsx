@@ -1,11 +1,10 @@
-﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty, Table, Alert } from 'antd';
-import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileTextOutlined, EyeOutlined, FileOutlined, InfoCircleOutlined, DownloadOutlined } from '@ant-design/icons';
+import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty } from 'antd';
+import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { NguoiDung, HoSoUngVien, DonUngTuyen } from '../../types';
+import type { NguoiDung, HoSoUngVien } from '../../types';
 import { resumeService } from '../../services/resumeService';
 import { profileService } from '../../services/profileService';
-import { applicationService } from '../../services/applicationService';
 import CvManager from '../../components/CV/CvManager';
 import dayjs from 'dayjs';
 
@@ -20,10 +19,6 @@ const CandidateProfile = () => {
   const [editingPersonal, setEditingPersonal] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [hasResume, setHasResume] = useState(false);
-  const [applications, setApplications] = useState<DonUngTuyen[]>([]);
-  const [loadingApplications, setLoadingApplications] = useState(false);
-  const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [selectedApp, setSelectedApp] = useState<DonUngTuyen | null>(null);
 
   const [personalForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
@@ -34,7 +29,6 @@ const CandidateProfile = () => {
       const userData = JSON.parse(userStr);
       setUser(userData);
       loadResumeData(userData.maNguoiDung);
-      loadApplications(userData.maNguoiDung);
     }
   }, []);
 
@@ -50,7 +44,6 @@ const CandidateProfile = () => {
           tomTat: res.data.tomTat,
           ngaySinh: res.data.ngaySinh ? dayjs(res.data.ngaySinh) : null,
           gioiTinh: res.data.gioiTinh,
-
           diaChi: res.data.diaChi,
           thanhPho: res.data.thanhPho,
           linkedIn: res.data.linkedIn,
@@ -82,59 +75,16 @@ const CandidateProfile = () => {
         ...values,
         ngaySinh: values.ngaySinh ? values.ngaySinh.format('YYYY-MM-DD') : null,
       };
-      console.log('Sending update:', updateData);
       await resumeService.updateResume(hoSo.maHoSo, updateData);
       message.success('Cap nhat ho so thanh cong');
       setEditingPersonal(false);
       loadResumeData(user.maNguoiDung);
     } catch (error: any) {
       console.error('Update error:', error.response?.data);
-      alert('LOI: ' + JSON.stringify(error.response?.data, null, 2));
       message.error(error.response?.data?.message || 'Cap nhat that bai');
     } finally {
       setLoading(false);
     }
-  };
-
-
-  const loadApplications = async (maNguoiDung: number) => {
-    setLoadingApplications(true);
-    try {
-      const res = await applicationService.getMyApplications(maNguoiDung);
-      if (res.success && res.data) {
-        setApplications(res.data);
-      }
-    } catch (error: any) {
-      console.error('Error loading applications:', error);
-    } finally {
-      setLoadingApplications(false);
-    }
-  };  const handleViewDetail = (app: DonUngTuyen) => {
-    setSelectedApp(app);
-    setDetailModalOpen(true);
-  };
-
-
-  const getStatusColor = (status: string) => {
-    const colorMap: any = {
-      'DaNop': 'blue',
-      'DangXem': 'orange',
-      'PhongVan': 'purple',
-      'TuChoi': 'red',
-      'ChapNhan': 'green'
-    };
-    return colorMap[status] || 'default';
-  };
-
-  const getStatusText = (status: string) => {
-    const textMap: any = {
-      'DaNop': 'Da nop',
-      'DangXem': 'Dang xem',
-      'PhongVan': 'Phong van',
-      'TuChoi': 'Tu choi',
-      'ChapNhan': 'Chap nhan'
-    };
-    return textMap[status] || status;
   };
 
   const handleChangePassword = async (values: any) => {
@@ -151,7 +101,6 @@ const CandidateProfile = () => {
       setLoading(false);
     }
   };
-
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -201,7 +150,6 @@ const CandidateProfile = () => {
         <Card>
           <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Title level={4} style={{ margin: 0 }}>Thong tin ca nhan</Title>
-
             {!editingPersonal && (
               <Button type="primary" icon={<EditOutlined />} onClick={() => setEditingPersonal(true)}>Chinh sua</Button>
             )}
@@ -248,7 +196,6 @@ const CandidateProfile = () => {
                     <Input size="large" prefix={<LinkedinOutlined />} placeholder="linkedin.com/in/..." />
                   </Form.Item>
                 </Col>
-
                 <Col span={8}>
                   <Form.Item label="GitHub" name="gitHub">
                     <Input size="large" prefix={<GithubOutlined />} placeholder="github.com/..." />
@@ -289,7 +236,6 @@ const CandidateProfile = () => {
               <Descriptions.Item label="Dia chi">{hoSo?.diaChi || 'Chua cap nhat'}</Descriptions.Item>
               <Descriptions.Item label="Thanh pho">{hoSo?.thanhPho || 'Chua cap nhat'}</Descriptions.Item>
               <Descriptions.Item label="Tom tat" span={2}>{hoSo?.tomTat || 'Chua cap nhat'}</Descriptions.Item>
-
               <Descriptions.Item label="LinkedIn">{hoSo?.linkedIn ? <a href={hoSo.linkedIn} target="_blank" rel="noopener noreferrer">{hoSo.linkedIn}</a> : 'Chua cap nhat'}</Descriptions.Item>
               <Descriptions.Item label="GitHub">{hoSo?.gitHub ? <a href={hoSo.gitHub} target="_blank" rel="noopener noreferrer">{hoSo.gitHub}</a> : 'Chua cap nhat'}</Descriptions.Item>
               <Descriptions.Item label="Portfolio" span={2}>{hoSo?.portfolio ? <a href={hoSo.portfolio} target="_blank" rel="noopener noreferrer">{hoSo.portfolio}</a> : 'Chua cap nhat'}</Descriptions.Item>
@@ -301,84 +247,10 @@ const CandidateProfile = () => {
       ),
     },
     {
-      key: 'applications',
-      label: <span><FileTextOutlined /> Don ung tuyen</span>,
-      children: (
-        <Card>
-          <Title level={4}>Don ung tuyen cua toi</Title>
-          <Text type="secondary">Quan ly tat ca cac don ung tuyen ban da nop</Text>
-          <Divider />
-          {applications.length === 0 && !loadingApplications ? (
-            <Empty 
-              description="Ban chua nop don ung tuyen nao"
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            >
-              <Button type="primary" onClick={() => navigate('/jobs')}>
-                Tim viec ngay
-              </Button>
-            </Empty>
-          ) : (
-            <Table 
-              columns={[
-                {
-                  title: 'Vi tri ung tuyen',
-                  dataIndex: 'tieuDeTin',
-                  key: 'tieuDeTin',
-                  render: (text: string) => <strong>{text}</strong>,
-                },
-                {
-                  title: 'Ngay nop',
-                  dataIndex: 'ngayNop',
-                  key: 'ngayNop',
-                  render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
-                },
-                {
-                  title: 'Trang thai',
-                  dataIndex: 'trangThai',
-                  key: 'trangThai',
-                  render: (status: string) => (
-                    <Tag color={getStatusColor(status)}>
-                      {getStatusText(status)}
-                    </Tag>
-                  ),
-                },
-                {
-                  title: 'Thao tac',
-                  key: 'action',
-                  render: (_: any, record: DonUngTuyen) => (
-                    <Space size="middle">                      <Button 
-                        type="link" 
-                        icon={<InfoCircleOutlined />}
-                        onClick={() => handleViewDetail(record)}
-                      >
-                        Chi tiet
-                      </Button>
-
-                      <Button 
-                        type="link" 
-                        icon={<EyeOutlined />}
-                        onClick={() => navigate(`/jobs/${record.maTin}`)}
-                      >
-                        Xem tin
-                      </Button>
-                    </Space>
-                  ),
-                },
-              ]}
-              dataSource={applications} 
-              rowKey="maDon"
-              loading={loadingApplications}
-              pagination={{ pageSize: 5 }}
-            />
-          )}
-        </Card>
-      ),
-    },    {
       key: 'cv',
       label: <span><FileOutlined /> Quan ly CV</span>,
       children: hoSo ? <CvManager maHoSo={hoSo.maHoSo} /> : <Empty description="Vui long tao ho so truoc" />,
     },
-
     {
       key: 'security',
       label: <span><LockOutlined /> Bao mat</span>,
@@ -408,7 +280,6 @@ const CandidateProfile = () => {
             </Col>
             <Col flex="auto">
               <Title level={3} style={{ margin: 0, marginBottom: 4 }}>{user?.hoTen || 'Ung vien'}</Title>
-
               <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>{hoSo?.tieuDe || 'Tai khoan ung vien'}</Text>
               <Text style={{ color: '#666' }}>{user?.email}</Text>
             </Col>
@@ -421,78 +292,6 @@ const CandidateProfile = () => {
           <Tabs items={tabItems} />
         </Card>
       </div>
-      <Modal
-        title="Chi tiet don ung tuyen"
-        open={detailModalOpen}
-        onCancel={() => {
-          setDetailModalOpen(false);
-          setSelectedApp(null);
-        }}
-        width={800}
-        footer={[
-          <Button key="viewJob" onClick={() => {
-            if (selectedApp) navigate(`/jobs/${selectedApp.maTin}`);
-          }}>
-            Xem tin tuyen dung
-          </Button>,
-          <Button key="close" type="primary" onClick={() => {
-            setDetailModalOpen(false);
-            setSelectedApp(null);
-          }}>
-            Dong
-          </Button>
-        ]}
-      >
-        {selectedApp && (
-          <div>
-            <Descriptions column={2} bordered style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="Vi tri ung tuyen" span={2}>
-                <strong style={{ fontSize: 16 }}>{selectedApp.tieuDeTin}</strong>
-              </Descriptions.Item>
-              <Descriptions.Item label="Trang thai">
-                <Tag color={getStatusColor(selectedApp.trangThai)}>
-                  {getStatusText(selectedApp.trangThai)}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngay nop">
-                {dayjs(selectedApp.ngayNop).format('DD/MM/YYYY HH:mm')}
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngay cap nhat" span={2}>
-                {selectedApp.ngayCapNhat ? dayjs(selectedApp.ngayCapNhat).format('DD/MM/YYYY HH:mm') : 'Chua cap nhat'}
-              </Descriptions.Item>
-              <Descriptions.Item label="CV da su dung" span={2}>
-                <Space>
-                  <FileOutlined />
-                  {selectedApp.tenFileCV || 'Khong co thong tin'}
-                  {selectedApp.duongDanFileCV && (
-                    <Button 
-                      type="link" 
-                      size="small" 
-                      icon={<DownloadOutlined />}
-                      href={`https://localhost:44314${selectedApp.duongDanFileCV}`}
-                      target="_blank"
-                    >
-                      Tai xuong
-                    </Button>
-                  )}
-                </Space>
-              </Descriptions.Item>
-            </Descriptions>
-
-            <Divider>Thu gioi thieu</Divider>
-            {selectedApp.thuGioiThieu ? (
-              <Card style={{ backgroundColor: '#f5f5f5' }}>
-                <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>
-                  {selectedApp.thuGioiThieu}
-                </p>
-              </Card>
-            ) : (
-              <Alert message="Khong co thu gioi thieu" type="info" />
-            )}
-          </div>
-        )}
-      </Modal>
-
 
       <Modal
         title="Doi mat khau"
@@ -539,7 +338,6 @@ const CandidateProfile = () => {
           >
             <Input.Password size="large" />
           </Form.Item>
-
           <Form.Item style={{ marginBottom: 0 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
               <Button onClick={() => { setPasswordModalVisible(false); passwordForm.resetFields(); }}>Huy</Button>

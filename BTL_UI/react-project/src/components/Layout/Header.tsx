@@ -1,8 +1,9 @@
-﻿import { Layout, Button, Space, Dropdown } from 'antd';
+import { Layout, Button, Space, Dropdown } from 'antd';
 import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined, CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { NguoiDung } from '../../types';
+import NotificationBell from '../Notifications/NotificationBell';
 
 const { Header: AntHeader } = Layout;
 
@@ -153,20 +154,23 @@ const Header = () => {
 
       <Space size="middle">
         {user ? (
-          <Dropdown menu={{ items: menuItems }} placement="bottomRight">
-            <Button 
-              type="link" 
-              style={{ 
-                color: '#fff',
-                background: '#1890ff',
-                borderRadius: '4px',
-                padding: '4px 15px',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <UserOutlined /> {user.hoTen}
-            </Button>
-          </Dropdown>
+          <>
+            <NotificationBell maNguoiDung={user.maNguoiDung} />
+            <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+              <Button 
+                type="link" 
+                style={{ 
+                  color: '#fff',
+                  background: '#1890ff',
+                  borderRadius: '4px',
+                  padding: '4px 15px',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <UserOutlined /> {user.hoTen}
+              </Button>
+            </Dropdown>
+          </>
         ) : (
           <>
             <Button onClick={() => navigate('/login')}>

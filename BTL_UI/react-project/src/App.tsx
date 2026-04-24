@@ -1,4 +1,4 @@
-﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 import MainLayout from './components/Layout/MainLayout';
@@ -16,6 +16,7 @@ import MyApplicationsPage from './pages/Candidate/MyApplicationsPage';
 import MyInterviewsPage from './pages/Candidate/MyInterviewsPage';
 import CandidateResumePage from './pages/Candidate/CandidateResumePage';
 import AdminJobApprovalPage from './pages/Admin/AdminJobApprovalPage';
+import NotificationsPage from './pages/Notifications/NotificationsPage';
 import TestConnection from './pages/TestConnection';
 import './App.css';
 
@@ -42,6 +43,7 @@ function App() {
             <Route path="candidate/interviews" element={<MyInterviewsPage />} />
             <Route path="candidate/resume" element={<CandidateResumePage />} />
             <Route path="admin/jobs" element={<AdminJobApprovalPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
             <Route path="test-connection" element={<TestConnection />} />
           </Route>
         </Routes>
