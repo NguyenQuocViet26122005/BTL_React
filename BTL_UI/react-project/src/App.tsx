@@ -10,10 +10,12 @@ import JobDetailPage from './pages/Jobs/JobDetailPage';
 import JobFilterPage from './pages/Jobs/JobFilterPage';
 import CompanyDashboard from './pages/Company/CompanyDashboard';
 import InterviewSchedulePage from './pages/Company/InterviewSchedulePage';
+import ManageApplicationsPage from './pages/Company/ManageApplicationsPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import RecruiterProfile from './pages/Profile/RecruiterProfile';
 import MyApplicationsPage from './pages/Candidate/MyApplicationsPage';
 import MyInterviewsPage from './pages/Candidate/MyInterviewsPage';
+import MyOffersPage from './pages/Candidate/MyOffersPage';
 import CandidateResumePage from './pages/Candidate/CandidateResumePage';
 import AdminJobApprovalPage from './pages/Admin/AdminJobApprovalPage';
 import NotificationsPage from './pages/Notifications/NotificationsPage';
@@ -37,10 +39,12 @@ function App() {
             <Route path="jobs/filter" element={<JobFilterPage />} />
             <Route path="company/dashboard" element={<CompanyDashboard />} />
             <Route path="company/interviews" element={<InterviewSchedulePage />} />
+            <Route path="company/applications" element={<ManageApplicationsPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="recruiter/profile" element={<RecruiterProfile />} />
             <Route path="candidate/applications" element={<MyApplicationsPage />} />
             <Route path="candidate/interviews" element={<MyInterviewsPage />} />
+            <Route path="candidate/offers" element={<MyOffersPage />} />
             <Route path="candidate/resume" element={<CandidateResumePage />} />
             <Route path="admin/jobs" element={<AdminJobApprovalPage />} />
             <Route path="notifications" element={<NotificationsPage />} />

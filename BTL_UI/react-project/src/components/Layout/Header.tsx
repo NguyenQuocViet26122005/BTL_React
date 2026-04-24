@@ -1,5 +1,5 @@
 import { Layout, Button, Space, Dropdown } from 'antd';
-import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined, CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined, CalendarOutlined, FileTextOutlined, GiftOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { NguoiDung } from '../../types';
@@ -114,6 +114,13 @@ const Header = () => {
               </Button>
               <Button 
                 type="link" 
+                style={getButtonStyle('/company/applications')} 
+                onClick={() => navigate('/company/applications')}
+              >
+                <TeamOutlined /> Don ung tuyen
+              </Button>
+              <Button 
+                type="link" 
                 style={getButtonStyle('/company/interviews')} 
                 onClick={() => navigate('/company/interviews')}
               >
@@ -136,6 +143,13 @@ const Header = () => {
                 onClick={() => navigate('/candidate/interviews')}
               >
                 <CalendarOutlined /> Lich phong van
+              </Button>
+              <Button 
+                type="link" 
+                style={getButtonStyle('/candidate/offers')} 
+                onClick={() => navigate('/candidate/offers')}
+              >
+                <GiftOutlined /> Thu moi
               </Button>
             </>
           )}
