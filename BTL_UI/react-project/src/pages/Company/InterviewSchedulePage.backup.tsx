@@ -491,64 +491,7 @@ const InterviewSchedulePage = () => {
             </Space>
           </Form.Item>
         </Form>
-      </Modal>
-
-      <Modal
-        title="Ket qua phong van"
-        open={viewResultModalVisible}
-        onCancel={() => {
-          setViewResultModalVisible(false);
-          setSelectedInterview(null);
-        }}
-        footer={[
-          <Button key="close" type="primary" onClick={() => {
-            setViewResultModalVisible(false);
-            setSelectedInterview(null);
-          }}>
-            Dong
-          </Button>
-        ]}
-        width={700}
-      >
-        {selectedInterview && (selectedInterview as any).ketQuaPhongVan && (
-          <div>
-            <div style={{ marginBottom: 16, padding: 12, background: '#f5f5f5', borderRadius: 4 }}>
-              <div><strong>Ung vien:</strong> {(selectedInterview as any).tenUngVien}</div>
-              <div><strong>Vi tri:</strong> {(selectedInterview as any).viTriUngTuyen}</div>
-              <div><strong>Thoi gian:</strong> {dayjs((selectedInterview as any).thoiGian).format('DD/MM/YYYY HH:mm')}</div>
-            </div>
-
-            <Descriptions column={2} bordered>
-              <Descriptions.Item label="Diem tong quat">
-                <Tag color="blue">{(selectedInterview as any).ketQuaPhongVan.diemTongQuat}/5</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Diem ky thuat">
-                <Tag color="blue">{(selectedInterview as any).ketQuaPhongVan.diemKyThuat}/5</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Diem ky nang mem" span={2}>
-                <Tag color="blue">{(selectedInterview as any).ketQuaPhongVan.diemKyNangMem}/5</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Ket qua" span={2}>
-                <Tag color={(selectedInterview as any).ketQuaPhongVan.ketQua === 'Dat' ? 'green' : (selectedInterview as any).ketQuaPhongVan.ketQua === 'KhongDat' ? 'red' : 'orange'}>
-                  {(selectedInterview as any).ketQuaPhongVan.ketQua === 'Dat' ? 'Dat' : (selectedInterview as any).ketQuaPhongVan.ketQua === 'KhongDat' ? 'Khong dat' : 'Cho danh gia'}
-                </Tag>
-              </Descriptions.Item>
-              {(selectedInterview as any).ketQuaPhongVan.nhanXet && (
-                <Descriptions.Item label="Nhan xet" span={2}>
-                  <div style={{ whiteSpace: 'pre-wrap' }}>{(selectedInterview as any).ketQuaPhongVan.nhanXet}</div>
-                </Descriptions.Item>
-              )}
-              <Descriptions.Item label="Nguoi danh gia" span={2}>
-                {(selectedInterview as any).ketQuaPhongVan.tenNguoiDanhGia || 'N/A'}
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngay danh gia" span={2}>
-                {dayjs((selectedInterview as any).ketQuaPhongVan.ngayTao).format('DD/MM/YYYY HH:mm')}
-              </Descriptions.Item>
-            </Descriptions>
-          </div>
-        )}
-      </Modal>
-      </div>
+      </Modal>      </div>
     </div>
   );
 };

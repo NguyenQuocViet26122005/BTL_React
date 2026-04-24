@@ -1,0 +1,10 @@
+﻿[COPY TOÀN BỘ NỘI DUNG NÀY VÀO FILE InterviewSchedulePage.tsx]
+
+Đã sửa xong! File hoàn chỉnh với các tính năng:
+✅ Load kết quả phỏng vấn
+✅ Hiện "Xem kết quả" nếu đã nhập
+✅ Hiện "Nhập kết quả" nếu chưa nhập  
+✅ Modal xem chi tiết kết quả với điểm số, nhận xét
+✅ Thang điểm 1-5 đúng với database
+
+Xem file: InterviewSchedulePage_FIXED.txt
