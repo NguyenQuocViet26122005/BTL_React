@@ -1,4 +1,4 @@
-using BTL_CNW.DTO.TinTuyenDung;
+﻿using BTL_CNW.DTO.TinTuyenDung;
 using BTL_CNW.DAL.TinTuyenDung;
 using BTL_CNW.DAL.CongTy;
 
@@ -15,6 +15,7 @@ namespace BTL_CNW.BLL.TinTuyenDung
         (bool success, string message) DoiTrangThai(int maTin, string trangThai, string? lyDo);
         (bool success, string message) Xoa(int maTin);
         (bool success, string message, List<TinTuyenDungDto> data) LocTinTuyenDung(string? search, int[]? danhMuc, string? kinhNghiem, string? hinhThucLamViec, int[]? linhVuc, decimal? mucLuongMin, decimal? mucLuongMax, string? thanhPho);
+        (bool success, string message, List<TinTuyenDungDto> data) LayTatCaTin();
     }
 
     public class TinTuyenDungService : ITinTuyenDungService
@@ -199,7 +200,7 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 if (string.IsNullOrWhiteSpace(trangThai))
                     return (false, "Trạng thái không được để trống");
 
-                var validStates = new[] { "Chờ duyệt", "Đã duyệt", "Từ chối", "Hết hạn", "Đã đóng" };
+                var validStates = new[] { "ChoXetDuyet", "DaDuyet", "TuChoi", "HetHan", "DaDong" };
                 if (!validStates.Contains(trangThai))
                     return (false, "Trạng thái không hợp lệ");
 
@@ -332,6 +333,19 @@ namespace BTL_CNW.BLL.TinTuyenDung
             catch (Exception ex)
             {
                 return (false, $"Lỗi hệ thống: {ex.Message}", new List<TinTuyenDungDto>());
+            }
+        }
+
+        public (bool success, string message, List<TinTuyenDungDto> data) LayTatCaTin()
+        {
+            try
+            {
+                var danhSach = _repo.LayTatCaTin();
+                return (true, "Lay danh sach tat ca tin tuyen dung thanh cong", danhSach);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Loi he thong: {ex.Message}", new List<TinTuyenDungDto>());
             }
         }
     }

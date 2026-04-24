@@ -1,22 +1,23 @@
-import { BrowserRouter as Router, Routes, Route } from ''react-router-dom'';
-import { ConfigProvider } from ''antd'';
-import viVN from ''antd/locale/vi_VN'';
-import MainLayout from ''./components/Layout/MainLayout'';
-import HomePage from ''./pages/Home/HomePage'';
-import LoginPage from ''./pages/Auth/LoginPage'';
-import RegisterPage from ''./pages/Auth/RegisterPage'';
-import JobListPage from ''./pages/Jobs/JobListPage'';
-import JobDetailPage from ''./pages/Jobs/JobDetailPage'';
-import JobFilterPage from ''./pages/Jobs/JobFilterPage'';
-import CompanyDashboard from ''./pages/Company/CompanyDashboard'';
-import InterviewSchedulePage from ''./pages/Company/InterviewSchedulePage'';
-import ProfilePage from ''./pages/Profile/ProfilePage'';
-import RecruiterProfile from ''./pages/Profile/RecruiterProfile'';
-import MyApplicationsPage from ''./pages/Candidate/MyApplicationsPage'';
-import MyInterviewsPage from ''./pages/Candidate/MyInterviewsPage'';
-import CandidateResumePage from ''./pages/Candidate/CandidateResumePage'';
-import TestConnection from ''./pages/TestConnection'';
-import ''./App.css'';
+﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ConfigProvider } from 'antd';
+import viVN from 'antd/locale/vi_VN';
+import MainLayout from './components/Layout/MainLayout';
+import HomePage from './pages/Home/HomePage';
+import LoginPage from './pages/Auth/LoginPage';
+import RegisterPage from './pages/Auth/RegisterPage';
+import JobListPage from './pages/Jobs/JobListPage';
+import JobDetailPage from './pages/Jobs/JobDetailPage';
+import JobFilterPage from './pages/Jobs/JobFilterPage';
+import CompanyDashboard from './pages/Company/CompanyDashboard';
+import InterviewSchedulePage from './pages/Company/InterviewSchedulePage';
+import ProfilePage from './pages/Profile/ProfilePage';
+import RecruiterProfile from './pages/Profile/RecruiterProfile';
+import MyApplicationsPage from './pages/Candidate/MyApplicationsPage';
+import MyInterviewsPage from './pages/Candidate/MyInterviewsPage';
+import CandidateResumePage from './pages/Candidate/CandidateResumePage';
+import AdminJobApprovalPage from './pages/Admin/AdminJobApprovalPage';
+import TestConnection from './pages/TestConnection';
+import './App.css';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="candidate/applications" element={<MyApplicationsPage />} />
             <Route path="candidate/interviews" element={<MyInterviewsPage />} />
             <Route path="candidate/resume" element={<CandidateResumePage />} />
+            <Route path="admin/jobs" element={<AdminJobApprovalPage />} />
             <Route path="test-connection" element={<TestConnection />} />
           </Route>
         </Routes>

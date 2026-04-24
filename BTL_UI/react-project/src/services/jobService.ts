@@ -79,3 +79,22 @@ export const getTinTuyenDungByUser = jobService.getMyJobs;
 export const createTinTuyenDung = jobService.createJob;
 export const updateTinTuyenDung = jobService.updateJob;
 export const deleteTinTuyenDung = jobService.deleteJob;
+
+// Admin methods
+export const getAllJobsForAdmin = async () => {
+  const response = await api.get<ApiResponse<TinTuyenDung[]>>('/tin-tuyen-dung/admin/all');
+  return response.data;
+};
+
+export const updateJobStatus = async (maTin: number, trangThai: string, lyDo?: string) => {
+  const params = new URLSearchParams();
+  params.append('trangThai', trangThai);
+  if (lyDo) params.append('lyDo', lyDo);
+  
+  const response = await api.put<ApiResponse<void>>(`/tin-tuyen-dung/${maTin}/trang-thai?${params.toString()}`);
+  return response.data;
+};
+
+// Add to jobService object
+jobService.getAllJobsForAdmin = getAllJobsForAdmin;
+jobService.updateJobStatus = updateJobStatus;

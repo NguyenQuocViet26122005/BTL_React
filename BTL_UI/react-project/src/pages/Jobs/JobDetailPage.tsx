@@ -4,6 +4,7 @@ import { Card, Button, Tag, Descriptions, Spin, message, Row, Col, Modal, Form, 
 import { EnvironmentOutlined, DollarOutlined, CalendarOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { getTinTuyenDungById } from '../../services/jobService';
 import { applicationService } from '../../services/applicationService';
+import { eventBus, EVENTS } from '../../utils/eventBus';
 import type { TinTuyenDung } from '../../types';
 import dayjs from 'dayjs';
 
@@ -81,6 +82,7 @@ const JobDetailPage = () => {
 
       if (response.success) {
         message.success('Nop don ung tuyen thanh cong!');
+        eventBus.emit(EVENTS.APPLICATION_SUBMITTED);
         setIsModalOpen(false);
         form.resetFields();
       }

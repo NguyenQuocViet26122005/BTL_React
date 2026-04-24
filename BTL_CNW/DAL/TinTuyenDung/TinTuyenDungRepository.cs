@@ -1,4 +1,4 @@
-using BTL_CNW.DTO.TinTuyenDung;
+﻿using BTL_CNW.DTO.TinTuyenDung;
 using BTL_CNW.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -299,6 +299,42 @@ namespace BTL_CNW.DAL.TinTuyenDung
             {
                 return false;
             }
+        }
+
+        public List<TinTuyenDungDto> LayTatCaTin()
+        {
+            return _context.TinTuyenDungs
+                .Include(x => x.MaCongTyNavigation)
+                .Include(x => x.MaDanhMucNavigation)
+                .OrderByDescending(x => x.NgayTao)
+                .Select(x => new TinTuyenDungDto
+                {
+                    MaTin = x.MaTin,
+                    MaCongTy = x.MaCongTy,
+                    TenCongTy = x.MaCongTyNavigation.TenCongTy,
+                    LogoCongTy = x.MaCongTyNavigation.Logo,
+                    MaNguoiDang = x.MaNguoiDang,
+                    MaDanhMuc = x.MaDanhMuc,
+                    TenDanhMuc = x.MaDanhMucNavigation != null ? x.MaDanhMucNavigation.TenDanhMuc : null,
+                    TieuDe = x.TieuDe,
+                    MoTa = x.MoTa,
+                    YeuCau = x.YeuCau,
+                    QuyenLoi = x.QuyenLoi,
+                    HinhThucLamViec = x.HinhThucLamViec,
+                    KinhNghiem = x.KinhNghiem,
+                    MucLuongToiThieu = x.MucLuongToiThieu,
+                    MucLuongToiDa = x.MucLuongToiDa,
+                    DonViTien = x.DonViTien,
+                    DiaDiem = x.DiaDiem,
+                    ThanhPho = x.ThanhPho,
+                    HanNopHoSo = x.HanNopHoSo,
+                    SoLuongTuyen = x.SoLuongTuyen,
+                    TrangThai = x.TrangThai,
+                    LuotXem = x.LuotXem,
+                    NgayTao = x.NgayTao,
+                    NgayCapNhat = x.NgayCapNhat
+                })
+                .ToList();
         }
     }
 }

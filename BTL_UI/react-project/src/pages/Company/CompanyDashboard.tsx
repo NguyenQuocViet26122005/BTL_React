@@ -2,7 +2,9 @@
 import { PlusOutlined, FileTextOutlined, UserOutlined, EyeOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { getTinTuyenDungByUser, createTinTuyenDung, updateTinTuyenDung, deleteTinTuyenDung, getTinTuyenDungById } from '../../services/jobService';
-import type { TinTuyenDung } from '../../types';
+import { applicationService } from '../../services/applicationService';
+import { eventBus, EVENTS } from '../../utils/eventBus';
+import type { TinTuyenDung, DonUngTuyen } from '../../types';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
@@ -10,6 +12,7 @@ const { TextArea } = Input;
 const CompanyDashboard = () => {
   const [user, setUser] = useState<any>(null);
   const [jobs, setJobs] = useState<TinTuyenDung[]>([]);
+  const [applications, setApplications] = useState<DonUngTuyen[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -24,7 +27,37 @@ const CompanyDashboard = () => {
       const userData = JSON.parse(userStr);
       setUser(userData);
       fetchJobs(userData.maNguoiDung);
+      fetchApplications(userData.maNguoiDung);
     }
+
+    // Listen for events
+    const handleJobCreated = () => {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const userData = JSON.parse(userStr);
+        fetchJobs(userData.maNguoiDung);
+      }
+    };
+
+    const handleApplicationSubmitted = () => {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const userData = JSON.parse(userStr);
+        fetchApplications(userData.maNguoiDung);
+      }
+    };
+
+    eventBus.on(EVENTS.JOB_CREATED, handleJobCreated);
+    eventBus.on(EVENTS.JOB_UPDATED, handleJobCreated);
+    eventBus.on(EVENTS.JOB_DELETED, handleJobCreated);
+    eventBus.on(EVENTS.APPLICATION_SUBMITTED, handleApplicationSubmitted);
+
+    return () => {
+      eventBus.off(EVENTS.JOB_CREATED, handleJobCreated);
+      eventBus.off(EVENTS.JOB_UPDATED, handleJobCreated);
+      eventBus.off(EVENTS.JOB_DELETED, handleJobCreated);
+      eventBus.off(EVENTS.APPLICATION_SUBMITTED, handleApplicationSubmitted);
+    };
   }, []);
 
   const fetchJobs = async (maNguoiDung: number) => {
@@ -38,6 +71,17 @@ const CompanyDashboard = () => {
       console.error('Error fetching jobs:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchApplications = async (maNguoiDung: number) => {
+    try {
+      const response = await applicationService.getCompanyApplications(maNguoiDung);
+      if (response.success && response.data) {
+        setApplications(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
     }
   };
 
@@ -93,6 +137,7 @@ const CompanyDashboard = () => {
       if (response.success) {
         message.success('Xoa tin tuyen dung thanh cong!');
         fetchJobs(user.maNguoiDung);
+        eventBus.emit(EVENTS.JOB_DELETED);
       }
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Xoa tin that bai!');
@@ -128,6 +173,7 @@ const CompanyDashboard = () => {
           setEditingJobId(null);
           form.resetFields();
           fetchJobs(user.maNguoiDung);
+          eventBus.emit(EVENTS.JOB_UPDATED);
         }
       } else {
         const response = await createTinTuyenDung(jobData);
@@ -136,6 +182,7 @@ const CompanyDashboard = () => {
           setIsModalOpen(false);
           form.resetFields();
           fetchJobs(user.maNguoiDung);
+          eventBus.emit(EVENTS.JOB_CREATED);
         }
       }
     } catch (error: any) {
@@ -153,8 +200,8 @@ const CompanyDashboard = () => {
   const stats = {
     totalJobs: jobs.length,
     activeJobs: jobs.filter(j => j.trangThai === 'active' || j.trangThai === 'DaDuyet').length,
-    totalApplications: 0,
-    pendingApplications: 0
+    totalApplications: applications.length,
+    pendingApplications: applications.filter(a => a.trangThai === 'DaNop' || a.trangThai === 'DangXem').length
   };
 
   const columns = [

@@ -21,14 +21,14 @@ const InterviewSchedulePage = () => {
     if (userStr) {
       const userData = JSON.parse(userStr);
       setUser(userData);
-      loadApplications();
+      loadApplications(userData.maNguoiDung);
     }
   }, []);
 
-  const loadApplications = async () => {
+  const loadApplications = async (maNguoiDung: number) => {
     setLoading(true);
     try {
-      const res = await applicationService.getCompanyApplications(user.maNguoiDung);
+      const res = await applicationService.getCompanyApplications(maNguoiDung);
       if (res.success && res.data) {
         setApplications(res.data);
         loadAllInterviews(res.data);
@@ -79,7 +79,7 @@ const InterviewSchedulePage = () => {
       message.success('Tao lich phong van thanh cong');
       setModalVisible(false);
       form.resetFields();
-      loadApplications();
+      loadApplications(userData.maNguoiDung);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Tao lich that bai');
     } finally {
@@ -91,7 +91,7 @@ const InterviewSchedulePage = () => {
     try {
       await interviewService.updateStatus(maLich, trangThai);
       message.success('Cap nhat trang thai thanh cong');
-      loadApplications();
+      loadApplications(userData.maNguoiDung);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Cap nhat that bai');
     }

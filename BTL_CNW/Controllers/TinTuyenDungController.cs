@@ -174,5 +174,16 @@ namespace BTL_CNW.Controllers
                 ? Ok(new { success = true, message = result.message })
                 : BadRequest(new { success = false, message = result.message });
         }
+
+        /// <summary>Lấy tất cả tin tuyển dụng - Chỉ quản trị viên</summary>
+        [HttpGet("admin/all")]
+        [RoleAuthorize(UserRoles.QuanTriVien)]
+        public IActionResult LayTatCaTin()
+        {
+            var result = _service.LayTatCaTin();
+            return result.success
+                ? Ok(new { success = true, message = result.message, data = result.data })
+                : BadRequest(new { success = false, message = result.message });
+        }
     }
 }

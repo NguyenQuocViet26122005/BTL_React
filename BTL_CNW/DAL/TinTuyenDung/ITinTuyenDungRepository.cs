@@ -13,5 +13,6 @@ namespace BTL_CNW.DAL.TinTuyenDung
         bool DoiTrangThai(int maTin, string trangThai, string? lyDo);
         bool Xoa(int maTin);
         bool TangLuotXem(int maTin);
+        List<TinTuyenDungDto> LayTatCaTin();
     }
 }

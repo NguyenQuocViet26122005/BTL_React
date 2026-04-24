@@ -4,6 +4,7 @@ import { SearchOutlined, EnvironmentOutlined, DollarOutlined, ClockCircleOutline
 import { useNavigate } from 'react-router-dom';
 import { jobService } from '../../services/jobService';
 import filterService from '../../services/filterService';
+import { eventBus, EVENTS } from '../../utils/eventBus';
 import type { DanhMucDto } from '../../services/filterService';
 import dayjs from 'dayjs';
 
@@ -50,6 +51,22 @@ const JobListPage = () => {
   useEffect(() => {
     fetchJobs();
     loadFilterData();
+
+    // Listen for job events
+    const handleJobChange = () => {
+      fetchJobs();
+      loadFilterData();
+    };
+
+    eventBus.on(EVENTS.JOB_CREATED, handleJobChange);
+    eventBus.on(EVENTS.JOB_UPDATED, handleJobChange);
+    eventBus.on(EVENTS.JOB_DELETED, handleJobChange);
+
+    return () => {
+      eventBus.off(EVENTS.JOB_CREATED, handleJobChange);
+      eventBus.off(EVENTS.JOB_UPDATED, handleJobChange);
+      eventBus.off(EVENTS.JOB_DELETED, handleJobChange);
+    };
   }, []);
 
   const fetchJobs = async () => {

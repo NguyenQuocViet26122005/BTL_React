@@ -1,5 +1,5 @@
 ﻿import { Layout, Button, Space, Dropdown } from 'antd';
-import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined, CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { NguoiDung } from '../../types';
@@ -33,13 +33,13 @@ const Header = () => {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: 'Thông tin cá nhân',
+      label: 'Thong tin ca nhan',
       onClick: () => navigate('/profile')
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: 'Cài đặt',
+      label: 'Cai dat',
       onClick: () => {}
     },
     {
@@ -48,7 +48,7 @@ const Header = () => {
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: 'Đăng xuất',
+      label: 'Dang xuat',
       onClick: handleLogout
     }
   ];
@@ -84,7 +84,7 @@ const Header = () => {
           fontWeight: 'bold',
           cursor: 'pointer'
         }} onClick={() => navigate('/')}>
-          🇻🇳 VietHire
+          VietHire
         </div>
         
         <Space size="middle">
@@ -93,23 +93,60 @@ const Header = () => {
             style={getButtonStyle('/')} 
             onClick={() => navigate('/')}
           >
-            Trang chủ
+            Trang chu
           </Button>
           <Button 
             type="link" 
             style={getButtonStyle('/jobs')} 
             onClick={() => navigate('/jobs')}
           >
-            Việc làm
+            Viec lam
           </Button>
           {user && user.maVaiTro === 2 && (
+            <>
+              <Button 
+                type="link" 
+                style={getButtonStyle('/company/dashboard')} 
+                onClick={() => navigate('/company/dashboard')}
+              >
+                <DashboardOutlined /> Dashboard
+              </Button>
+              <Button 
+                type="link" 
+                style={getButtonStyle('/company/interviews')} 
+                onClick={() => navigate('/company/interviews')}
+              >
+                <CalendarOutlined /> Lich phong van
+              </Button>
+            </>
+          )}
+          {user && user.maVaiTro === 3 && (
+            <>
+              <Button 
+                type="link" 
+                style={getButtonStyle('/candidate/applications')} 
+                onClick={() => navigate('/candidate/applications')}
+              >
+                <FileTextOutlined /> Don ung tuyen
+              </Button>
+              <Button 
+                type="link" 
+                style={getButtonStyle('/candidate/interviews')} 
+                onClick={() => navigate('/candidate/interviews')}
+              >
+                <CalendarOutlined /> Lich phong van
+              </Button>
+            </>
+          )}
+          {user && user.maVaiTro === 1 && (
             <Button 
               type="link" 
-              style={getButtonStyle('/company/dashboard')} 
-              onClick={() => navigate('/company/dashboard')}
+              style={getButtonStyle('/admin/jobs')} 
+              onClick={() => navigate('/admin/jobs')}
             >
-              <DashboardOutlined /> Dashboard
+              <DashboardOutlined /> Quan ly tin
             </Button>
+        
           )}
         </Space>
       </div>
@@ -133,10 +170,10 @@ const Header = () => {
         ) : (
           <>
             <Button onClick={() => navigate('/login')}>
-              Đăng nhập
+              Dang nhap
             </Button>
             <Button type="primary" onClick={() => navigate('/register')}>
-              Đăng ký
+              Dang ky
             </Button>
           </>
         )}
