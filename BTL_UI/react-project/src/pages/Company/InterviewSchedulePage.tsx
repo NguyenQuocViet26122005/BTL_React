@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, DatePicker, Select, InputNumber, message, Tag, Space, Descriptions } from 'antd';
-import { PlusOutlined, CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, FormOutlined, EyeOutlined } from '@ant-design/icons';
+import { PlusOutlined, CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, FormOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { interviewService } from '../../services/interviewService';
 import type { LichPhongVan, TaoLichDto } from '../../services/interviewService';
 import { applicationService } from '../../services/applicationService';
 import { interviewResultService } from '../../services/interviewResultService';
-import { type TaoKetQuaDto, type KetQuaPhongVan } from '../../services/interviewResultService';
+import { type TaoKetQuaDto } from '../../services/interviewResultService';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
@@ -17,6 +17,8 @@ const InterviewSchedulePage = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [viewResultModalVisible, setViewResultModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditInterview, setIsEditInterview] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState<LichPhongVan | null>(null);
   const [form] = Form.useForm();
   const [resultForm] = Form.useForm();
@@ -130,6 +132,21 @@ const InterviewSchedulePage = () => {
     setViewResultModalVisible(true);
   };
 
+  const handleEditResult = () => {
+    if (!selectedInterview || !(selectedInterview as any).ketQuaPhongVan) return;
+    const result = (selectedInterview as any).ketQuaPhongVan;
+    resultForm.setFieldsValue({
+      diemTongQuat: result.diemTongQuat,
+      diemKyThuat: result.diemKyThuat,
+      diemKyNangMem: result.diemKyNangMem,
+      ketQua: result.ketQua,
+      nhanXet: result.nhanXet
+    });
+    setIsEditMode(true);
+    setViewResultModalVisible(false);
+    setResultModalVisible(true);
+  };
+
   const handleSubmitResult = async (values: any) => {
     if (!selectedInterview) return;
     setLoading(true);
@@ -142,14 +159,22 @@ const InterviewSchedulePage = () => {
         ketQua: values.ketQua,
         nhanXet: values.nhanXet
       };
-      await interviewResultService.create(data);
-      message.success('Nhap ket qua phong van thanh cong');
+      
+      if (isEditMode && (selectedInterview as any).ketQuaPhongVan) {
+        await interviewResultService.update((selectedInterview as any).ketQuaPhongVan.maKetQua, data);
+        message.success('Cap nhat ket qua thanh cong');
+      } else {
+        await interviewResultService.create(data);
+        message.success('Nhap ket qua phong van thanh cong');
+      }
+      
       setResultModalVisible(false);
       resultForm.resetFields();
       setSelectedInterview(null);
+      setIsEditMode(false);
       if (user) loadApplications(user.maNguoiDung);
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Nhap ket qua that bai');
+      message.error(error.response?.data?.message || 'Luu ket qua that bai');
     } finally {
       setLoading(false);
     }
@@ -334,12 +359,13 @@ const InterviewSchedulePage = () => {
       </Card>
 
       <Modal
-        title="Nhap ket qua phong van"
+        title={isEditMode ? "Sua ket qua phong van" : "Nhap ket qua phong van"}
         open={resultModalVisible}
         onCancel={() => {
           setResultModalVisible(false);
           resultForm.resetFields();
           setSelectedInterview(null);
+          setIsEditMode(false);
         }}
         footer={null}
         width={600}
@@ -395,7 +421,8 @@ const InterviewSchedulePage = () => {
 
           <Form.Item style={{ marginBottom: 0 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={() => { setResultModalVisible(false); resultForm.resetFields(); setSelectedInterview(null); }}>
+              <Button onClick={() => { setResultModalVisible(false); resultForm.resetFields(); setSelectedInterview(null);
+          setIsEditMode(false); }}>
                 Huy
               </Button>
               <Button type="primary" htmlType="submit" loading={loading}>
@@ -501,6 +528,9 @@ const InterviewSchedulePage = () => {
           setSelectedInterview(null);
         }}
         footer={[
+          <Button key="edit" onClick={() => handleEditResult()}>
+            Sua ket qua
+          </Button>,
           <Button key="close" type="primary" onClick={() => {
             setViewResultModalVisible(false);
             setSelectedInterview(null);
