@@ -9,6 +9,8 @@ namespace BTL_CNW.BLL.LichPhongVan
         (bool success, string message, List<LichPhongVanDto> data) LayTheoDon(int maDon);
         (bool success, string message, LichPhongVanDto? data) LayChiTiet(int maLich);
         (bool success, string message) DoiTrangThai(int maLich, string trangThai);
+        (bool success, string message) CapNhat(int maLich, TaoLichDto dto);
+        (bool success, string message) Xoa(int maLich);
     }
 
     public class LichPhongVanService : ILichPhongVanService
@@ -113,6 +115,62 @@ namespace BTL_CNW.BLL.LichPhongVan
                 return result 
                     ? (true, $"Đã cập nhật trạng thái thành '{trangThai}'")
                     : (false, "Không thể cập nhật trạng thái, vui lòng thử lại");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
+
+        public (bool success, string message) CapNhat(int maLich, TaoLichDto dto)
+        {
+            try
+            {
+                if (maLich <= 0)
+                    return (false, "Mã lịch không hợp lệ");
+
+                if (dto.ThoiGian == default)
+                    return (false, "Thời gian phỏng vấn không hợp lệ");
+
+                if (string.IsNullOrWhiteSpace(dto.DiaDiem))
+                    return (false, "Địa điểm phỏng vấn không được để trống");
+
+                var existingInterview = _repo.LayChiTiet(maLich);
+                if (existingInterview == null)
+                    return (false, "Không tìm thấy lịch phỏng vấn cần cập nhật");
+
+                if (existingInterview.TrangThai == "HoanThanh")
+                    return (false, "Không thể cập nhật lịch phỏng vấn đã hoàn thành");
+
+                var result = _repo.CapNhat(maLich, dto);
+                return result 
+                    ? (true, "Cập nhật lịch phỏng vấn thành công")
+                    : (false, "Không thể cập nhật lịch phỏng vấn, vui lòng thử lại");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
+
+        public (bool success, string message) Xoa(int maLich)
+        {
+            try
+            {
+                if (maLich <= 0)
+                    return (false, "Mã lịch không hợp lệ");
+
+                var existingInterview = _repo.LayChiTiet(maLich);
+                if (existingInterview == null)
+                    return (false, "Không tìm thấy lịch phỏng vấn cần xóa");
+
+                if (existingInterview.TrangThai == "HoanThanh")
+                    return (false, "Không thể xóa lịch phỏng vấn đã hoàn thành");
+
+                var result = _repo.Xoa(maLich);
+                return result 
+                    ? (true, "Xóa lịch phỏng vấn thành công")
+                    : (false, "Không thể xóa lịch phỏng vấn, vui lòng thử lại");
             }
             catch (Exception ex)
             {

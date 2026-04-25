@@ -8,5 +8,7 @@ namespace BTL_CNW.DAL.HoSoUngVien
         HoSoDto? LayTheoNguoiDung(int maNguoiDung);
         HoSoDto? LayTheoId(int maHoSo);
         bool CapNhat(int maHoSo, TaoHoSoDto dto);
+        List<HoSoDto> TimKiem(string? tuKhoa, string? thanhPho, string? tinhTrang, int? mucLuongTu, int? mucLuongDen);
+        List<HoSoDto> LayDanhSach(int skip, int take);
     }
 }

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 import MainLayout from './components/Layout/MainLayout';
@@ -11,6 +11,9 @@ import JobFilterPage from './pages/Jobs/JobFilterPage';
 import CompanyDashboard from './pages/Company/CompanyDashboard';
 import InterviewSchedulePage from './pages/Company/InterviewSchedulePage';
 import ManageApplicationsPage from './pages/Company/ManageApplicationsPage';
+import SearchCandidatesPage from './pages/Company/SearchCandidatesPage';
+import CandidateDetailPage from './pages/Company/CandidateDetailPage';
+import ManageOffersPage from './pages/Company/ManageOffersPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import RecruiterProfile from './pages/Profile/RecruiterProfile';
 import MyApplicationsPage from './pages/Candidate/MyApplicationsPage';
@@ -40,6 +43,9 @@ function App() {
             <Route path="company/dashboard" element={<CompanyDashboard />} />
             <Route path="company/interviews" element={<InterviewSchedulePage />} />
             <Route path="company/applications" element={<ManageApplicationsPage />} />
+            <Route path="company/candidates" element={<SearchCandidatesPage />} />
+            <Route path="company/candidates/:maHoSo" element={<CandidateDetailPage />} />
+            <Route path="company/offers" element={<ManageOffersPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="recruiter/profile" element={<RecruiterProfile />} />
             <Route path="candidate/applications" element={<MyApplicationsPage />} />

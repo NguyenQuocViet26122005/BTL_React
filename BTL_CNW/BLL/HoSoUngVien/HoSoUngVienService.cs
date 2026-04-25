@@ -9,6 +9,8 @@ namespace BTL_CNW.BLL.HoSoUngVien
         (bool success, string message, HoSoDto? data) LayTheoNguoiDung(int maNguoiDung);
         (bool success, string message, HoSoDto? data) LayTheoId(int maHoSo);
         (bool success, string message) CapNhat(int maHoSo, TaoHoSoDto dto);
+        (bool success, string message, List<HoSoDto> data) TimKiem(string? tuKhoa, string? thanhPho, string? tinhTrang, int? mucLuongTu, int? mucLuongDen);
+        (bool success, string message, List<HoSoDto> data) LayDanhSach(int skip, int take);
     }
 
     public class HoSoUngVienService : IHoSoUngVienService
@@ -102,6 +104,35 @@ namespace BTL_CNW.BLL.HoSoUngVien
             catch (Exception ex)
             {
                 return (false, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
+
+        public (bool success, string message, List<HoSoDto> data) TimKiem(string? tuKhoa, string? thanhPho, string? tinhTrang, int? mucLuongTu, int? mucLuongDen)
+        {
+            try
+            {
+                var danhSach = _repo.TimKiem(tuKhoa, thanhPho, tinhTrang, mucLuongTu, mucLuongDen);
+                return (true, $"Tìm thấy {danhSach.Count} hồ sơ", danhSach);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}", new List<HoSoDto>());
+            }
+        }
+
+        public (bool success, string message, List<HoSoDto> data) LayDanhSach(int skip, int take)
+        {
+            try
+            {
+                if (skip < 0) skip = 0;
+                if (take <= 0 || take > 100) take = 20;
+
+                var danhSach = _repo.LayDanhSach(skip, take);
+                return (true, $"Lấy danh sách thành công ({danhSach.Count} hồ sơ)", danhSach);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi hệ thống: {ex.Message}", new List<HoSoDto>());
             }
         }
     }

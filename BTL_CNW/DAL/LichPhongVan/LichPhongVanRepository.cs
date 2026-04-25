@@ -103,5 +103,43 @@ namespace BTL_CNW.DAL.LichPhongVan
                 return false;
             }
         }
+
+        public bool CapNhat(int maLich, TaoLichDto dto)
+        {
+            try
+            {
+                var lich = _context.LichPhongVans.FirstOrDefault(x => x.MaLich == maLich);
+                if (lich == null) return false;
+
+                lich.VongPhongVan = (byte)dto.VongPhongVan;
+                lich.HinhThuc = dto.HinhThuc;
+                lich.ThoiGian = dto.ThoiGian;
+                lich.ThoiLuongPhut = dto.ThoiLuongPhut.HasValue ? (short)dto.ThoiLuongPhut.Value : null;
+                lich.DiaDiem = dto.DiaDiem;
+                lich.GhiChu = dto.GhiChu;
+
+                return _context.SaveChanges() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool Xoa(int maLich)
+        {
+            try
+            {
+                var lich = _context.LichPhongVans.FirstOrDefault(x => x.MaLich == maLich);
+                if (lich == null) return false;
+
+                _context.LichPhongVans.Remove(lich);
+                return _context.SaveChanges() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

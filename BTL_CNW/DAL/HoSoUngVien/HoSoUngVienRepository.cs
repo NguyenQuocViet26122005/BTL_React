@@ -57,6 +57,8 @@ namespace BTL_CNW.DAL.HoSoUngVien
                 MaHoSo = hoSo.MaHoSo,
                 MaNguoiDung = hoSo.MaNguoiDung,
                 TenNguoiDung = hoSo.MaNguoiDungNavigation.HoTen,
+                Email = hoSo.MaNguoiDungNavigation.Email,
+                SoDienThoai = hoSo.MaNguoiDungNavigation.SoDienThoai,
                 TieuDe = hoSo.TieuDe,
                 TomTat = hoSo.TomTat,
                 NgaySinh = hoSo.NgaySinh,
@@ -86,6 +88,8 @@ namespace BTL_CNW.DAL.HoSoUngVien
                 MaHoSo = hoSo.MaHoSo,
                 MaNguoiDung = hoSo.MaNguoiDung,
                 TenNguoiDung = hoSo.MaNguoiDungNavigation.HoTen,
+                Email = hoSo.MaNguoiDungNavigation.Email,
+                SoDienThoai = hoSo.MaNguoiDungNavigation.SoDienThoai,
                 TieuDe = hoSo.TieuDe,
                 TomTat = hoSo.TomTat,
                 NgaySinh = hoSo.NgaySinh,
@@ -130,6 +134,97 @@ namespace BTL_CNW.DAL.HoSoUngVien
                 Console.WriteLine($"Error updating resume: {ex.Message}");
                 return false;
             }
+        }
+
+        public List<HoSoDto> TimKiem(string? tuKhoa, string? thanhPho, string? tinhTrang, int? mucLuongTu, int? mucLuongDen)
+        {
+            var query = _context.HoSoUngViens
+                .Include(x => x.MaNguoiDungNavigation)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(tuKhoa))
+            {
+                query = query.Where(x => 
+                    x.TieuDe.Contains(tuKhoa) || 
+                    x.TomTat.Contains(tuKhoa) ||
+                    x.MaNguoiDungNavigation.HoTen.Contains(tuKhoa));
+            }
+
+            if (!string.IsNullOrWhiteSpace(thanhPho))
+            {
+                query = query.Where(x => x.ThanhPho == thanhPho);
+            }
+
+            if (!string.IsNullOrWhiteSpace(tinhTrang))
+            {
+                query = query.Where(x => x.TinhTrangTimViec == tinhTrang);
+            }
+
+            if (mucLuongTu.HasValue)
+            {
+                query = query.Where(x => x.MucLuongMongMuon >= mucLuongTu.Value);
+            }
+
+            if (mucLuongDen.HasValue)
+            {
+                query = query.Where(x => x.MucLuongMongMuon <= mucLuongDen.Value);
+            }
+
+            return query
+                .OrderByDescending(x => x.NgayCapNhat)
+                .Select(x => new HoSoDto
+                {
+                    MaHoSo = x.MaHoSo,
+                    MaNguoiDung = x.MaNguoiDung,
+                    TenNguoiDung = x.MaNguoiDungNavigation.HoTen,
+                    Email = x.MaNguoiDungNavigation.Email,
+                    SoDienThoai = x.MaNguoiDungNavigation.SoDienThoai,
+                    TieuDe = x.TieuDe,
+                    TomTat = x.TomTat,
+                    NgaySinh = x.NgaySinh,
+                    GioiTinh = x.GioiTinh,
+                    DiaChi = x.DiaChi,
+                    ThanhPho = x.ThanhPho,
+                    LinkedIn = x.LinkedIn,
+                    GitHub = x.GitHub,
+                    Portfolio = x.Portfolio,
+                    TinhTrangTimViec = x.TinhTrangTimViec,
+                    MucLuongMongMuon = x.MucLuongMongMuon,
+                    NgayTao = x.NgayTao,
+                    NgayCapNhat = x.NgayCapNhat
+                })
+                .ToList();
+        }
+
+        public List<HoSoDto> LayDanhSach(int skip, int take)
+        {
+            return _context.HoSoUngViens
+                .Include(x => x.MaNguoiDungNavigation)
+                .OrderByDescending(x => x.NgayCapNhat)
+                .Skip(skip)
+                .Take(take)
+                .Select(x => new HoSoDto
+                {
+                    MaHoSo = x.MaHoSo,
+                    MaNguoiDung = x.MaNguoiDung,
+                    TenNguoiDung = x.MaNguoiDungNavigation.HoTen,
+                    Email = x.MaNguoiDungNavigation.Email,
+                    SoDienThoai = x.MaNguoiDungNavigation.SoDienThoai,
+                    TieuDe = x.TieuDe,
+                    TomTat = x.TomTat,
+                    NgaySinh = x.NgaySinh,
+                    GioiTinh = x.GioiTinh,
+                    DiaChi = x.DiaChi,
+                    ThanhPho = x.ThanhPho,
+                    LinkedIn = x.LinkedIn,
+                    GitHub = x.GitHub,
+                    Portfolio = x.Portfolio,
+                    TinhTrangTimViec = x.TinhTrangTimViec,
+                    MucLuongMongMuon = x.MucLuongMongMuon,
+                    NgayTao = x.NgayTao,
+                    NgayCapNhat = x.NgayCapNhat
+                })
+                .ToList();
         }
     }
 }

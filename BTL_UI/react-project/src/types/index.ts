@@ -220,3 +220,34 @@ export type FileCv = {
   laMacDinh: boolean;
   ngayTai: string;
 };
+
+export type ThuMoiLamViec = {
+  maThuMoi: number;
+  maDon: number;
+  maNguoiPhatHanh: number;
+  tenNguoiPhatHanh?: string;
+  tenUngVien?: string;
+  tenCongTy?: string;
+  viTriCongViec: string;
+  mucLuong: number;
+  donViTien?: string;
+  ngayBatDauDuKien?: string;
+  ngayHetHan?: string;
+  fileThuMoi?: string;
+  trangThai: string;
+  ngayPhanHoi?: string;
+  ghiChu?: string;
+  ngayTao?: string;
+  ngayCapNhat?: string;
+};
+
+export type KetQuaPhongVan = {
+  maKetQua: number;
+  maLich: number;
+  maNguoiDanhGia: number;
+  tenNguoiDanhGia?: string;
+  diemDanhGia?: number;
+  nhanXet?: string;
+  ketLuan: string;
+  ngayDanhGia?: string;
+};

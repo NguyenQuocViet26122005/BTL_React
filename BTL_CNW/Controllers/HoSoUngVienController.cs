@@ -57,6 +57,25 @@ namespace BTL_CNW.Controllers
                 : NotFound(new { success = false, message = result.message });
         }
 
+        /// <summary>Tìm kiếm hồ sơ ứng viên - Nhà tuyển dụng</summary>
+        [HttpGet("tim-kiem")]
+        [RoleAuthorize(UserRoles.NhaTuyenDung)]
+        public IActionResult TimKiem([FromQuery] string? tuKhoa, [FromQuery] string? thanhPho, 
+            [FromQuery] string? tinhTrang, [FromQuery] int? mucLuongTu, [FromQuery] int? mucLuongDen)
+        {
+            var result = _service.TimKiem(tuKhoa, thanhPho, tinhTrang, mucLuongTu, mucLuongDen);
+            return Ok(new { success = true, message = result.message, data = result.data });
+        }
+
+        /// <summary>Lấy danh sách tất cả hồ sơ - Nhà tuyển dụng</summary>
+        [HttpGet("danh-sach")]
+        [RoleAuthorize(UserRoles.NhaTuyenDung)]
+        public IActionResult LayDanhSach([FromQuery] int? skip = 0, [FromQuery] int? take = 20)
+        {
+            var result = _service.LayDanhSach(skip ?? 0, take ?? 20);
+            return Ok(new { success = true, message = result.message, data = result.data });
+        }
+
         /// <summary>Cập nhật hồ sơ - Chỉ ứng viên</summary>
         [HttpPut("{maHoSo:int}")]
         [RoleAuthorize(UserRoles.UngVien)]

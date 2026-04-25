@@ -8,5 +8,7 @@ namespace BTL_CNW.DAL.LichPhongVan
         List<LichPhongVanDto> LayTheoDon(int maDon);
         LichPhongVanDto? LayChiTiet(int maLich);
         bool DoiTrangThai(int maLich, string trangThai);
+        bool CapNhat(int maLich, TaoLichDto dto);
+        bool Xoa(int maLich);
     }
 }

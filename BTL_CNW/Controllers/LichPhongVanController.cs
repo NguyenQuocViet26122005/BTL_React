@@ -57,5 +57,27 @@ namespace BTL_CNW.Controllers
                 ? Ok(new { success = true, message = result.message })
                 : BadRequest(new { success = false, message = result.message });
         }
+
+        /// <summary>Cập nhật lịch phỏng vấn - Chỉ nhà tuyển dụng</summary>
+        [HttpPut("{maLich:int}")]
+        [RoleAuthorize(UserRoles.NhaTuyenDung)]
+        public IActionResult CapNhat(int maLich, TaoLichDto dto)
+        {
+            var result = _service.CapNhat(maLich, dto);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : BadRequest(new { success = false, message = result.message });
+        }
+
+        /// <summary>Xóa lịch phỏng vấn - Chỉ nhà tuyển dụng</summary>
+        [HttpDelete("{maLich:int}")]
+        [RoleAuthorize(UserRoles.NhaTuyenDung)]
+        public IActionResult Xoa(int maLich)
+        {
+            var result = _service.Xoa(maLich);
+            return result.success
+                ? Ok(new { success = true, message = result.message })
+                : NotFound(new { success = false, message = result.message });
+        }
     }
 }

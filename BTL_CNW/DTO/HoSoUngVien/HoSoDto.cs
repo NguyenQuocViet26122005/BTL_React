@@ -5,6 +5,8 @@ namespace BTL_CNW.DTO.HoSoUngVien
         public int MaHoSo { get; set; }
         public int MaNguoiDung { get; set; }
         public string TenNguoiDung { get; set; } = null!;
+        public string? Email { get; set; }
+        public string? SoDienThoai { get; set; }
         public string? TieuDe { get; set; }
         public string? TomTat { get; set; }
         public DateOnly? NgaySinh { get; set; }
