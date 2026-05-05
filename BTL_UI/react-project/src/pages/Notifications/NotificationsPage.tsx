@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
 import { notificationService, type ThongBao } from '../../services/notificationService';
+import { getStoredUser } from '../../utils/auth';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -16,18 +17,18 @@ const NotificationsPage = () => {
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const maNguoiDung = user.maNguoiDung;
+  const maNguoiDung = getStoredUser()?.maNguoiDung;
 
   useEffect(() => {
-    loadNotifications();
-    loadUnreadCount();
-  }, []);
+    if (!maNguoiDung) return;
+    loadNotifications(maNguoiDung);
+    loadUnreadCount(maNguoiDung);
+  }, [maNguoiDung]);
 
-  const loadNotifications = async () => {
+  const loadNotifications = async (userId: number) => {
     setLoading(true);
     try {
-      const response = await notificationService.getNotifications(maNguoiDung);
+      const response = await notificationService.getNotifications(userId);
       if (response.success && response.data) {
         setNotifications(response.data);
       }
@@ -38,9 +39,9 @@ const NotificationsPage = () => {
     }
   };
 
-  const loadUnreadCount = async () => {
+  const loadUnreadCount = async (userId: number) => {
     try {
-      const response = await notificationService.getUnreadCount(maNguoiDung);
+      const response = await notificationService.getUnreadCount(userId);
       if (response.success) {
         setUnreadCount((response.data as any).count || 0);
       }
@@ -62,6 +63,7 @@ const NotificationsPage = () => {
   };
 
   const handleMarkAllAsRead = async () => {
+    if (!maNguoiDung) return;
     try {
       await notificationService.markAllAsRead(maNguoiDung);
       setNotifications(prev => prev.map(n => ({ ...n, daDoc: true })));

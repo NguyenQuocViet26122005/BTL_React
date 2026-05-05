@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import type { NguoiDung, Profile, CongTy } from '../../types';
 import { profileService } from '../../services/profileService';
 import { companyService, type CapNhatCongTyDto } from '../../services/companyService';
+import { getStoredUser } from '../../utils/auth';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -24,9 +25,8 @@ const RecruiterProfile = () => {
   const [passwordForm] = Form.useForm();
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
+    const userData = getStoredUser();
+    if (userData) {
       setUser(userData);
       loadProfileData(userData.maNguoiDung, userData.email);
     }

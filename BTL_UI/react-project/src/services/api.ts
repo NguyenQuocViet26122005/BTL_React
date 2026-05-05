@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'https://localhost:44314/api';
+export const API_FILE_BASE_URL = API_BASE_URL.replace('/api', '');
+export const getFileUrl = (path?: string) => path ? `${API_FILE_BASE_URL}${path}` : '';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

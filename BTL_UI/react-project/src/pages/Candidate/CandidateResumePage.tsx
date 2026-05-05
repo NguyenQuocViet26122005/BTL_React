@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { resumeService } from '../../services/resumeService';
 import dayjs from 'dayjs';
 import { CANDIDATE_STATUS, normalizeCandidateStatus } from '../../utils/candidateStatus';
+import { getStoredUser } from '../../utils/auth';
 
 const { TextArea } = Input;
 
@@ -19,13 +20,12 @@ export const CandidateResumeContent = () => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
+    const userData = getStoredUser();
+    if (userData) {
       setUser(userData);
       fetchResume(userData.maNguoiDung);
     } else {
-      message.error('Vui long dang nhap!');
+      message.error('Vui lòng đăng nhập!');
       navigate('/login');
     }
   }, [navigate]);
@@ -113,7 +113,6 @@ export const CandidateResumeContent = () => {
       console.error('Error response:', error.response?.data);
       const errorMsg = error.response?.data?.message || error.message || 'Co loi xay ra!';
       message.error(errorMsg);
-      alert('LOI CHI TIET: ' + JSON.stringify(error.response?.data, null, 2));
     } finally {
       setSubmitting(false);
     }

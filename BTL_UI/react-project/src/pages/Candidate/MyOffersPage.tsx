@@ -4,6 +4,7 @@ import { CheckOutlined, CloseOutlined, EyeOutlined, DollarOutlined, CalendarOutl
 import { useNavigate } from 'react-router-dom';
 import { offerService, type ThuMoiLamViec } from '../../services/offerService';
 import dayjs from 'dayjs';
+import { getStoredUser } from '../../utils/auth';
 
 const { TextArea } = Input;
 
@@ -19,12 +20,11 @@ const MyOffersPage = () => {
   const [responding, setResponding] = useState(false);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
+    const userData = getStoredUser();
+    if (userData) {
       fetchOffers(userData.maNguoiDung);
     } else {
-      message.error('Vui long dang nhap!');
+      message.error('Vui lòng đăng nhập!');
       navigate('/login');
     }
   }, [navigate]);
@@ -74,12 +74,8 @@ const MyOffersPage = () => {
         setRespondModalOpen(false);
         setSelectedOffer(null);
         setRespondNote('');
-        // Reload offers
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const userData = JSON.parse(userStr);
-          fetchOffers(userData.maNguoiDung);
-        }
+        const userData = getStoredUser();
+        if (userData) fetchOffers(userData.maNguoiDung);
       } else {
         message.error(response.message || 'Phan hoi that bai');
       }
@@ -187,7 +183,8 @@ const MyOffersPage = () => {
   ];
 
   return (
-    <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <div style={{ marginBottom: 24 }}>
         <h1>Thu moi lam viec</h1>
         <p>Quan ly cac thu moi lam viec tu nha tuyen dung</p>
@@ -341,6 +338,7 @@ const MyOffersPage = () => {
           </div>
         )}
       </Modal>
+      </div>
     </div>
   );
 };

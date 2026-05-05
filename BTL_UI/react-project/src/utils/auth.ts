@@ -21,6 +21,7 @@ export const normalizeUser = (rawUser: any): StoredUser | null => {
   const email = rawUser.email ?? rawUser.Email;
   const hoTen = rawUser.hoTen ?? rawUser.HoTen;
   const maVaiTro = rawUser.maVaiTro ?? rawUser.MaVaiTro;
+  const maCongTy = rawUser.maCongTy ?? rawUser.MaCongTy;
 
   if (!maNguoiDung || !email || !hoTen || !maVaiTro) return null;
 
@@ -30,6 +31,7 @@ export const normalizeUser = (rawUser: any): StoredUser | null => {
     email,
     hoTen,
     maVaiTro,
+    maCongTy,
     tenVaiTro: rawUser.tenVaiTro ?? rawUser.TenVaiTro,
     soDienThoai: rawUser.soDienThoai ?? rawUser.SoDienThoai,
   };

@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { applicationService } from '../../services/applicationService';
 import type { DonUngTuyen } from '../../types';
 import dayjs from 'dayjs';
+import { getStoredUser } from '../../utils/auth';
+import { getFileUrl } from '../../services/api';
 
 const MyApplicationsPage = () => {
   const navigate = useNavigate();
@@ -14,12 +16,11 @@ const MyApplicationsPage = () => {
   const [selectedApp, setSelectedApp] = useState<DonUngTuyen | null>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
+    const userData = getStoredUser();
+    if (userData) {
       fetchApplications(userData.maNguoiDung);
     } else {
-      message.error('Vui long dang nhap!');
+      message.error('Vui lòng đăng nhập!');
       navigate('/login');
     }
   }, [navigate]);
@@ -117,7 +118,8 @@ const MyApplicationsPage = () => {
   ];
 
   return (
-    <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <div style={{ marginBottom: 24 }}>
         <h1>Don ung tuyen cua toi</h1>
         <p>Quan ly tat ca cac don ung tuyen ban da nop</p>
@@ -192,7 +194,7 @@ const MyApplicationsPage = () => {
                       type="link" 
                       size="small" 
                       icon={<DownloadOutlined />}
-                      href={`https://localhost:44314${selectedApp.duongDanFileCV}`}
+                      href={getFileUrl(selectedApp.duongDanFileCV)}
                       target="_blank"
                     >
                       Tai xuong
@@ -215,6 +217,7 @@ const MyApplicationsPage = () => {
           </div>
         )}
       </Modal>
+      </div>
     </div>
   );
 };

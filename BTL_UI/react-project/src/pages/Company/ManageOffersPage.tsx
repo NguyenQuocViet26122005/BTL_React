@@ -3,6 +3,7 @@ import { Card, Table, Tag, Button, message, Space, Modal } from 'antd';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import api from '../../services/api';
+import { getStoredUser } from '../../utils/auth';
 
 interface ThuMoi {
   maThuMoi: number;
@@ -31,18 +32,13 @@ const ManageOffersPage: React.FC = () => {
   const fetchOffers = async () => {
     setLoading(true);
     try {
-      const userStr = localStorage.getItem('user');
-      
-      if (!userStr) {
-        message.error('Vui long dang nhap lai');
+      const user = getStoredUser();
+
+      if (!user) {
+        message.error('Vui lòng đăng nhập lại');
         setLoading(false);
         return;
       }
-      
-      const user = JSON.parse(userStr);
-      
-      console.log('User from localStorage:', user);
-      console.log('maNguoiDung:', user.maNguoiDung);
       
       const response = await api.get(`/thu-moi/nguoi-phat-hanh/${user.maNguoiDung}`);
 
@@ -172,7 +168,8 @@ const ManageOffersPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <Card title={'Quan ly thu moi da gui (' + offers.length + ' thu moi tu tat ca cong ty)'}>
         <Table
           columns={columns}
@@ -208,6 +205,7 @@ const ManageOffersPage: React.FC = () => {
           </div>
         )}
       </Modal>
+      </div>
     </div>
   );
 };

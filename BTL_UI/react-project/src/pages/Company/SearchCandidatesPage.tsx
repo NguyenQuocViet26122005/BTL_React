@@ -124,7 +124,8 @@ const SearchCandidatesPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <Card title="Tìm kiếm ứng viên" style={{ marginBottom: 24 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <Input
@@ -179,6 +180,7 @@ const SearchCandidatesPage: React.FC = () => {
           locale={{ emptyText: 'Chưa có ứng viên nào' }}
         />
       </Card>
+      </div>
     </div>
   );
 };

@@ -7,6 +7,7 @@ import type { LichPhongVan } from '../../services/interviewService';
 import { applicationService } from '../../services/applicationService';
 import { message } from 'antd';
 import dayjs from 'dayjs';
+import { getStoredUser } from '../../utils/auth';
 
 const MyInterviewsPage = () => {
   const [interviews, setInterviews] = useState<LichPhongVan[]>([]);
@@ -15,11 +16,8 @@ const MyInterviewsPage = () => {
   const [selectedResult, setSelectedResult] = useState<any>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
-      loadInterviews(userData.maNguoiDung);
-    }
+    const userData = getStoredUser();
+    if (userData) loadInterviews(userData.maNguoiDung);
   }, []);
 
   const loadInterviews = async (maUngVien: number) => {

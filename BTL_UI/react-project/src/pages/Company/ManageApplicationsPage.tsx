@@ -6,6 +6,8 @@ import { applicationService } from '../../services/applicationService';
 import { offerService } from '../../services/offerService';
 import type { DonUngTuyen } from '../../types';
 import dayjs from 'dayjs';
+import { getStoredUser } from '../../utils/auth';
+import { getFileUrl } from '../../services/api';
 
 const { TextArea } = Input;
 
@@ -20,14 +22,11 @@ const ManageApplicationsPage = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
-      if (userData.maCongTy) {
-        fetchApplications(userData.maCongTy);
-      } else {
-        message.warning('Tai khoan chua co thong tin cong ty');
-      }
+    const userData = getStoredUser();
+    if (userData?.maCongTy) {
+      fetchApplications(userData.maCongTy);
+    } else {
+      message.warning('Tài khoản chưa có thông tin công ty');
     }
   }, []);
 
@@ -58,7 +57,7 @@ const ManageApplicationsPage = () => {
 
   const handleDownloadCV = (cvPath: string, cvName: string) => {
     const link = document.createElement('a');
-    link.href = `https://localhost:44314${cvPath}`;
+    link.href = getFileUrl(cvPath);
     link.download = cvName;
     link.target = '_blank';
     document.body.appendChild(link);
@@ -114,11 +113,8 @@ const ManageApplicationsPage = () => {
       const response = await applicationService.updateStatus(maDon, { trangThai });
       if (response.success) {
         message.success('Cap nhat trang thai thanh cong!');
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const userData = JSON.parse(userStr);
-          fetchApplications(userData.maCongTy);
-        }
+        const userData = getStoredUser();
+        if (userData?.maCongTy) fetchApplications(userData.maCongTy);
       }
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Cap nhat that bai!');
@@ -423,7 +419,7 @@ const ManageApplicationsPage = () => {
                   </Button>
                   <Button 
                     icon={<EyeOutlined />}
-                    onClick={() => window.open(`https://localhost:44314${selectedApp.duongDanFileCV}`, '_blank')}
+                    onClick={() => window.open(getFileUrl(selectedApp.duongDanFileCV), '_blank')}
                   >
                     Xem trong tab moi
                   </Button>

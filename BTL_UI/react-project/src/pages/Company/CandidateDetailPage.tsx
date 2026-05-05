@@ -63,7 +63,8 @@ const CandidateDetailPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/company/candidates')} style={{ marginBottom: 16 }}>
         Quay lại
       </Button>
@@ -118,6 +119,7 @@ const CandidateDetailPage: React.FC = () => {
           )}
         </Descriptions>
       </Card>
+      </div>
     </div>
   );
 };

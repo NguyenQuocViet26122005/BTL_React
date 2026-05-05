@@ -13,6 +13,7 @@ import { profileService } from '../../services/profileService';
 import CvManager from '../../components/CV/CvManager';
 import dayjs from 'dayjs';
 import { CANDIDATE_STATUS, getCandidateStatusColor, getCandidateStatusText, normalizeCandidateStatus } from '../../utils/candidateStatus';
+import { getStoredUser } from '../../utils/auth';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -30,9 +31,8 @@ const CandidateProfile = () => {
   const [passwordForm] = Form.useForm();
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
+    const userData = getStoredUser();
+    if (userData) {
       setUser(userData);
       loadResumeData(userData.maNguoiDung);
     }
