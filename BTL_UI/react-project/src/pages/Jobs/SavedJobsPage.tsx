@@ -62,7 +62,8 @@ const SavedJobsPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <Card title={<span><HeartFilled style={{ color: '#ff4d4f', marginRight: 8 }} />Tin tuyen dung da luu ({savedJobs.length})</span>}>
         {savedJobs.length === 0 ? (
           <Empty description="Ban chua luu tin tuyen dung nao" />
@@ -122,6 +123,7 @@ const SavedJobsPage: React.FC = () => {
           />
         )}
       </Card>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { UploadOutlined, FileOutlined, DeleteOutlined, StarOutlined, StarFilled,
 import type { UploadProps } from 'antd';
 import cvService, { type FileCv } from '../../services/cvService';
 import dayjs from 'dayjs';
+import { getFileUrl } from '../../services/api';
 
 interface CvManagerProps {
   maHoSo: number;
@@ -152,7 +153,7 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
                   type="link"
                   size="small"
                   icon={<DownloadOutlined />}
-                  href={`https://localhost:44314${cv.duongDanFile}`}
+                  href={getFileUrl(cv.duongDanFile)}
                   target="_blank"
                 >
                   Tải xuống

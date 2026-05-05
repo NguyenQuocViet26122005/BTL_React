@@ -756,8 +756,7 @@ const ExperienceTab = ({ hoSo }: { hoSo: HoSoUngVien | null }) => {
 const OffersTab = () => {
   const [offers, setOffers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
+  const user = getStoredUser();
 
   useEffect(() => {
     if (user) loadOffers();

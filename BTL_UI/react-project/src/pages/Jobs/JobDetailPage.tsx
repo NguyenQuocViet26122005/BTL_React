@@ -10,6 +10,7 @@ import { resumeService } from '../../services/resumeService';
 import { eventBus, EVENTS } from '../../utils/eventBus';
 import type { TinTuyenDung } from '../../types';
 import dayjs from 'dayjs';
+import { getStoredUser, ROLE_CANDIDATE } from '../../utils/auth';
 
 const { TextArea } = Input;
 
@@ -54,10 +55,8 @@ const JobDetailPage = () => {
 
   const checkSavedStatus = async (maTin: number) => {
     try {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) return;
-      const user = JSON.parse(userStr);
-      if (user.maVaiTro !== 3) return;
+      const user = getStoredUser();
+      if (!user || user.maVaiTro !== ROLE_CANDIDATE) return;
 
       const response = await savedJobService.getMySavedJobs();
       if (response.success && response.data) {
@@ -70,15 +69,14 @@ const JobDetailPage = () => {
   };
 
   const handleToggleSave = async () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
+    const user = getStoredUser();
+    if (!user) {
       message.warning('Vui lòng đăng nhập để lưu tin');
       setTimeout(() => navigate('/login'), 1000);
       return;
     }
 
-    const user = JSON.parse(userStr);
-    if (user.maVaiTro !== 3) {
+    if (user.maVaiTro !== ROLE_CANDIDATE) {
       message.error('Chỉ ứng viên mới có thể lưu tin!');
       return;
     }
@@ -133,16 +131,15 @@ const JobDetailPage = () => {
 
   const handleApply = () => {
     const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-    
-    if (!token || !userStr) {
+    const user = getStoredUser();
+
+    if (!token || !user) {
       message.warning('Vui lòng đăng nhập để ứng tuyển');
       setTimeout(() => navigate('/login'), 1000);
       return;
     }
 
-    const user = JSON.parse(userStr);
-    if (user.maVaiTro !== 3) {
+    if (user.maVaiTro !== ROLE_CANDIDATE) {
       message.error('Chỉ ứng viên mới có thể ứng tuyển!');
       return;
     }
@@ -154,13 +151,11 @@ const JobDetailPage = () => {
   const handleSubmitApplication = async (values: any) => {
     try {
       setSubmitting(true);
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
+      const user = getStoredUser();
+      if (!user) {
         message.error('Vui lòng đăng nhập lại!');
         return;
       }
-      
-      const user = JSON.parse(userStr);
 
       if (!values.maFileCV) {
         message.error('Vui lòng chọn CV!');
@@ -207,7 +202,8 @@ const JobDetailPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <Button 
         icon={<ArrowLeftOutlined />} 
         onClick={() => navigate('/jobs')}
@@ -383,6 +379,7 @@ const JobDetailPage = () => {
           </Form>
         )}
       </Modal>
+      </div>
     </div>
   );
 };

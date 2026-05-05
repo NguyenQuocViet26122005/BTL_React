@@ -101,7 +101,8 @@ const NotificationsPage = () => {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <Card
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -153,6 +154,7 @@ const NotificationsPage = () => {
           )}
         </Spin>
       </Card>
+      </div>
     </div>
   );
 };
