@@ -134,6 +134,23 @@ export type ApiResponse<T> = {
   data?: T;
 };
 
+export type AdminUser = {
+  maNguoiDung: number;
+  hoTen: string;
+  email: string;
+  soDienThoai?: string;
+  tenVaiTro: string;
+  dangHoatDong: boolean;
+  ngayTao: string;
+};
+
+export type AdminUserListResponse = {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
 // Dashboard types
 export type DashboardStats = {
   tongTinDang: number;

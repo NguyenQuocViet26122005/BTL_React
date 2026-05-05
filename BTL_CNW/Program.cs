@@ -1,5 +1,6 @@
 using BTL_CNW.BLL.Auth;
 using BTL_CNW.BLL.CongTy;
+using BTL_CNW.DAL.Auth;
 using BTL_CNW.BLL.TinTuyenDung;
 using BTL_CNW.BLL.DonUngTuyen;
 using BTL_CNW.BLL.HoSoUngVien;
@@ -13,7 +14,6 @@ using BTL_CNW.BLL.ThuMoiLamViec;
 using BTL_CNW.BLL.HocVan;
 using BTL_CNW.BLL.KinhNghiemLamViec;
 
-using BTL_CNW.DAL.Auth;
 using BTL_CNW.DAL.CongTy;
 using BTL_CNW.DAL.TinTuyenDung;
 using BTL_CNW.DAL.DonUngTuyen;
@@ -93,6 +93,8 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 // Auth
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAdminUserRepository, AdminUserRepository>();
+builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 
 // Công ty
 builder.Services.AddScoped<ICongTyRepository, CongTyRepository>();

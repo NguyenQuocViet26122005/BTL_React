@@ -22,6 +22,7 @@ import MyInterviewsPage from './pages/Candidate/MyInterviewsPage';
 import MyOffersPage from './pages/Candidate/MyOffersPage';
 import CandidateResumePage from './pages/Candidate/CandidateResumePage';
 import AdminJobApprovalPage from './pages/Admin/AdminJobApprovalPage';
+import AdminUserManagementPage from './pages/Admin/AdminUserManagementPage';
 import NotificationsPage from './pages/Notifications/NotificationsPage';
 import TestConnection from './pages/TestConnection';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -57,6 +58,7 @@ function App() {
             <Route path="candidate/offers" element={<ProtectedRoute allowedRoles={[ROLE_CANDIDATE]}><MyOffersPage /></ProtectedRoute>} />
             <Route path="candidate/resume" element={<ProtectedRoute allowedRoles={[ROLE_CANDIDATE]}><CandidateResumePage /></ProtectedRoute>} />
             <Route path="admin/jobs" element={<ProtectedRoute allowedRoles={[ROLE_ADMIN]}><AdminJobApprovalPage /></ProtectedRoute>} />
+            <Route path="admin/users" element={<ProtectedRoute allowedRoles={[ROLE_ADMIN]}><AdminUserManagementPage /></ProtectedRoute>} />
             <Route path="notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
             <Route path="test-connection" element={<TestConnection />} />
           </Route>

@@ -162,14 +162,22 @@ const Header = () => {
             </>
           )}
           {user && user.maVaiTro === 1 && (
-            <Button 
-              type="link" 
-              style={getButtonStyle('/admin/jobs')} 
-              onClick={() => navigate('/admin/jobs')}
-            >
-              <DashboardOutlined /> Quản lý tin
-            </Button>
-        
+            <>
+              <Button
+                type="link"
+                style={getButtonStyle('/admin/jobs')}
+                onClick={() => navigate('/admin/jobs')}
+              >
+                <DashboardOutlined /> Quản lý tin
+              </Button>
+              <Button
+                type="link"
+                style={getButtonStyle('/admin/users')}
+                onClick={() => navigate('/admin/users')}
+              >
+                <TeamOutlined /> Quản lý user
+              </Button>
+            </>
           )}
         </Space>
       </div>
