@@ -96,32 +96,31 @@ namespace BTL_CNW.DAL.CongTy
             };
         }
 
-        public CongTyDto? LayTheoChuSoHuu(int maNguoiDung)
+        public List<CongTyDto> LayTheoChuSoHuu(int maNguoiDung)
         {
-            var congTy = _context.CongTies
+            return _context.CongTies
                 .Include(x => x.MaLinhVucNavigation)
-                .FirstOrDefault(x => x.MaChuSoHuu == maNguoiDung);
-
-            if (congTy == null) return null;
-
-            return new CongTyDto
-            {
-                MaCongTy = congTy.MaCongTy,
-                MaChuSoHuu = congTy.MaChuSoHuu,
-                TenCongTy = congTy.TenCongTy,
-                MaSoThue = congTy.MaSoThue,
-                Logo = congTy.Logo,
-                Website = congTy.Website,
-                MaLinhVuc = congTy.MaLinhVuc,
-                TenLinhVuc = congTy.MaLinhVucNavigation?.TenLinhVuc,
-                QuyMo = congTy.QuyMo,
-                DiaChi = congTy.DiaChi,
-                ThanhPho = congTy.ThanhPho,
-                QuocGia = congTy.QuocGia,
-                MoTa = congTy.MoTa,
-                DaDuocDuyet = congTy.DaDuocDuyet,
-                NgayTao = congTy.NgayTao
-            };
+                .Where(x => x.MaChuSoHuu == maNguoiDung)
+                .OrderByDescending(x => x.NgayTao)
+                .Select(x => new CongTyDto
+                {
+                    MaCongTy = x.MaCongTy,
+                    MaChuSoHuu = x.MaChuSoHuu,
+                    TenCongTy = x.TenCongTy,
+                    MaSoThue = x.MaSoThue,
+                    Logo = x.Logo,
+                    Website = x.Website,
+                    MaLinhVuc = x.MaLinhVuc,
+                    TenLinhVuc = x.MaLinhVucNavigation != null ? x.MaLinhVucNavigation.TenLinhVuc : null,
+                    QuyMo = x.QuyMo,
+                    DiaChi = x.DiaChi,
+                    ThanhPho = x.ThanhPho,
+                    QuocGia = x.QuocGia,
+                    MoTa = x.MoTa,
+                    DaDuocDuyet = x.DaDuocDuyet,
+                    NgayTao = x.NgayTao
+                })
+                .ToList();
         }
 
         public bool CapNhat(int maCongTy, CapNhatCongTyDto dto)

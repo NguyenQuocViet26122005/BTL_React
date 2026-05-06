@@ -26,24 +26,10 @@ export const applicationService = {
     return response.data;
   },
 
-  // Lấy tất cả đơn ứng tuyển của công ty (qua các tin tuyển dụng)
+  // Lấy tất cả đơn ứng tuyển của công ty (sử dụng endpoint mới)
   getCompanyApplications: async (maCongTy: number) => {
-    // Lay tat ca tin tuyen dung cua cong ty
-    const jobsResponse = await api.get<ApiResponse<TinTuyenDung[]>>(`/tin-tuyen-dung/cong-ty/${maCongTy}`);
-    if (!jobsResponse.data.success || !jobsResponse.data.data) {
-      return { success: false, message: 'Khong lay duoc tin tuyen dung', data: [] };
-    }
-
-    // Lay don ung tuyen cho tung tin
-    const allApplications: DonUngTuyen[] = [];
-    for (const job of jobsResponse.data.data) {
-      const appResponse = await api.get<ApiResponse<DonUngTuyen[]>>(`/don-ung-tuyen/theo-tin/${job.maTin}`);
-      if (appResponse.data.success && appResponse.data.data) {
-        allApplications.push(...appResponse.data.data);
-      }
-    }
-
-    return { success: true, message: 'Thanh cong', data: allApplications };
+    const response = await api.get<ApiResponse<DonUngTuyen[]>>(`/don-ung-tuyen/theo-cong-ty/${maCongTy}`);
+    return response.data;
   },
 
   // Cập nhật trạng thái đơn ứng tuyển (cho nhà tuyển dụng)

@@ -7,6 +7,7 @@ namespace BTL_CNW.DAL.DonUngTuyen
         bool NopDon(NopDonDto dto);
         List<DonUngTuyenDto> LayTheoUngVien(int maUngVien);
         List<DonUngTuyenDto> LayTheoTin(int maTin);
+        List<DonUngTuyenDto> LayTheoCongTy(int maCongTy);
         DonUngTuyenDto? LayChiTiet(int maDon);
         bool CapNhatTrangThai(int maDon, string trangThai);
         bool DaNop(int maTin, int maUngVien);

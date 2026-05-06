@@ -7,7 +7,7 @@ namespace BTL_CNW.BLL.CongTy
     {
         (bool success, string message) TaoCongTy(TaoCongTyDto dto);
         (bool success, string message, CongTyDto? data) LayTheoId(int maCongTy);
-        (bool success, string message, CongTyDto? data) LayTheoChuSoHuu(int maNguoiDung);
+        (bool success, string message, List<CongTyDto> data) LayTheoChuSoHuu(int maNguoiDung);
         (bool success, string message, List<CongTyDto> data) LayTatCa();
         (bool success, string message) CapNhat(int maCongTy, CapNhatCongTyDto dto);
         (bool success, string message) DuyetCongTy(int maCongTy);
@@ -30,11 +30,7 @@ namespace BTL_CNW.BLL.CongTy
                 if (dto.MaChuSoHuu <= 0)
                     return (false, "Mã chủ sở hữu không hợp lệ");
 
-                // Check if user already has a company
-                var existingCompany = _repo.LayTheoChuSoHuu(dto.MaChuSoHuu);
-                if (existingCompany != null)
-                    return (false, "Bạn đã có công ty rồi, không thể tạo thêm");
-
+                // User can have multiple companies, so remove this check
                 var result = _repo.TaoCongTy(dto);
                 return result 
                     ? (true, "Tạo công ty thành công, đang chờ duyệt")
@@ -64,21 +60,21 @@ namespace BTL_CNW.BLL.CongTy
             }
         }
 
-        public (bool success, string message, CongTyDto? data) LayTheoChuSoHuu(int maNguoiDung)
+        public (bool success, string message, List<CongTyDto> data) LayTheoChuSoHuu(int maNguoiDung)
         {
             try
             {
                 if (maNguoiDung <= 0)
-                    return (false, "Mã người dùng không hợp lệ", null);
+                    return (false, "Mã người dùng không hợp lệ", new List<CongTyDto>());
 
-                var congTy = _repo.LayTheoChuSoHuu(maNguoiDung);
-                return congTy != null 
-                    ? (true, "Lấy thông tin công ty thành công", congTy)
-                    : (false, "Bạn chưa có công ty nào", null);
+                var danhSachCongTy = _repo.LayTheoChuSoHuu(maNguoiDung);
+                return danhSachCongTy.Count > 0
+                    ? (true, "Lấy danh sách công ty thành công", danhSachCongTy)
+                    : (false, "Bạn chưa có công ty nào", new List<CongTyDto>());
             }
             catch (Exception ex)
             {
-                return (false, $"Lỗi hệ thống: {ex.Message}", null);
+                return (false, $"Lỗi hệ thống: {ex.Message}", new List<CongTyDto>());
             }
         }
 

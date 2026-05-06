@@ -8,6 +8,7 @@ namespace BTL_CNW.BLL.DonUngTuyen
         (bool ok, string msg) NopDon(NopDonDto dto);
         (List<DonUngTuyenDto> data, string? error) LayTheoUngVien(int maUngVien);
         (List<DonUngTuyenDto> data, string? error) LayTheoTin(int maTin);
+        (List<DonUngTuyenDto> data, string? error) LayTheoCongTy(int maCongTy);
         (DonUngTuyenDto? data, string? error) LayChiTiet(int maDon);
         (bool ok, string msg) CapNhatTrangThai(int maDon, string trangThai);
     }
@@ -82,6 +83,24 @@ namespace BTL_CNW.BLL.DonUngTuyen
                 }
 
                 var data = _repo.LayTheoTin(maTin);
+                return (data, null);
+            }
+            catch (Exception ex)
+            {
+                return (new List<DonUngTuyenDto>(), $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
+
+        public (List<DonUngTuyenDto> data, string? error) LayTheoCongTy(int maCongTy)
+        {
+            try
+            {
+                if (maCongTy <= 0)
+                {
+                    return (new List<DonUngTuyenDto>(), "Mã công ty không hợp lệ");
+                }
+
+                var data = _repo.LayTheoCongTy(maCongTy);
                 return (data, null);
             }
             catch (Exception ex)

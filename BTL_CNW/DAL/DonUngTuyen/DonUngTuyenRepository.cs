@@ -121,6 +121,33 @@ namespace BTL_CNW.DAL.DonUngTuyen
             };
         }
 
+        public List<DonUngTuyenDto> LayTheoCongTy(int maCongTy)
+        {
+            return _context.DonUngTuyens
+                .Include(x => x.MaTinNavigation)
+                .Include(x => x.MaUngVienNavigation)
+                .Include(x => x.MaFileCvNavigation)
+                .Where(x => x.MaTinNavigation.MaCongTy == maCongTy)
+                .OrderByDescending(x => x.NgayNop)
+                .Select(x => new DonUngTuyenDto
+                {
+                    MaDon = x.MaDon,
+                    MaTin = x.MaTin,
+                    TieuDeTin = x.MaTinNavigation.TieuDe,
+                    MaUngVien = x.MaUngVien,
+                    TenUngVien = x.MaUngVienNavigation.HoTen,
+                    EmailUngVien = x.MaUngVienNavigation.Email,
+                    MaFileCV = x.MaFileCv,
+                    TenFileCV = x.MaFileCvNavigation.TenFile,
+                    DuongDanFileCV = x.MaFileCvNavigation.DuongDanFile,
+                    ThuGioiThieu = x.ThuGioiThieu,
+                    TrangThai = x.TrangThai,
+                    NgayNop = x.NgayNop,
+                    NgayCapNhat = x.NgayCapNhat
+                })
+                .ToList();
+        }
+
         public bool CapNhatTrangThai(int maDon, string trangThai)
         {
             try

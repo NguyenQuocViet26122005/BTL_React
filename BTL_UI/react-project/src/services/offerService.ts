@@ -62,6 +62,14 @@ export const offerService = {
     return response.data;
   },
 
+  getByNguoiPhatHanh: async (maNguoiPhatHanh: number) => {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${API_URL}/thu-moi/nguoi-phat-hanh/${maNguoiPhatHanh}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
   create: async (data: TaoThuMoiDto) => {
     const token = localStorage.getItem('token');
     const response = await axios.post(`${API_URL}/thu-moi`, data, {

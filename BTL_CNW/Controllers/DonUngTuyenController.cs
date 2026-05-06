@@ -102,6 +102,36 @@ namespace BTL_CNW.Controllers
             }
         }
 
+        /// <summary>Đơn ứng tuyển theo công ty - Chỉ nhà tuyển dụng</summary>
+        [HttpGet("theo-cong-ty/{maCongTy:int}")]
+        [RoleAuthorize(UserRoles.NhaTuyenDung)]
+        public IActionResult LayTheoCongTy(int maCongTy)
+        {
+            try
+            {
+                var (data, error) = _service.LayTheoCongTy(maCongTy);
+                
+                if (error != null)
+                {
+                    return BadRequest(new { success = false, message = error });
+                }
+
+                return Ok(new { 
+                    success = true, 
+                    message = "Lấy danh sách đơn ứng tuyển thành công", 
+                    data = data 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Lỗi server không xác định", 
+                    error = ex.Message 
+                });
+            }
+        }
+
         /// <summary>Chi tiết đơn ứng tuyển - Nhà tuyển dụng và ứng viên</summary>
         [HttpGet("{maDon:int}")]
         [RoleAuthorize(UserRoles.NhaTuyenDung, UserRoles.UngVien)]

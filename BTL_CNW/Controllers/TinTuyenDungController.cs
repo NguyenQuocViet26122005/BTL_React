@@ -105,7 +105,7 @@ namespace BTL_CNW.Controllers
 
                 var result = congTyService.LayTheoChuSoHuu(maNguoiDung);
                 
-                if (!result.success || result.data == null)
+                if (!result.success || result.data == null || result.data.Count == 0)
                 {
                     return Ok(new { 
                         success = false, 
@@ -115,14 +115,16 @@ namespace BTL_CNW.Controllers
                     });
                 }
 
-                if (result.data.TrangThai != "Đã duyệt")
+                // Check if at least one company is approved
+                var approvedCompany = result.data.FirstOrDefault(c => c.TrangThai == "Đã duyệt");
+                if (approvedCompany == null)
                 {
                     return Ok(new { 
                         success = false, 
-                        message = "Công ty của bạn chưa được duyệt",
+                        message = "Chưa có công ty nào được duyệt",
                         canPost = false,
                         needApproval = true,
-                        company = result.data
+                        companies = result.data
                     });
                 }
 
@@ -130,7 +132,7 @@ namespace BTL_CNW.Controllers
                     success = true, 
                     message = "Bạn có thể đăng tin",
                     canPost = true,
-                    company = result.data
+                    companies = result.data
                 });
             }
             catch (Exception ex)

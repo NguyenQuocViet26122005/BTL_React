@@ -27,7 +27,7 @@ export interface CapNhatCongTyDto {
 export const companyService = {
   // Lấy công ty của nhà tuyển dụng
   getMyCompany: async (maNguoiDung: number) => {
-    const response = await api.get<ApiResponse<CongTy>>(`/cong-ty/cua-toi/${maNguoiDung}`);
+    const response = await api.get<ApiResponse<CongTy[]>>(`/cong-ty/cua-toi/${maNguoiDung}`);
     return response.data;
   },
 
@@ -54,4 +54,22 @@ export const companyService = {
     const response = await api.get<ApiResponse<CongTy>>(`/cong-ty/${maCongTy}`);
     return response.data;
   },
+
+  // Lấy tất cả công ty (Admin)
+  getAllCompanies: async () => {
+    const response = await api.get<ApiResponse<CongTy[]>>('/cong-ty');
+    return response.data;
+  },
+
+  // Duyệt công ty (Admin)
+  approveCompany: async (maCongTy: number) => {
+    const response = await api.put<ApiResponse<void>>(`/cong-ty/${maCongTy}/duyet`);
+    return response.data;
+  },
+
+  // Xóa công ty (Admin)
+  deleteCompany: async (maCongTy: number) => {
+    const response = await api.delete<ApiResponse<void>>(`/cong-ty/${maCongTy}`);
+    return response.data;
+  }
 };
