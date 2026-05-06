@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Button, message, Spin, Tag, Space, Modal, Form, Input, InputNumber, DatePicker } from 'antd';
+import { Card, Descriptions, Button, message, Spin, Tag } from 'antd';
 import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -39,7 +39,7 @@ const CandidateDetailPage: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        'http://localhost:5114/api/ho-so/' + maHoSo,
+        'https://localhost:44314/api/ho-so/' + maHoSo,
         { headers: { Authorization: 'Bearer ' + token } }
       );
 

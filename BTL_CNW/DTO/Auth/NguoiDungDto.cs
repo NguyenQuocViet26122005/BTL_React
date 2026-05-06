@@ -11,5 +11,6 @@ namespace BTL_CNW.DTO.Auth
         public string? AnhDaiDien { get; set; }
         public bool DangHoatDong { get; set; }
         public DateTime NgayTao { get; set; }
+        public int? MaCongTy { get; set; }
     }
 }

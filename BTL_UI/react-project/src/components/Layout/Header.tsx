@@ -1,4 +1,4 @@
-import { Layout, Button, Space, Dropdown } from 'antd';
+﻿import { Layout, Button, Space, Dropdown } from 'antd';
 import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined, CalendarOutlined, FileTextOutlined, GiftOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -125,6 +125,20 @@ const Header = () => {
                 onClick={() => navigate('/company/interviews')}
               >
                 <CalendarOutlined /> Lich phong van
+              </Button>
+              <Button 
+                type="link" 
+                style={getButtonStyle('/company/candidates')} 
+                onClick={() => navigate('/company/candidates')}
+              >
+                <TeamOutlined /> Tim ung vien
+              </Button>
+              <Button 
+                type="link" 
+                style={getButtonStyle('/company/offers')} 
+                onClick={() => navigate('/company/offers')}
+              >
+                <GiftOutlined /> Thu moi da gui
               </Button>
             </>
           )}

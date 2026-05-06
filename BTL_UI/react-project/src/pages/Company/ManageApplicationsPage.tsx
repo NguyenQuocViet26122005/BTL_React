@@ -23,14 +23,18 @@ const ManageApplicationsPage = () => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       const userData = JSON.parse(userStr);
-      fetchApplications(userData.maNguoiDung);
+      if (userData.maCongTy) {
+        fetchApplications(userData.maCongTy);
+      } else {
+        message.warning('Tai khoan chua co thong tin cong ty');
+      }
     }
   }, []);
 
-  const fetchApplications = async (maNguoiDung: number) => {
+  const fetchApplications = async (maCongTy: number) => {
     try {
       setLoading(true);
-      const response = await applicationService.getCompanyApplications(maNguoiDung);
+      const response = await applicationService.getCompanyApplications(maCongTy);
       if (response.success && response.data) {
         setApplications(response.data);
       }
@@ -113,7 +117,7 @@ const ManageApplicationsPage = () => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
           const userData = JSON.parse(userStr);
-          fetchApplications(userData.maNguoiDung);
+          fetchApplications(userData.maCongTy);
         }
       }
     } catch (error: any) {

@@ -176,6 +176,37 @@ Cần cập nhật UI trong InterviewSchedulePage.tsx
 3. **Routes đã được thêm** vào App.tsx
 4. **Types đã được cập nhật** trong index.ts
 5. **Cần cập nhật InterviewSchedulePage.tsx** để thêm nút sửa/xóa lịch phỏng vấn
+6. **✅ ĐÃ SỬA LỖI**: AuthRepository.cs - Đã sửa cách lấy maCongTy khi đăng nhập
+
+---
+
+## 🐛 LỖI ĐÃ SỬA
+
+### Lỗi: "Tai khoan chua co thong tin cong ty"
+
+**Nguyên nhân**: 
+- Khi đăng nhập, `maCongTy` không được lấy đúng từ database
+- Code cũ sử dụng `.Include(x => x.CongTies)` nhưng không query đúng
+
+**Giải pháp**:
+- Đã cập nhật `BTL_CNW/DAL/Auth/AuthRepository.cs`
+- Thay đổi từ:
+  ```csharp
+  .Include(x => x.CongTies)
+  var congTy = nguoiDung.CongTies.FirstOrDefault();
+  ```
+- Sang:
+  ```csharp
+  var congTy = _context.CongTies
+      .FirstOrDefault(c => c.MaChuSoHuu == nguoiDung.MaNguoiDung);
+  ```
+
+**Cách test**:
+1. Khởi động lại backend (Ctrl+C rồi chạy lại)
+2. Đăng xuất khỏi frontend
+3. Đăng nhập lại với tài khoản nhà tuyển dụng
+4. Kiểm tra localStorage - `user` object phải có field `maCongTy`
+5. Thử truy cập các trang: `/company/candidates`, `/company/offers`
 
 ---
 
@@ -185,9 +216,22 @@ Cần cập nhật UI trong InterviewSchedulePage.tsx
 2. ✅ Frontend pages - HOÀN THÀNH (3/3 trang)
 3. ✅ Routes - HOÀN THÀNH
 4. ✅ Types - HOÀN THÀNH
-5. ⏳ Cập nhật InterviewSchedulePage.tsx - Thêm nút sửa/xóa
-6. ⏳ Test các chức năng mới
-7. ⏳ Thêm navigation menu cho các trang mới
+5. ✅ Menu navigation - HOÀN THÀNH (đã thêm vào Header.tsx)
+6. ✅ Fix lỗi maCongTy - HOÀN THÀNH
+7. ⏳ Cập nhật InterviewSchedulePage.tsx - Thêm nút sửa/xóa
+8. ⏳ Test các chức năng mới sau khi restart backend
+
+---
+
+## 🔗 MENU NAVIGATION
+
+Các menu item đã được thêm vào Header.tsx cho nhà tuyển dụng:
+
+1. **Dashboard** - `/company/dashboard`
+2. **Don ung tuyen** - `/company/applications`
+3. **Lich phong van** - `/company/interviews`
+4. **Tim ung vien** - `/company/candidates` ⭐ MỚI
+5. **Thu moi da gui** - `/company/offers` ⭐ MỚI
 
 ---
 
@@ -213,3 +257,37 @@ Cần cập nhật UI trong InterviewSchedulePage.tsx
 ---
 
 Tất cả các chức năng đã được implement và sẵn sàng sử dụng!
+
+
+---
+
+## 🔄 CẬP NHẬT MỚI NHẤT
+
+### Sửa logic "Quản lý thư mời đã gửi"
+
+**Vấn đề**: 
+- Người dùng có thể quản lý nhiều công ty (12 công ty)
+- Trước đây chỉ hiển thị thư mời của 1 công ty (maCongTy = 1)
+- Thư mời gửi từ công ty khác không hiển thị
+
+**Giải pháp**:
+- Thêm API mới: `GET /api/thu-moi/nguoi-phat-hanh/{maNguoiPhatHanh}`
+- Hiển thị TẤT CẢ thư mời mà người dùng đã gửi từ tất cả công ty
+- Thêm cột "Công ty" vào bảng để phân biệt
+
+**Files đã sửa**:
+1. `BTL_CNW/BLL/ThuMoiLamViec/ThuMoiLamViecService.cs` - Thêm method `LayTheoNguoiPhatHanh()`
+2. `BTL_CNW/Controllers/ThuMoiLamViecController.cs` - Thêm endpoint mới
+3. `BTL_UI/react-project/src/pages/Company/ManageOffersPage.tsx` - Đổi từ maCongTy sang maNguoiDung
+
+**Validation khi gửi thư mời**:
+- Kiểm tra đơn ứng tuyển có tồn tại không
+- Kiểm tra người gửi có phải chủ sở hữu công ty không
+- Kiểm tra đã gửi thư mời cho đơn này chưa
+- Đảm bảo chỉ gửi thư mời cho đơn của công ty mình quản lý
+
+**Sửa logic "Quản lý đơn ứng tuyển"**:
+- Đổi từ lấy theo `maNguoiDung` sang lấy theo `maCongTy`
+- Chỉ hiển thị đơn ứng tuyển của công ty hiện tại (maCongTy = 1)
+- Đảm bảo chỉ gửi thư mời cho đơn của công ty đang quản lý
+

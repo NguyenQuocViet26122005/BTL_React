@@ -33,16 +33,30 @@ const ManageOffersPage: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
-      if (!userStr) return;
+      
+      if (!userStr) {
+        message.error('Vui long dang nhap lai');
+        setLoading(false);
+        return;
+      }
       
       const user = JSON.parse(userStr);
+      
+      console.log('User from localStorage:', user);
+      console.log('maNguoiDung:', user.maNguoiDung);
+      
       const response = await axios.get(
-        'http://localhost:5114/api/thu-moi/cong-ty/' + user.maCongTy,
+        'https://localhost:44314/api/thu-moi/nguoi-phat-hanh/' + user.maNguoiDung,
         { headers: { Authorization: 'Bearer ' + token } }
       );
 
+      console.log('API Response:', response.data);
+
+
       if (response.data.success) {
         setOffers(response.data.data || []);
+      } else {
+        message.error(response.data.message || 'Khong the tai danh sach thu moi');
       }
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Khong the tai danh sach thu moi');
@@ -61,7 +75,7 @@ const ManageOffersPage: React.FC = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.delete(
-            'http://localhost:5114/api/thu-moi/' + maThuMoi,
+            'https://localhost:44314/api/thu-moi/' + maThuMoi,
             { headers: { Authorization: 'Bearer ' + token } }
           );
           message.success('Xoa thu moi thanh cong');
@@ -81,6 +95,12 @@ const ManageOffersPage: React.FC = () => {
       width: 150,
     },
     {
+      title: 'Cong ty',
+      dataIndex: 'tenCongTy',
+      key: 'tenCongTy',
+      width: 150,
+    },
+    {
       title: 'Vi tri',
       dataIndex: 'viTriCongViec',
       key: 'viTriCongViec',
@@ -92,21 +112,21 @@ const ManageOffersPage: React.FC = () => {
       key: 'mucLuong',
       width: 150,
       render: (salary: number, record: ThuMoi) => 
-        salary.toLocaleString() + ' ' + (record.donViTien || 'VND'),
+        salary ? salary.toLocaleString() + ' ' + (record.donViTien || 'VND') : 'N/A',
     },
     {
       title: 'Ngay bat dau',
       dataIndex: 'ngayBatDauDuKien',
       key: 'ngayBatDauDuKien',
       width: 120,
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+      render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : 'N/A',
     },
     {
       title: 'Han phan hoi',
       dataIndex: 'ngayHetHan',
       key: 'ngayHetHan',
       width: 120,
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+      render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : 'N/A',
     },
     {
       title: 'Trang thai',
@@ -124,7 +144,7 @@ const ManageOffersPage: React.FC = () => {
           'DaDongY': 'Da dong y',
           'DaTuChoi': 'Da tu choi',
         };
-        return <Tag color={colorMap[status]}>{textMap[status] || status}</Tag>;
+        return <Tag color={colorMap[status] || 'default'}>{textMap[status] || status}</Tag>;
       },
     },
     {
@@ -161,13 +181,14 @@ const ManageOffersPage: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Card title={'Quan ly thu moi da gui (' + offers.length + ' thu moi)'}>
+      <Card title={'Quan ly thu moi da gui (' + offers.length + ' thu moi tu tat ca cong ty)'}>
         <Table
           columns={columns}
           dataSource={offers}
           rowKey="maThuMoi"
           loading={loading}
           pagination={{ pageSize: 10 }}
+          locale={{ emptyText: 'Chua co thu moi nao' }}
         />
       </Card>
 
@@ -183,11 +204,11 @@ const ManageOffersPage: React.FC = () => {
       >
         {selectedOffer && (
           <div>
-            <p><strong>Ung vien:</strong> {selectedOffer.tenUngVien}</p>
+            <p><strong>Ung vien:</strong> {selectedOffer.tenUngVien || 'N/A'}</p>
             <p><strong>Vi tri:</strong> {selectedOffer.viTriCongViec}</p>
-            <p><strong>Muc luong:</strong> {selectedOffer.mucLuong.toLocaleString()} {selectedOffer.donViTien}</p>
-            <p><strong>Ngay bat dau:</strong> {dayjs(selectedOffer.ngayBatDauDuKien).format('DD/MM/YYYY')}</p>
-            <p><strong>Han phan hoi:</strong> {dayjs(selectedOffer.ngayHetHan).format('DD/MM/YYYY')}</p>
+            <p><strong>Muc luong:</strong> {selectedOffer.mucLuong ? selectedOffer.mucLuong.toLocaleString() : 'N/A'} {selectedOffer.donViTien || 'VND'}</p>
+            <p><strong>Ngay bat dau:</strong> {selectedOffer.ngayBatDauDuKien ? dayjs(selectedOffer.ngayBatDauDuKien).format('DD/MM/YYYY') : 'N/A'}</p>
+            <p><strong>Han phan hoi:</strong> {selectedOffer.ngayHetHan ? dayjs(selectedOffer.ngayHetHan).format('DD/MM/YYYY') : 'N/A'}</p>
             <p><strong>Trang thai:</strong> {selectedOffer.trangThai}</p>
             {selectedOffer.ghiChu && (
               <p><strong>Ghi chu:</strong> {selectedOffer.ghiChu}</p>

@@ -27,9 +27,9 @@ export const applicationService = {
   },
 
   // Lấy tất cả đơn ứng tuyển của công ty (qua các tin tuyển dụng)
-  getCompanyApplications: async (maNguoiDung: number) => {
-    // Lay tat ca tin tuyen dung cua nha tuyen dung
-    const jobsResponse = await api.get<ApiResponse<TinTuyenDung[]>>(`/tin-tuyen-dung/cua-toi/${maNguoiDung}`);
+  getCompanyApplications: async (maCongTy: number) => {
+    // Lay tat ca tin tuyen dung cua cong ty
+    const jobsResponse = await api.get<ApiResponse<TinTuyenDung[]>>(`/tin-tuyen-dung/cong-ty/${maCongTy}`);
     if (!jobsResponse.data.success || !jobsResponse.data.data) {
       return { success: false, message: 'Khong lay duoc tin tuyen dung', data: [] };
     }

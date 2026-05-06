@@ -47,6 +47,15 @@ namespace BTL_CNW.Controllers
             return Ok(new { success = true, message = result.message, data = result.data });
         }
 
+        /// <summary>Lay thu moi cua nguoi phat hanh - Nha tuyen dung</summary>
+        [HttpGet("nguoi-phat-hanh/{maNguoiPhatHanh}")]
+        [RoleAuthorize("NhaTuyenDung")] // Nha tuyen dung
+        public IActionResult LayTheoNguoiPhatHanh(int maNguoiPhatHanh)
+        {
+            var result = _service.LayTheoNguoiPhatHanh(maNguoiPhatHanh);
+            return Ok(new { success = true, message = result.message, data = result.data });
+        }
+
         /// <summary>Gui thu moi lam viec - Nha tuyen dung</summary>
         [HttpPost]
         [RoleAuthorize("NhaTuyenDung")] // Nha tuyen dung

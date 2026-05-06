@@ -1,6 +1,8 @@
 using BTL_CNW.DAL.ThuMoiLamViec;
 using BTL_CNW.DTO.ThuMoiLamViec;
 using BTL_CNW.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BTL_CNW.BLL.ThuMoiLamViec
 {
@@ -9,6 +11,7 @@ namespace BTL_CNW.BLL.ThuMoiLamViec
         (bool success, string message, ThuMoiLamViecDto? data) LayTheoMa(int maThuMoi);
         (bool success, string message, List<ThuMoiLamViecDto>? data) LayTheoUngVien(int maUngVien);
         (bool success, string message, List<ThuMoiLamViecDto>? data) LayTheoCongTy(int maCongTy);
+        (bool success, string message, List<ThuMoiLamViecDto>? data) LayTheoNguoiPhatHanh(int maNguoiPhatHanh);
         (bool success, string message, int maThuMoi) Tao(TaoThuMoiDto dto, int maNguoiPhatHanh);
         (bool success, string message) PhanHoi(int maThuMoi, PhanHoiThuMoiDto dto);
         (bool success, string message) Xoa(int maThuMoi);
@@ -17,10 +20,12 @@ namespace BTL_CNW.BLL.ThuMoiLamViec
     public class ThuMoiLamViecService : IThuMoiLamViecService
     {
         private readonly IThuMoiLamViecRepository _repo;
+        private readonly QuanLyViecLamContext _context;
 
-        public ThuMoiLamViecService(IThuMoiLamViecRepository repo)
+        public ThuMoiLamViecService(IThuMoiLamViecRepository repo, QuanLyViecLamContext context)
         {
             _repo = repo;
+            _context = context;
         }
 
         public (bool success, string message, ThuMoiLamViecDto? data) LayTheoMa(int maThuMoi)
@@ -42,6 +47,23 @@ namespace BTL_CNW.BLL.ThuMoiLamViec
         public (bool success, string message, List<ThuMoiLamViecDto>? data) LayTheoCongTy(int maCongTy)
         {
             var thuMois = _repo.LayTheoCongTy(maCongTy);
+            var dtos = thuMois.Select(MapToDto).ToList();
+            return (true, "Lay danh sach thu moi thanh cong", dtos);
+        }
+
+        public (bool success, string message, List<ThuMoiLamViecDto>? data) LayTheoNguoiPhatHanh(int maNguoiPhatHanh)
+        {
+            var thuMois = _context.ThuMoiLamViecs
+                .Include(t => t.MaNguoiPhatHanhNavigation)
+                .Include(t => t.MaDonNavigation)
+                    .ThenInclude(d => d.MaUngVienNavigation)
+                .Include(t => t.MaDonNavigation)
+                    .ThenInclude(d => d.MaTinNavigation)
+                        .ThenInclude(tin => tin.MaCongTyNavigation)
+                .Where(t => t.MaNguoiPhatHanh == maNguoiPhatHanh)
+                .OrderByDescending(t => t.NgayTao)
+                .ToList();
+            
             var dtos = thuMois.Select(MapToDto).ToList();
             return (true, "Lay danh sach thu moi thanh cong", dtos);
         }

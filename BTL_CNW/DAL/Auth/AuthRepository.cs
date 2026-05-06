@@ -69,6 +69,16 @@ namespace BTL_CNW.DAL.Auth
 
                 if (nguoiDung == null) return null;
 
+                // Lấy maCongTy nếu là nhà tuyển dụng
+                int? maCongTy = null;
+                if (nguoiDung.MaVaiTro == 2) // Nhà tuyển dụng
+                {
+                    // Query riêng để lấy công ty của người dùng
+                    var congTy = _context.CongTies
+                        .FirstOrDefault(c => c.MaChuSoHuu == nguoiDung.MaNguoiDung);
+                    maCongTy = congTy?.MaCongTy;
+                }
+
                 return new NguoiDungDto
                 {
                     MaNguoiDung = nguoiDung.MaNguoiDung,
@@ -79,7 +89,8 @@ namespace BTL_CNW.DAL.Auth
                     SoDienThoai = nguoiDung.SoDienThoai,
                     AnhDaiDien = nguoiDung.AnhDaiDien,
                     DangHoatDong = nguoiDung.DangHoatDong,
-                    NgayTao = nguoiDung.NgayTao
+                    NgayTao = nguoiDung.NgayTao,
+                    MaCongTy = maCongTy
                 };
             }
             catch (Exception ex)
