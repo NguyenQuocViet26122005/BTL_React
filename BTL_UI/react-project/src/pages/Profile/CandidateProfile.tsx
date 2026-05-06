@@ -14,6 +14,7 @@ import CvManager from '../../components/CV/CvManager';
 import dayjs from 'dayjs';
 import { CANDIDATE_STATUS, getCandidateStatusColor, getCandidateStatusText, normalizeCandidateStatus } from '../../utils/candidateStatus';
 import { getStoredUser } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -122,7 +123,7 @@ const CandidateProfile = () => {
 
   if (!hasResume) {
     return (
-      <div style={{ minHeight: 'calc(100vh - 64px)', background: '#f5f5f5', padding: '24px 0' }}>
+      <PageContainer background="#f5f5f5" padding="24px 0">
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px' }}>
           <Card style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
             <Row gutter={24} align="middle">
@@ -145,7 +146,7 @@ const CandidateProfile = () => {
             </Empty>
           </Card>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
@@ -293,8 +294,7 @@ const CandidateProfile = () => {
   ];
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 64px)', background: '#f5f5f5', padding: '24px 0' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px' }}>
+    <PageContainer maxWidth="1200px" background="#f5f5f5" padding="24px 20px">
         <Card style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
           <Row gutter={24} align="middle">
             <Col>
@@ -313,7 +313,6 @@ const CandidateProfile = () => {
         <Card style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} loading={loading}>
           <Tabs items={tabItems} />
         </Card>
-      </div>
 
       <Modal
         title="Doi mat khau"
@@ -368,7 +367,7 @@ const CandidateProfile = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

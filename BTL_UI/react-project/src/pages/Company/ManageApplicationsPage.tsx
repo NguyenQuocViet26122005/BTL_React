@@ -8,6 +8,7 @@ import type { DonUngTuyen } from '../../types';
 import dayjs from 'dayjs';
 import { getStoredUser } from '../../utils/auth';
 import { getFileUrl } from '../../services/api';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { TextArea } = Input;
 
@@ -19,6 +20,7 @@ const ManageApplicationsPage = () => {
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<DonUngTuyen | null>(null);
   const [sending, setSending] = useState(false);
+  const [offerApplicationIds, setOfferApplicationIds] = useState<Set<number>>(new Set());
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -33,13 +35,24 @@ const ManageApplicationsPage = () => {
   const fetchApplications = async (maCongTy: number) => {
     try {
       setLoading(true);
-      const response = await applicationService.getCompanyApplications(maCongTy);
-      if (response.success && response.data) {
-        setApplications(response.data);
+      const [applicationsResponse, offersResponse] = await Promise.all([
+        applicationService.getCompanyApplications(maCongTy),
+        offerService.getByCongTy(maCongTy)
+      ]);
+
+      if (applicationsResponse.success && applicationsResponse.data) {
+        setApplications(applicationsResponse.data);
+      }
+
+      if (offersResponse.success && offersResponse.data) {
+        setOfferApplicationIds(new Set(offersResponse.data.map((offer: { maDon: number }) => offer.maDon)));
+      } else {
+        setOfferApplicationIds(new Set());
       }
     } catch (error: any) {
       console.error('Error fetching applications:', error);
       message.error('Khong the tai danh sach don ung tuyen!');
+      setOfferApplicationIds(new Set());
     } finally {
       setLoading(false);
     }
@@ -94,6 +107,7 @@ const ManageApplicationsPage = () => {
 
       if (response.success) {
         message.success('Gui thu moi thanh cong!');
+        setOfferApplicationIds((prev) => new Set(prev).add(selectedApp.maDon));
         setOfferModalOpen(false);
         setSelectedApp(null);
         form.resetFields();
@@ -214,10 +228,12 @@ const ManageApplicationsPage = () => {
       render: (_: any, record: DonUngTuyen) => {
         const menuItems = getActionMenuItems(record);
         
+        const hasOffer = offerApplicationIds.has(record.maDon);
+
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
             <Space size={4} wrap>
-              <Button 
+              <Button
                 type="primary"
                 size="small"
                 icon={<EyeOutlined />}
@@ -225,7 +241,7 @@ const ManageApplicationsPage = () => {
               >
                 Chi tiet
               </Button>
-              <Button 
+              <Button
                 size="small"
                 icon={<FilePdfOutlined />}
                 onClick={() => handleViewCV(record)}
@@ -233,12 +249,14 @@ const ManageApplicationsPage = () => {
               >
                 Xem CV
               </Button>
-              <Button 
+              <Button
                 type="default"
                 size="small"
                 icon={<GiftOutlined />}
                 style={{ borderColor: '#52c41a', color: '#52c41a' }}
                 onClick={() => handleOpenOfferModal(record)}
+                disabled={hasOffer}
+                title={hasOffer ? 'Don nay da co thu moi' : undefined}
               >
                 Gui thu moi
               </Button>
@@ -258,8 +276,7 @@ const ManageApplicationsPage = () => {
   ];
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <div style={{ marginBottom: 24 }}>
         <h1>Quan ly don ung tuyen</h1>
         <p>Xem va xu ly cac don ung tuyen tu ung vien</p>
@@ -528,8 +545,8 @@ const ManageApplicationsPage = () => {
             </Form>
           </>
         )}
-      </Modal>      </div>
-    </div>
+      </Modal>
+    </PageContainer>
   );
 };
 

@@ -3,6 +3,7 @@ import { Button, Card, Input, Popconfirm, Select, Space, Table, Tag, message } f
 import type { AdminUser } from '../../types';
 import { getAdminUsers, lockAdminUser, unlockAdminUser } from '../../services/adminUserService';
 import dayjs from 'dayjs';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const AdminUserManagementPage = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -122,7 +123,7 @@ const AdminUserManagementPage = () => {
   ];
 
   return (
-    <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
+    <PageContainer maxWidth="1400px" padding="24px">
       <h1>Quan ly nguoi dung</h1>
       <p>Xem danh sach, tim kiem va khoa/mo khoa tai khoan nguoi dung</p>
 
@@ -168,7 +169,7 @@ const AdminUserManagementPage = () => {
           scroll={{ x: 1000 }}
         />
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

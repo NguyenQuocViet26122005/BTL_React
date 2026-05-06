@@ -59,6 +59,8 @@ export type TinTuyenDung = {
   trangThai: string;
   ngayDang?: string;
   ngayTao?: string;
+  ngayCapNhat?: string;
+  lyDoTuChoi?: string;
 };
 
 export type CongTy = {

@@ -11,6 +11,7 @@ import { eventBus, EVENTS } from '../../utils/eventBus';
 import type { TinTuyenDung } from '../../types';
 import dayjs from 'dayjs';
 import { getStoredUser, ROLE_CANDIDATE } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { TextArea } = Input;
 
@@ -29,10 +30,50 @@ const JobDetailPage = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (id) {
-      fetchJobDetail(parseInt(id));
+    const maTin = Number(id);
+    if (!id || !Number.isInteger(maTin) || maTin <= 0) {
+      message.error('Tin tuyen dung khong hop le');
+      navigate('/jobs', { replace: true });
+      return;
     }
+
+    fetchJobDetail(maTin);
   }, [id]);
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user?.maVaiTro === ROLE_CANDIDATE) {
+      checkSavedStatus();
+    }
+  }, []);
+
+  useEffect(() => {
+    const syncSaved = () => {
+      const user = getStoredUser();
+      if (user?.maVaiTro === ROLE_CANDIDATE) {
+        checkSavedStatus();
+      }
+    };
+
+    eventBus.on(EVENTS.JOB_UPDATED, syncSaved);
+    return () => eventBus.off(EVENTS.JOB_UPDATED, syncSaved);
+  }, []);
+
+  const checkSavedStatus = async () => {
+    try {
+      const user = getStoredUser();
+      const maTin = Number(id);
+      if (!user || user.maVaiTro !== ROLE_CANDIDATE || !Number.isInteger(maTin) || maTin <= 0) return;
+
+      const response = await savedJobService.getMySavedJobs();
+      if (response.success && response.data) {
+        const saved = response.data.some(item => item.maTin === maTin);
+        setIsSaved(saved);
+      }
+    } catch (error) {
+      console.error('Error checking saved status:', error);
+    }
+  };
 
   const fetchJobDetail = async (maTin: number) => {
     try {
@@ -40,7 +81,7 @@ const JobDetailPage = () => {
       const response = await getTinTuyenDungById(maTin);
       if (response.success && response.data) {
         setJob(response.data);
-        await checkSavedStatus(maTin);
+        await checkSavedStatus();
       } else {
         message.error('Không tìm thấy tin tuyển dụng');
         setTimeout(() => navigate('/jobs'), 2000);
@@ -50,21 +91,6 @@ const JobDetailPage = () => {
       setTimeout(() => navigate('/jobs'), 2000);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const checkSavedStatus = async (maTin: number) => {
-    try {
-      const user = getStoredUser();
-      if (!user || user.maVaiTro !== ROLE_CANDIDATE) return;
-
-      const response = await savedJobService.getMySavedJobs();
-      if (response.success && response.data) {
-        const saved = response.data.some(item => item.maTin === maTin);
-        setIsSaved(saved);
-      }
-    } catch (error) {
-      console.error('Error checking saved status:', error);
     }
   };
 
@@ -202,8 +228,7 @@ const JobDetailPage = () => {
   };
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <Button 
         icon={<ArrowLeftOutlined />} 
         onClick={() => navigate('/jobs')}
@@ -235,7 +260,7 @@ const JobDetailPage = () => {
               <Descriptions.Item label="Thành phố">{job.thanhPho}</Descriptions.Item>
               <Descriptions.Item label="Mức lương">{formatSalary()}</Descriptions.Item>
               <Descriptions.Item label="Hạn nộp hồ sơ">{dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}</Descriptions.Item>
-              <Descriptions.Item label="Ngày đăng">{job.ngayDang ? dayjs(job.ngayDang).format('DD/MM/YYYY') : 'N/A'}</Descriptions.Item>
+              <Descriptions.Item label="Ngày đăng">{job.ngayTao ? dayjs(job.ngayTao).format('DD/MM/YYYY') : 'N/A'}</Descriptions.Item>
             </Descriptions>
 
             <Card title="Mô tả công việc" style={{ marginBottom: 16 }}>
@@ -379,8 +404,7 @@ const JobDetailPage = () => {
           </Form>
         )}
       </Modal>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

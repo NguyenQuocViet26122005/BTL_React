@@ -1,6 +1,14 @@
 import api from './api';
 import type { TinTuyenDung, ApiResponse } from '../types/index';
 
+export const SALARY_FILTER_RANGES: Record<string, { min?: number; max?: number }> = {
+  under10: { max: 10000000 },
+  '10-15': { min: 10000000, max: 15000000 },
+  '15-20': { min: 15000000, max: 20000000 },
+  '20-30': { min: 20000000, max: 30000000 },
+  over30: { min: 30000000 },
+};
+
 export const jobService = {
   getAllJobs: async () => {
     const response = await api.get<ApiResponse<TinTuyenDung[]>>('/tin-tuyen-dung');
@@ -13,8 +21,7 @@ export const jobService = {
     kinhNghiem?: string;
     hinhThucLamViec?: string;
     linhVuc?: number[];
-    mucLuongMin?: number;
-    mucLuongMax?: number;
+    mucLuong?: string[];
     thanhPho?: string;
   }) => {
     const params = new URLSearchParams();
@@ -23,9 +30,11 @@ export const jobService = {
     if (filters.kinhNghiem && filters.kinhNghiem !== 'all') params.append('kinhNghiem', filters.kinhNghiem);
     if (filters.hinhThucLamViec && filters.hinhThucLamViec !== 'all') params.append('hinhThucLamViec', filters.hinhThucLamViec);
     if (filters.thanhPho) params.append('thanhPho', filters.thanhPho);
-    if (filters.mucLuongMin) params.append('mucLuongMin', filters.mucLuongMin.toString());
-    if (filters.mucLuongMax) params.append('mucLuongMax', filters.mucLuongMax.toString());
-    
+
+    if (filters.mucLuong && filters.mucLuong.length > 0) {
+      filters.mucLuong.forEach((range) => params.append('mucLuong', range));
+    }
+
     if (filters.danhMuc && filters.danhMuc.length > 0) {
       filters.danhMuc.forEach(dm => params.append('danhMuc', dm.toString()));
     }

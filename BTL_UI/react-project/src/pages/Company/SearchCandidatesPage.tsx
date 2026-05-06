@@ -4,6 +4,7 @@ import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { CANDIDATE_STATUS, getCandidateStatusColor, getCandidateStatusText } from '../../utils/candidateStatus';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { Option } = Select;
 
@@ -124,8 +125,7 @@ const SearchCandidatesPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <Card title="Tìm kiếm ứng viên" style={{ marginBottom: 24 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <Input
@@ -180,8 +180,7 @@ const SearchCandidatesPage: React.FC = () => {
           locale={{ emptyText: 'Chưa có ứng viên nào' }}
         />
       </Card>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

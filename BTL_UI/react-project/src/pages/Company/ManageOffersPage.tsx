@@ -4,6 +4,7 @@ import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import api from '../../services/api';
 import { getStoredUser } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 interface ThuMoi {
   maThuMoi: number;
@@ -168,8 +169,7 @@ const ManageOffersPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <Card title={'Quan ly thu moi da gui (' + offers.length + ' thu moi tu tat ca cong ty)'}>
         <Table
           columns={columns}
@@ -205,8 +205,7 @@ const ManageOffersPage: React.FC = () => {
           </div>
         )}
       </Modal>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

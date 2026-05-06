@@ -15,7 +15,7 @@ namespace BTL_CNW.BLL.TinTuyenDung
         (bool success, string message) CapNhat(int maTin, CapNhatTinDto dto);
         (bool success, string message) DoiTrangThai(int maTin, string trangThai, string? lyDo);
         (bool success, string message) Xoa(int maTin);
-        (bool success, string message, List<TinTuyenDungDto> data) LocTinTuyenDung(string? search, int[]? danhMuc, string? kinhNghiem, string? hinhThucLamViec, int[]? linhVuc, decimal? mucLuongMin, decimal? mucLuongMax, string? thanhPho);
+        (bool success, string message, List<TinTuyenDungDto> data) LocTinTuyenDung(string? search, int[]? danhMuc, string? kinhNghiem, string? hinhThucLamViec, int[]? linhVuc, string[]? mucLuong, string? thanhPho);
         (bool success, string message, List<TinTuyenDungDto> data) LayTatCaTin();
     }
 
@@ -105,7 +105,7 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 if (maCongTy <= 0)
                     return (false, "Mã công ty không hợp lệ", new List<TinTuyenDungDto>());
 
-                var danhSach = _repo.LayTheoCongTy(maCongTy);
+                var danhSach = _repo.LayTheoCongTy(maCongTy, true);
                 return (true, "Lấy danh sách tin theo công ty thành công", danhSach);
             }
             catch (Exception ex)
@@ -137,7 +137,7 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 if (maTin <= 0)
                     return (false, "Mã tin không hợp lệ", null);
 
-                var tin = _repo.LayChiTiet(maTin);
+                var tin = _repo.LayChiTiet(maTin, true);
                 if (tin == null)
                     return (false, "Không tìm thấy tin tuyển dụng", null);
 
@@ -285,13 +285,12 @@ namespace BTL_CNW.BLL.TinTuyenDung
         }
 
         public (bool success, string message, List<TinTuyenDungDto> data) LocTinTuyenDung(
-            string? search, 
-            int[]? danhMuc, 
-            string? kinhNghiem, 
-            string? hinhThucLamViec, 
-            int[]? linhVuc, 
-            decimal? mucLuongMin, 
-            decimal? mucLuongMax, 
+            string? search,
+            int[]? danhMuc,
+            string? kinhNghiem,
+            string? hinhThucLamViec,
+            int[]? linhVuc,
+            string[]? mucLuong,
             string? thanhPho)
         {
             try
@@ -317,16 +316,16 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 // Filter by experience
                 if (!string.IsNullOrWhiteSpace(kinhNghiem) && kinhNghiem != "all")
                 {
-                    allJobs = allJobs.Where(j => 
-                        j.KinhNghiem != null && j.KinhNghiem.Contains(kinhNghiem, StringComparison.OrdinalIgnoreCase)
+                    allJobs = allJobs.Where(j =>
+                        string.Equals(NormalizeFilterValue(j.KinhNghiem), NormalizeFilterValue(kinhNghiem), StringComparison.OrdinalIgnoreCase)
                     ).ToList();
                 }
 
                 // Filter by work type
                 if (!string.IsNullOrWhiteSpace(hinhThucLamViec) && hinhThucLamViec != "all")
                 {
-                    allJobs = allJobs.Where(j => 
-                        j.HinhThucLamViec.Contains(hinhThucLamViec, StringComparison.OrdinalIgnoreCase)
+                    allJobs = allJobs.Where(j =>
+                        string.Equals(NormalizeFilterValue(j.HinhThucLamViec), NormalizeFilterValue(hinhThucLamViec), StringComparison.OrdinalIgnoreCase)
                     ).ToList();
                 }
 
@@ -344,32 +343,18 @@ namespace BTL_CNW.BLL.TinTuyenDung
                     ).ToList();
                 }
 
-                // Filter by salary range
-                if (mucLuongMin.HasValue && mucLuongMax.HasValue)
+                if (mucLuong != null && mucLuong.Length > 0)
                 {
-                    // Nếu có cả min và max: việc làm phải nằm trong khoảng
-                    allJobs = allJobs.Where(j => 
-                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiThieu.Value >= mucLuongMin.Value && j.MucLuongToiThieu.Value <= mucLuongMax.Value) ||
-                        (j.MucLuongToiDa.HasValue && j.MucLuongToiDa.Value >= mucLuongMin.Value && j.MucLuongToiDa.Value <= mucLuongMax.Value) ||
-                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiDa.HasValue && 
-                         j.MucLuongToiThieu.Value <= mucLuongMax.Value && j.MucLuongToiDa.Value >= mucLuongMin.Value)
-                    ).ToList();
-                }
-                else if (mucLuongMin.HasValue)
-                {
-                    // Chỉ có min: lương tối đa phải >= min
-                    allJobs = allJobs.Where(j => 
-                        (j.MucLuongToiDa.HasValue && j.MucLuongToiDa.Value >= mucLuongMin.Value) ||
-                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiThieu.Value >= mucLuongMin.Value)
-                    ).ToList();
-                }
-                else if (mucLuongMax.HasValue)
-                {
-                    // Chỉ có max: lương tối thiểu phải <= max
-                    allJobs = allJobs.Where(j => 
-                        (j.MucLuongToiThieu.HasValue && j.MucLuongToiThieu.Value <= mucLuongMax.Value) ||
-                        (!j.MucLuongToiThieu.HasValue && j.MucLuongToiDa.HasValue && j.MucLuongToiDa.Value <= mucLuongMax.Value)
-                    ).ToList();
+                    var salaryRanges = mucLuong
+                        .Select(MapSalaryRange)
+                        .Where(r => r.HasValue)
+                        .Select(r => r!.Value)
+                        .ToList();
+
+                    if (salaryRanges.Count > 0)
+                    {
+                        allJobs = allJobs.Where(j => salaryRanges.Any(range => SalaryMatchesRange(j, range.Min, range.Max))).ToList();
+                    }
                 }
 
                 return (true, $"Tìm thấy {allJobs.Count} việc làm", allJobs);
@@ -378,6 +363,57 @@ namespace BTL_CNW.BLL.TinTuyenDung
             {
                 return (false, $"Lỗi hệ thống: {ex.Message}", new List<TinTuyenDungDto>());
             }
+        }
+
+        private static string NormalizeFilterValue(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            return value
+                .Trim()
+                .Replace(" ", string.Empty)
+                .Replace("-", string.Empty)
+                .ToLowerInvariant();
+        }
+
+        private static (decimal? Min, decimal? Max)? MapSalaryRange(string? range)
+        {
+            return range switch
+            {
+                "under10" => (null, 10000000m),
+                "10-15" => (10000000m, 15000000m),
+                "15-20" => (15000000m, 20000000m),
+                "20-30" => (20000000m, 30000000m),
+                "over30" => (30000000m, null),
+                _ => null
+            };
+        }
+
+        private static bool SalaryMatchesRange(TinTuyenDungDto job, decimal? rangeMin, decimal? rangeMax)
+        {
+            var jobMin = job.MucLuongToiThieu;
+            var jobMax = job.MucLuongToiDa;
+
+            if (!jobMin.HasValue && !jobMax.HasValue)
+                return false;
+
+            if (!jobMin.HasValue)
+                jobMin = jobMax;
+
+            if (!jobMax.HasValue)
+                jobMax = jobMin;
+
+            if (!rangeMin.HasValue && rangeMax.HasValue)
+                return jobMin.HasValue && jobMin.Value <= rangeMax.Value;
+
+            if (rangeMin.HasValue && !rangeMax.HasValue)
+                return jobMax.HasValue && jobMax.Value >= rangeMin.Value;
+
+            if (rangeMin.HasValue && rangeMax.HasValue)
+                return jobMin.HasValue && jobMax.HasValue && jobMin.Value <= rangeMax.Value && jobMax.Value >= rangeMin.Value;
+
+            return true;
         }
 
         public (bool success, string message, List<TinTuyenDungDto> data) LayTatCaTin()

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CandidateProfile from './CandidateProfile';
 import RecruiterProfile from './RecruiterProfile';
 import { getStoredUser, ROLE_ADMIN, ROLE_CANDIDATE, ROLE_COMPANY } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -34,8 +35,8 @@ const ProfilePage = () => {
 
   if (userRole === ROLE_ADMIN) {
     return (
-      <div style={{ minHeight: 'calc(100vh - 64px)', background: '#f5f5f5', padding: '24px' }}>
-        <Card style={{ maxWidth: 720, margin: '0 auto' }}>
+      <PageContainer maxWidth="720px" background="#f5f5f5" padding="24px">
+        <Card>
           <Result
             status="info"
             title="Tài khoản quản trị viên"
@@ -43,16 +44,16 @@ const ProfilePage = () => {
             extra={<Button type="primary" onClick={() => navigate('/admin/jobs')}>Đến trang quản lý</Button>}
           />
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 64px)', background: '#f5f5f5', padding: '24px' }}>
-      <Card style={{ maxWidth: 720, margin: '0 auto' }}>
+    <PageContainer maxWidth="720px" background="#f5f5f5" padding="24px">
+      <Card>
         <Result status="warning" title="Vai trò tài khoản không hợp lệ" extra={<Button onClick={() => navigate('/')}>Về trang chủ</Button>} />
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

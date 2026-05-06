@@ -109,12 +109,17 @@ namespace BTL_CNW.DAL.TinTuyenDung
                 .ToList();
         }
 
-        public List<TinTuyenDungDto> LayTheoCongTy(int maCongTy)
+        public List<TinTuyenDungDto> LayTheoCongTy(int maCongTy, bool chiLayTinDaDuyet = false)
         {
-            return _context.TinTuyenDungs
+            var query = _context.TinTuyenDungs
                 .Include(x => x.MaCongTyNavigation)
                 .Include(x => x.MaDanhMucNavigation)
-                .Where(x => x.MaCongTy == maCongTy)
+                .Where(x => x.MaCongTy == maCongTy);
+
+            if (chiLayTinDaDuyet)
+                query = query.Where(x => x.TrangThai == "DaDuyet");
+
+            return query
                 .OrderByDescending(x => x.NgayTao)
                 .Select(x => new TinTuyenDungDto
                 {
@@ -140,6 +145,7 @@ namespace BTL_CNW.DAL.TinTuyenDung
                     HanNopHoSo = x.HanNopHoSo,
                     SoLuongTuyen = x.SoLuongTuyen,
                     TrangThai = x.TrangThai,
+                    LyDoTuChoi = x.LyDoTuChoi,
                     LuotXem = x.LuotXem,
                     NgayTao = x.NgayTao,
                     NgayCapNhat = x.NgayCapNhat
@@ -185,12 +191,17 @@ namespace BTL_CNW.DAL.TinTuyenDung
                 .ToList();
         }
 
-        public TinTuyenDungDto? LayChiTiet(int maTin)
+        public TinTuyenDungDto? LayChiTiet(int maTin, bool chiLayTinDaDuyet = false)
         {
-            var tin = _context.TinTuyenDungs
+            var query = _context.TinTuyenDungs
                 .Include(x => x.MaCongTyNavigation)
                 .Include(x => x.MaDanhMucNavigation)
-                .FirstOrDefault(x => x.MaTin == maTin);
+                .Where(x => x.MaTin == maTin);
+
+            if (chiLayTinDaDuyet)
+                query = query.Where(x => x.TrangThai == "DaDuyet");
+
+            var tin = query.FirstOrDefault();
 
             if (tin == null) return null;
 
@@ -218,6 +229,7 @@ namespace BTL_CNW.DAL.TinTuyenDung
                 HanNopHoSo = tin.HanNopHoSo,
                 SoLuongTuyen = tin.SoLuongTuyen,
                 TrangThai = tin.TrangThai,
+                LyDoTuChoi = tin.LyDoTuChoi,
                 LuotXem = tin.LuotXem,
                 NgayTao = tin.NgayTao,
                 NgayCapNhat = tin.NgayCapNhat

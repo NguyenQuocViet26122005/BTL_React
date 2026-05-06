@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import savedJobService from '../../services/savedJobService';
 import type { SavedJobItem } from '../../services/savedJobService';
 import dayjs from 'dayjs';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const SavedJobsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -62,8 +63,7 @@ const SavedJobsPage: React.FC = () => {
   }
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <Card title={<span><HeartFilled style={{ color: '#ff4d4f', marginRight: 8 }} />Tin tuyen dung da luu ({savedJobs.length})</span>}>
         {savedJobs.length === 0 ? (
           <Empty description="Ban chua luu tin tuyen dung nao" />
@@ -93,9 +93,9 @@ const SavedJobsPage: React.FC = () => {
               >
                 <List.Item.Meta
                   title={
-                    <a onClick={() => navigate(`/jobs/${item.maTin}`)} style={{ fontSize: '18px', cursor: 'pointer' }}>
+                    <Button type="link" onClick={() => navigate(`/jobs/${item.maTin}`)} style={{ fontSize: '18px', cursor: 'pointer', padding: 0 }}>
                       {item.tieuDe}
-                    </a>
+                    </Button>
                   }
                   description={
                     <Space direction="vertical" size="small">
@@ -123,8 +123,7 @@ const SavedJobsPage: React.FC = () => {
           />
         )}
       </Card>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

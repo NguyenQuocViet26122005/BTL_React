@@ -9,7 +9,8 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   const handleSearch = (value: string) => {
-    navigate('/jobs?search=' + value);
+    const query = value.trim();
+    navigate(query ? `/jobs?search=${encodeURIComponent(query)}` : '/jobs');
   };
 
   return (

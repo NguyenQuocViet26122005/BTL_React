@@ -7,6 +7,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
 import { notificationService, type ThongBao } from '../../services/notificationService';
 import { getStoredUser } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -101,8 +102,7 @@ const NotificationsPage = () => {
   };
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <Card
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -154,8 +154,7 @@ const NotificationsPage = () => {
           )}
         </Spin>
       </Card>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

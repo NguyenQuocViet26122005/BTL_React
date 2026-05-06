@@ -7,6 +7,7 @@ import type { DonUngTuyen } from '../../types';
 import dayjs from 'dayjs';
 import { getStoredUser } from '../../utils/auth';
 import { getFileUrl } from '../../services/api';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const MyApplicationsPage = () => {
   const navigate = useNavigate();
@@ -118,8 +119,7 @@ const MyApplicationsPage = () => {
   ];
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <div style={{ marginBottom: 24 }}>
         <h1>Don ung tuyen cua toi</h1>
         <p>Quan ly tat ca cac don ung tuyen ban da nop</p>
@@ -217,8 +217,7 @@ const MyApplicationsPage = () => {
           </div>
         )}
       </Modal>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

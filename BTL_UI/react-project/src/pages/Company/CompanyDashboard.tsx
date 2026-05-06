@@ -1,12 +1,13 @@
 ﻿import { Card, Row, Col, Statistic, Button, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, Select, message, Space, Popconfirm } from 'antd';
 import { PlusOutlined, FileTextOutlined, UserOutlined, EyeOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { getTinTuyenDungByUser, createTinTuyenDung, updateTinTuyenDung, deleteTinTuyenDung, getTinTuyenDungById } from '../../services/jobService';
+import { getTinTuyenDungByUser, createTinTuyenDung, updateTinTuyenDung, deleteTinTuyenDung } from '../../services/jobService';
 import { applicationService } from '../../services/applicationService';
 import { eventBus, EVENTS } from '../../utils/eventBus';
 import { getStoredUser } from '../../utils/auth';
 import type { TinTuyenDung, DonUngTuyen } from '../../types';
 import dayjs from 'dayjs';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { TextArea } = Input;
 
@@ -78,50 +79,41 @@ const CompanyDashboard = () => {
     }
   };
 
-  const handleViewDetail = async (maTin: number) => {
-    try {
-      setLoading(true);
-      const response = await getTinTuyenDungById(maTin);
-      if (response.success && response.data) {
-        setSelectedJob(response.data);
-        setIsDetailModalOpen(true);
-      }
-    } catch (error) {
+  const handleViewDetail = (maTin: number) => {
+    const job = jobs.find(item => item.maTin === maTin);
+    if (!job) {
       message.error('Không thể tải chi tiết tin tuyển dụng!');
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    setSelectedJob(job);
+    setIsDetailModalOpen(true);
   };
 
-  const handleEdit = async (maTin: number) => {
-    try {
-      setLoading(true);
-      const response = await getTinTuyenDungById(maTin);
-      if (response.success && response.data) {
-        const job = response.data;
-        form.setFieldsValue({
-          tieuDe: job.tieuDe,
-          moTa: job.moTa,
-          yeuCau: job.yeuCau,
-          quyenLoi: job.quyenLoi,
-          hinhThucLamViec: job.hinhThucLamViec,
-          kinhNghiem: job.kinhNghiem,
-          mucLuongToiThieu: job.mucLuongToiThieu,
-          mucLuongToiDa: job.mucLuongToiDa,
-          diaDiem: job.diaDiem,
-          thanhPho: job.thanhPho,
-          hanNopHoSo: job.hanNopHoSo ? dayjs(job.hanNopHoSo) : null,
-          soLuongTuyen: job.soLuongTuyen
-        });
-        setEditingJobId(maTin);
-        setIsEditMode(true);
-        setIsModalOpen(true);
-      }
-    } catch (error) {
+  const handleEdit = (maTin: number) => {
+    const job = jobs.find(item => item.maTin === maTin);
+    if (!job) {
       message.error('Không thể tải thông tin tin tuyển dụng!');
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    form.setFieldsValue({
+      tieuDe: job.tieuDe,
+      moTa: job.moTa,
+      yeuCau: job.yeuCau,
+      quyenLoi: job.quyenLoi,
+      hinhThucLamViec: job.hinhThucLamViec,
+      kinhNghiem: job.kinhNghiem,
+      mucLuongToiThieu: job.mucLuongToiThieu,
+      mucLuongToiDa: job.mucLuongToiDa,
+      diaDiem: job.diaDiem,
+      thanhPho: job.thanhPho,
+      hanNopHoSo: job.hanNopHoSo ? dayjs(job.hanNopHoSo) : null,
+      soLuongTuyen: job.soLuongTuyen
+    });
+    setEditingJobId(maTin);
+    setIsEditMode(true);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (maTin: number) => {
@@ -197,7 +189,7 @@ const CompanyDashboard = () => {
 
   const stats = {
     totalJobs: jobs.length,
-    activeJobs: jobs.filter(j => j.trangThai === 'active' || j.trangThai === 'DaDuyet').length,
+    activeJobs: jobs.filter(j => j.trangThai === 'DaDuyet').length,
     totalApplications: applications.length,
     pendingApplications: applications.filter(a => a.trangThai === 'DaNop' || a.trangThai === 'DangXem').length
   };
@@ -215,9 +207,10 @@ const CompanyDashboard = () => {
       render: (status: string) => {
         const colorMap: any = {
           'DaDuyet': 'green',
-          'ChoDuyet': 'orange',
+          'ChoXetDuyet': 'orange',
           'TuChoi': 'red',
-          'DaDong': 'default'
+          'DaDong': 'default',
+          'HetHan': 'default'
         };
         return <Tag color={colorMap[status] || 'default'}>{status}</Tag>;
       },
@@ -273,8 +266,7 @@ const CompanyDashboard = () => {
   ];
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <div style={{ marginBottom: 24 }}>
         <h1>Chào mừng, {user?.hoTen || 'Nhà tuyển dụng'}</h1>
         <p>Quản lý tin tuyển dụng và ứng viên của bạn</p>
@@ -521,8 +513,8 @@ const CompanyDashboard = () => {
             <p>{selectedJob.quyenLoi}</p>
           </div>
         )}
-      </Modal>      </div>
-    </div>
+      </Modal>
+    </PageContainer>
   );
 };
 

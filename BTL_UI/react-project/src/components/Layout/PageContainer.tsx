@@ -15,7 +15,7 @@ const PageContainer = ({
 }: PageContainerProps) => {
   return (
     <div style={{ background, minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth, margin: '0 auto', padding }}>
+      <div style={{ maxWidth, margin: '0 auto', padding, width: '100%' }}>
         {children}
       </div>
     </div>

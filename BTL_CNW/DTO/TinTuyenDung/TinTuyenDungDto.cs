@@ -24,6 +24,7 @@ namespace BTL_CNW.DTO.TinTuyenDung
         public DateOnly? HanNopHoSo { get; set; }
         public int? SoLuongTuyen { get; set; }
         public string TrangThai { get; set; } = null!;
+        public string? LyDoTuChoi { get; set; }
         public int LuotXem { get; set; }
         public DateTime NgayTao { get; set; }
         public DateTime NgayCapNhat { get; set; }

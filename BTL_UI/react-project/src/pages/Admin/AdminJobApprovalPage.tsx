@@ -5,6 +5,7 @@ import { getAllJobsForAdmin, updateJobStatus, getTinTuyenDungById } from '../../
 import { eventBus, EVENTS } from '../../utils/eventBus';
 import type { TinTuyenDung } from '../../types';
 import dayjs from 'dayjs';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { TextArea } = Input;
 
@@ -200,7 +201,7 @@ const AdminJobApprovalPage = () => {
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
+    <PageContainer maxWidth="1400px" padding="24px">
       <h1>Quan ly tin tuyen dung</h1>
       <p>Duyet va quan ly tat ca tin tuyen dung tren he thong</p>
 
@@ -285,7 +286,7 @@ const AdminJobApprovalPage = () => {
           placeholder="VD: Noi dung khong phu hop, thieu thong tin..."
         />
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

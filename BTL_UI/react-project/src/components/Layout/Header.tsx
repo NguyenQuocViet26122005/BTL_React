@@ -138,23 +138,30 @@ const Header = () => {
           )}
           {user && user.maVaiTro === 3 && (
             <>
-              <Button 
-                type="link" 
-                style={getButtonStyle('/candidate/applications')} 
+              <Button
+                type="link"
+                style={getButtonStyle('/jobs/saved')}
+                onClick={() => navigate('/jobs/saved')}
+              >
+                <GiftOutlined /> Tin da luu
+              </Button>
+              <Button
+                type="link"
+                style={getButtonStyle('/candidate/applications')}
                 onClick={() => navigate('/candidate/applications')}
               >
                 <FileTextOutlined /> Đơn ứng tuyển
               </Button>
-              <Button 
-                type="link" 
-                style={getButtonStyle('/candidate/interviews')} 
+              <Button
+                type="link"
+                style={getButtonStyle('/candidate/interviews')}
                 onClick={() => navigate('/candidate/interviews')}
               >
                 <CalendarOutlined /> Lịch phỏng vấn
               </Button>
-              <Button 
-                type="link" 
-                style={getButtonStyle('/candidate/offers')} 
+              <Button
+                type="link"
+                style={getButtonStyle('/candidate/offers')}
                 onClick={() => navigate('/candidate/offers')}
               >
                 <GiftOutlined /> Thư mời

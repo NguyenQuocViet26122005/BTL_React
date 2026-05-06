@@ -6,6 +6,7 @@ import { resumeService } from '../../services/resumeService';
 import dayjs from 'dayjs';
 import { CANDIDATE_STATUS, normalizeCandidateStatus } from '../../utils/candidateStatus';
 import { getStoredUser } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { TextArea } = Input;
 
@@ -301,8 +302,7 @@ export const CandidateResumeContent = () => {
 // Page wrapper component
 const CandidateResumePage = () => {
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer maxWidth="1000px">
       <Card
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -313,8 +313,7 @@ const CandidateResumePage = () => {
       >
         <CandidateResumeContent />
       </Card>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

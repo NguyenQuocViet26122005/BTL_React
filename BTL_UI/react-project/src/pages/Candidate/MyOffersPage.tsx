@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { offerService, type ThuMoiLamViec } from '../../services/offerService';
 import dayjs from 'dayjs';
 import { getStoredUser } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { TextArea } = Input;
 
@@ -183,8 +184,7 @@ const MyOffersPage = () => {
   ];
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <div style={{ marginBottom: 24 }}>
         <h1>Thu moi lam viec</h1>
         <p>Quan ly cac thu moi lam viec tu nha tuyen dung</p>
@@ -338,8 +338,7 @@ const MyOffersPage = () => {
           </div>
         )}
       </Modal>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

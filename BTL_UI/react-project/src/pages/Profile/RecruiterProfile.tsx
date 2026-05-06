@@ -6,6 +6,7 @@ import type { NguoiDung, Profile, CongTy } from '../../types';
 import { profileService } from '../../services/profileService';
 import { companyService, type CapNhatCongTyDto } from '../../services/companyService';
 import { getStoredUser } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -348,12 +349,7 @@ const RecruiterProfile = () => {
   ];
 
   return (
-    <div style={{ 
-      minHeight: 'calc(100vh - 64px)',
-      background: '#f5f5f5',
-      padding: '24px 0'
-    }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px' }}>
+    <PageContainer maxWidth="1200px" background="#f5f5f5" padding="24px 20px">
         <Card 
           style={{ 
             borderRadius: '8px',
@@ -401,7 +397,6 @@ const RecruiterProfile = () => {
         >
           <Tabs items={tabItems} />
         </Card>
-      </div>
 
       <Modal
         title="Đổi mật khẩu"
@@ -470,7 +465,7 @@ const RecruiterProfile = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

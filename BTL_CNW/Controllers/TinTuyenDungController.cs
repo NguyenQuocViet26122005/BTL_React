@@ -38,11 +38,10 @@ namespace BTL_CNW.Controllers
             [FromQuery] string? kinhNghiem,
             [FromQuery] string? hinhThucLamViec,
             [FromQuery] int[]? linhVuc,
-            [FromQuery] decimal? mucLuongMin,
-            [FromQuery] decimal? mucLuongMax,
+            [FromQuery] string[]? mucLuong,
             [FromQuery] string? thanhPho)
         {
-            var result = _service.LocTinTuyenDung(search, danhMuc, kinhNghiem, hinhThucLamViec, linhVuc, mucLuongMin, mucLuongMax, thanhPho);
+            var result = _service.LocTinTuyenDung(search, danhMuc, kinhNghiem, hinhThucLamViec, linhVuc, mucLuong, thanhPho);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
                 : BadRequest(new { success = false, message = result.message });

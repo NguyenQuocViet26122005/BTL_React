@@ -8,6 +8,7 @@ import { interviewResultService } from '../../services/interviewResultService';
 import { type TaoKetQuaDto } from '../../services/interviewResultService';
 import dayjs from 'dayjs';
 import { getStoredUser } from '../../utils/auth';
+import PageContainer from '../../components/Layout/PageContainer';
 
 const { TextArea } = Input;
 
@@ -427,8 +428,7 @@ const InterviewSchedulePage = () => {
   ];
 
   return (
-    <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+    <PageContainer>
       <Card
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -817,8 +817,7 @@ const InterviewSchedulePage = () => {
           </div>
         )}
       </Modal>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 
