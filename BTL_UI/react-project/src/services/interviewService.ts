@@ -55,5 +55,17 @@ export const interviewService = {
   updateStatus: async (maLich: number, trangThai: string) => {
     const response = await api.put<ApiResponse<void>>(`/lich-phong-van/${maLich}/trang-thai?trangThai=${trangThai}`);
     return response.data;
+  },
+
+  // Cap nhat lich phong van
+  updateInterview: async (maLich: number, data: TaoLichDto) => {
+    const response = await api.put<ApiResponse<void>>(`/lich-phong-van/${maLich}`, data);
+    return response.data;
+  },
+
+  // Xoa lich phong van
+  deleteInterview: async (maLich: number) => {
+    const response = await api.delete<ApiResponse<void>>(`/lich-phong-van/${maLich}`);
+    return response.data;
   }
 };

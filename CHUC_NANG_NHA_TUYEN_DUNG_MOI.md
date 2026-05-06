@@ -80,9 +80,10 @@
   - `BTL_CNW/DAL/LichPhongVan/LichPhongVanRepository.cs` - Method `CapNhat()`
 
 #### Frontend:
-- **Cần cập nhật**: `InterviewSchedulePage.tsx`
+- **✅ ĐÃ HOÀN THÀNH**: `InterviewSchedulePage.tsx`
 - **Thêm**: Nút "Sửa" trong bảng lịch phỏng vấn
 - **Thêm**: Modal form để chỉnh sửa thông tin lịch
+- **Service**: `interviewService.updateInterview()`
 
 ---
 
@@ -97,9 +98,10 @@
   - `BTL_CNW/DAL/LichPhongVan/LichPhongVanRepository.cs` - Method `Xoa()`
 
 #### Frontend:
-- **Cần cập nhật**: `InterviewSchedulePage.tsx`
+- **✅ ĐÃ HOÀN THÀNH**: `InterviewSchedulePage.tsx`
 - **Thêm**: Nút "Xóa" trong bảng lịch phỏng vấn
 - **Thêm**: Modal xác nhận trước khi xóa
+- **Service**: `interviewService.deleteInterview()`
 
 ---
 
@@ -218,8 +220,9 @@ Cần cập nhật UI trong InterviewSchedulePage.tsx
 4. ✅ Types - HOÀN THÀNH
 5. ✅ Menu navigation - HOÀN THÀNH (đã thêm vào Header.tsx)
 6. ✅ Fix lỗi maCongTy - HOÀN THÀNH
-7. ⏳ Cập nhật InterviewSchedulePage.tsx - Thêm nút sửa/xóa
-8. ⏳ Test các chức năng mới sau khi restart backend
+7. ✅ Cập nhật InterviewSchedulePage.tsx - HOÀN THÀNH (Thêm nút sửa/xóa)
+8. ⏳ Restart backend để áp dụng code mới
+9. ⏳ Test tất cả 6 chức năng
 
 ---
 
