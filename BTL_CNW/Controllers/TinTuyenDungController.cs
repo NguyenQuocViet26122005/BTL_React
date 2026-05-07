@@ -4,6 +4,7 @@ using BTL_CNW.DTO.TinTuyenDung;
 using BTL_CNW.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BTL_CNW.Controllers
 {
@@ -63,6 +64,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayTheoNguoiDang(int maNguoiDang)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDang != userId)
+                return Forbid();
+
             var result = _service.LayTheoNguoiDang(maNguoiDang);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
@@ -85,6 +93,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult TaoTin(TaoTinDto dto)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (dto.MaNguoiDang != userId)
+                return Forbid();
+
             var result = _service.TaoTin(dto);
             return result.success
                 ? Ok(new { success = true, message = result.message })
@@ -98,6 +113,13 @@ namespace BTL_CNW.Controllers
         {
             try
             {
+                var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+                if (maNguoiDung != userId)
+                    return Forbid();
+
                 // Lấy thông tin công ty
                 var congTyService = HttpContext.RequestServices.GetService<ICongTyService>();
                 if (congTyService == null)

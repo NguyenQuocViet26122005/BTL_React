@@ -5,6 +5,7 @@ using BTL_CNW.Models;
 using BTL_CNW.DAL.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BTL_CNW.Controllers
 {
@@ -21,6 +22,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult TaoCongTy(TaoCongTyDto dto)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (dto.MaChuSoHuu != userId)
+                return Forbid();
+
             var result = _service.TaoCongTy(dto);
             return result.success 
                 ? Ok(new { success = true, message = result.message })
@@ -53,6 +61,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayTheoChuSoHuu(int maNguoiDung)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayTheoChuSoHuu(maNguoiDung);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })

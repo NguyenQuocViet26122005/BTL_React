@@ -34,6 +34,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize("UngVien")] // Ung vien
         public IActionResult LayTheoUngVien(int maUngVien)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maUngVien != userId)
+                return Forbid();
+
             var result = _service.LayTheoUngVien(maUngVien);
             return Ok(new { success = true, message = result.message, data = result.data });
         }
@@ -52,6 +59,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize("NhaTuyenDung")] // Nha tuyen dung
         public IActionResult LayTheoNguoiPhatHanh(int maNguoiPhatHanh)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiPhatHanh != userId)
+                return Forbid();
+
             var result = _service.LayTheoNguoiPhatHanh(maNguoiPhatHanh);
             return Ok(new { success = true, message = result.message, data = result.data });
         }

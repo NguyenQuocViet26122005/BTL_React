@@ -1,8 +1,8 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Card, Table, Tag, Button, message, Space, Modal } from 'antd';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import dayjs from 'dayjs';
+import api from '../../services/api';
 
 interface ThuMoi {
   maThuMoi: number;
@@ -45,10 +45,7 @@ const ManageOffersPage: React.FC = () => {
       console.log('User from localStorage:', user);
       console.log('maNguoiDung:', user.maNguoiDung);
       
-      const response = await axios.get(
-        'https://localhost:44314/api/thu-moi/nguoi-phat-hanh/' + user.maNguoiDung,
-        { headers: { Authorization: 'Bearer ' + token } }
-      );
+      const response = await api.get(`/thu-moi/nguoi-phat-hanh/${user.maNguoiDung}`);
 
       console.log('API Response:', response.data);
 
@@ -74,10 +71,7 @@ const ManageOffersPage: React.FC = () => {
       onOk: async () => {
         try {
           const token = localStorage.getItem('token');
-          await axios.delete(
-            'https://localhost:44314/api/thu-moi/' + maThuMoi,
-            { headers: { Authorization: 'Bearer ' + token } }
-          );
+          await api.delete(`/thu-moi/${maThuMoi}`);
           message.success('Xoa thu moi thanh cong');
           fetchOffers();
         } catch (error: any) {

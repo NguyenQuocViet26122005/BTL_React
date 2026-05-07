@@ -5,6 +5,7 @@ using BTL_CNW.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BTL_CNW.Controllers
 {
@@ -29,6 +30,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.UngVien)]
         public IActionResult TaoHoSo(TaoHoSoDto dto)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (dto.MaNguoiDung != userId)
+                return Forbid();
+
             var result = _service.TaoHoSo(dto);
             return result.success
                 ? Ok(new { success = true, message = result.message })
@@ -40,6 +48,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.UngVien)]
         public IActionResult LayTheoNguoiDung(int maNguoiDung)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayTheoNguoiDung(maNguoiDung);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
@@ -98,6 +113,14 @@ namespace BTL_CNW.Controllers
         {
             try
             {
+                var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+                var hoSoOwnerOk = _context.HoSoUngViens.Any(h => h.MaHoSo == maHoSo && h.MaNguoiDung == userId);
+                if (!hoSoOwnerOk)
+                    return Forbid();
+
                 if (file == null || file.Length == 0)
                     return BadRequest(new { success = false, message = "Khong co file duoc chon" });
 
@@ -244,6 +267,14 @@ namespace BTL_CNW.Controllers
         {
             try
             {
+                var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+                var hoSoOwnerOk = _context.HoSoUngViens.Any(h => h.MaHoSo == maHoSo && h.MaNguoiDung == userId);
+                if (!hoSoOwnerOk)
+                    return Forbid();
+
                 var file = _context.FileCvs.FirstOrDefault(f => f.MaFileCv == maFileCv);
                 if (file == null)
                     return NotFound(new { success = false, message = "Khong tim thay file CV" });
@@ -272,6 +303,20 @@ namespace BTL_CNW.Controllers
         {
             try
             {
+                var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+                var fileOwnerOk = _context.FileCvs
+                    .Where(f => f.MaFileCv == maFileCv)
+                    .Join(_context.HoSoUngViens,
+                        f => f.MaHoSo,
+                        h => h.MaHoSo,
+                        (f, h) => new { f, h })
+                    .Any(x => x.h.MaNguoiDung == userId);
+                if (!fileOwnerOk)
+                    return Forbid();
+
                 var file = _context.FileCvs.FirstOrDefault(f => f.MaFileCv == maFileCv);
                 if (file == null)
                     return NotFound(new { success = false, message = "Khong tim thay file CV" });

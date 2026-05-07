@@ -3,6 +3,7 @@ using BTL_CNW.DTO.DonUngTuyen;
 using BTL_CNW.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BTL_CNW.Controllers
 {
@@ -21,6 +22,13 @@ namespace BTL_CNW.Controllers
         {
             try
             {
+                var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+                if (dto.MaUngVien != userId)
+                    return Forbid();
+
                 var (ok, msg) = _service.NopDon(dto);
                 
                 if (ok)
@@ -49,6 +57,13 @@ namespace BTL_CNW.Controllers
         {
             try
             {
+                var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+                if (maUngVien != userId)
+                    return Forbid();
+
                 var (data, error) = _service.LayTheoUngVien(maUngVien);
                 
                 if (error != null)

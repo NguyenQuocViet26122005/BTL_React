@@ -2,6 +2,7 @@ using BTL_CNW.BLL.ThongBao;
 using BTL_CNW.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BTL_CNW.Controllers
 {
@@ -21,6 +22,13 @@ namespace BTL_CNW.Controllers
         [HttpGet("cua-toi/{maNguoiDung}")]
         public IActionResult LayTheoNguoiDung(int maNguoiDung, [FromQuery] int pageSize = 20, [FromQuery] int pageNumber = 1)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayTheoNguoiDung(maNguoiDung, pageSize, pageNumber);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
@@ -31,6 +39,13 @@ namespace BTL_CNW.Controllers
         [HttpGet("chua-doc/{maNguoiDung}")]
         public IActionResult DemChuaDoc(int maNguoiDung)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.DemChuaDoc(maNguoiDung);
             return result.success
                 ? Ok(new { success = true, message = result.message, count = result.count })
@@ -51,6 +66,13 @@ namespace BTL_CNW.Controllers
         [HttpPut("tat-ca-da-doc/{maNguoiDung}")]
         public IActionResult DanhDauTatCaDaDoc(int maNguoiDung)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.DanhDauTatCaDaDoc(maNguoiDung);
             return result.success
                 ? Ok(new { success = true, message = result.message })

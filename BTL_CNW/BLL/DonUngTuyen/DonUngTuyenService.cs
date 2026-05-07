@@ -72,7 +72,7 @@ namespace BTL_CNW.BLL.DonUngTuyen
                 }
 
                 // Kiểm tra file CV có tồn tại không
-                var fileCV = _context.FileCvs.FirstOrDefault(f => f.MaFile == dto.MaFileCV && f.MaHoSo == hoSo.MaHoSo);
+                var fileCV = _context.FileCvs.FirstOrDefault(f => f.MaFileCv == dto.MaFileCV && f.MaHoSo == hoSo.MaHoSo);
                 if (fileCV == null)
                 {
                     return (false, "File CV không hợp lệ hoặc không thuộc về bạn");
