@@ -1,9 +1,12 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Button, message, Spin, Tag } from 'antd';
-import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Button, message, Spin, Tag, Modal, Form, Input, InputNumber, DatePicker, Space } from 'antd';
+import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, SendOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import { offerService } from '../../services/offerService';
 import axios from 'axios';
 import dayjs from 'dayjs';
+
+const { TextArea } = Input;
 
 interface HoSoUngVien {
   maHoSo: number;
@@ -29,6 +32,8 @@ const CandidateDetailPage: React.FC = () => {
   const { maHoSo } = useParams<{ maHoSo: string }>();
   const [loading, setLoading] = useState(true);
   const [candidate, setCandidate] = useState<HoSoUngVien | null>(null);
+  const [offerModalVisible, setOfferModalVisible] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchCandidateDetail();
@@ -53,6 +58,40 @@ const CandidateDetailPage: React.FC = () => {
     }
   };
 
+  const handleSendOffer = () => {
+    if (!candidate) return;
+    form.setFieldsValue({
+      viTriCongViec: candidate.tieuDe,
+      mucLuong: candidate.mucLuongMongMuon || 0
+    });
+    setOfferModalVisible(true);
+  };
+
+  const handleSubmitOffer = async (values: any) => {
+    if (!candidate) return;
+    setLoading(true);
+    try {
+      const data = {
+        maDon: 0,
+        viTriCongViec: values.viTriCongViec,
+        mucLuong: values.mucLuong,
+        donViTien: values.donViTien || 'VND',
+        ngayBatDauDuKien: values.ngayBatDauDuKien ? values.ngayBatDauDuKien.format('YYYY-MM-DD') : undefined,
+        ngayHetHan: values.ngayHetHan ? values.ngayHetHan.format('YYYY-MM-DD') : undefined,
+        ghiChu: values.ghiChu
+      };
+
+      await offerService.create(data);
+      message.success('Gui thu moi thanh cong');
+      setOfferModalVisible(false);
+      form.resetFields();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Gui thu moi that bai');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '100px' }}>
@@ -67,13 +106,14 @@ const CandidateDetailPage: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Button
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate('/company/candidates')}
-        style={{ marginBottom: 16 }}
-      >
-        Quay lai
-      </Button>
+      <Space style={{ marginBottom: 16 }}>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/company/candidates')}>
+          Quay lai
+        </Button>
+        <Button type="primary" icon={<SendOutlined />} onClick={handleSendOffer}>
+          Gui thu moi lam viec
+        </Button>
+      </Space>
 
       <Card title={'Ho so: ' + candidate.tenNguoiDung}>
         <Descriptions bordered column={2}>
@@ -125,6 +165,41 @@ const CandidateDetailPage: React.FC = () => {
           )}
         </Descriptions>
       </Card>
+
+      <Modal
+        title="Gui thu moi lam viec"
+        open={offerModalVisible}
+        onCancel={() => { setOfferModalVisible(false); form.resetFields(); }}
+        footer={null}
+        width={600}
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmitOffer}>
+          <Form.Item name="viTriCongViec" label="Vi tri cong viec" rules={[{ required: true, message: 'Vui long nhap vi tri' }]}>
+            <Input placeholder="VD: Senior Java Developer" />
+          </Form.Item>
+          <Form.Item name="mucLuong" label="Muc luong" rules={[{ required: true, message: 'Vui long nhap muc luong' }]}>
+            <InputNumber style={{ width: '100%' }} formatter={value => ${value}.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={value => value!.replace(/\$\s?|(,*)/g, '')} placeholder="Nhap muc luong" />
+          </Form.Item>
+          <Form.Item name="donViTien" label="Don vi tien" initialValue="VND">
+            <Input placeholder="VND" />
+          </Form.Item>
+          <Form.Item name="ngayBatDauDuKien" label="Ngay bat dau du kien">
+            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+          </Form.Item>
+          <Form.Item name="ngayHetHan" label="Han phan hoi">
+            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+          </Form.Item>
+          <Form.Item name="ghiChu" label="Ghi chu">
+            <TextArea rows={4} placeholder="Nhap ghi chu ve thu moi..." />
+          </Form.Item>
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+              <Button onClick={() => { setOfferModalVisible(false); form.resetFields(); }}>Huy</Button>
+              <Button type="primary" htmlType="submit" loading={loading}>Gui thu moi</Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
