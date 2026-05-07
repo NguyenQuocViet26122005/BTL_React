@@ -1,8 +1,9 @@
-import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty } from 'antd';
+﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty } from 'antd';
 import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NguoiDung, HoSoUngVien } from '../../types';
+import { offerService } from '../../services/offerService';
 import { resumeService } from '../../services/resumeService';
 import { profileService } from '../../services/profileService';
 import CvManager from '../../components/CV/CvManager';
@@ -252,6 +253,11 @@ const CandidateProfile = () => {
       children: hoSo ? <CvManager maHoSo={hoSo.maHoSo} /> : <Empty description="Vui long tao ho so truoc" />,
     },
     {
+      key: 'offers',
+      label: <span><MailOutlined /> Thu moi</span>,
+      children: <OffersTab />,
+    },
+        {
       key: 'security',
       label: <span><LockOutlined /> Bao mat</span>,
       children: (
@@ -347,6 +353,76 @@ const CandidateProfile = () => {
         </Form>
       </Modal>
     </div>
+  );
+};
+
+
+const OffersTab = () => {
+  const [offers, setOffers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+
+  useEffect(() => {
+    if (user) loadOffers();
+  }, []);
+
+  const loadOffers = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const res = await offerService.getByUngVien(user.maNguoiDung);
+      if (res.success) setOffers(res.data || []);
+    } catch (error) {
+      message.error('Khong the tai thu moi');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRespond = async (maThuMoi: number, trangThai: string) => {
+    try {
+      await offerService.respond(maThuMoi, { trangThai, ghiChu: '' });
+      message.success('Phan hoi thanh cong');
+      loadOffers();
+    } catch (error: any) {
+      message.error('Phan hoi that bai');
+    }
+  };
+
+  return (
+    <Card loading={loading}>
+      <Title level={4}>Thu moi lam viec</Title>
+      <Text type="secondary">Danh sach thu moi lam viec tu cac nha tuyen dung</Text>
+      <Divider />
+      {offers.length === 0 ? (
+        <Empty description="Chua co thu moi nao" />
+      ) : (
+        offers.map(offer => (
+          <Card key={offer.maThuMoi} style={{ marginBottom: 16 }}>
+            <Descriptions column={2} bordered>
+              <Descriptions.Item label="Cong ty">{offer.tenCongTy || 'N/A'}</Descriptions.Item>
+              <Descriptions.Item label="Vi tri">{offer.viTriCongViec}</Descriptions.Item>
+              <Descriptions.Item label="Muc luong">{offer.mucLuong.toLocaleString()} {offer.donViTien || 'VND'}</Descriptions.Item>
+              <Descriptions.Item label="Ngay bat dau">{offer.ngayBatDauDuKien ? dayjs(offer.ngayBatDauDuKien).format('DD/MM/YYYY') : 'Chua xac dinh'}</Descriptions.Item>
+              <Descriptions.Item label="Han phan hoi">{offer.ngayHetHan ? dayjs(offer.ngayHetHan).format('DD/MM/YYYY') : 'Khong gioi han'}</Descriptions.Item>
+              <Descriptions.Item label="Trang thai">
+                <Tag color={offer.trangThai === 'ChoDongY' ? 'blue' : offer.trangThai === 'DaDongY' ? 'green' : 'red'}>
+                  {offer.trangThai === 'ChoDongY' ? 'Cho dong y' : offer.trangThai === 'DaDongY' ? 'Da dong y' : 'Tu choi'}
+                </Tag>
+              </Descriptions.Item>
+              {offer.ghiChu && <Descriptions.Item label="Ghi chu" span={2}>{offer.ghiChu}</Descriptions.Item>}
+            </Descriptions>
+            {offer.trangThai === 'ChoDongY' && (
+              <Space style={{ marginTop: 16 }}>
+                <Button type="primary" onClick={() => handleRespond(offer.maThuMoi, 'DaDongY')}>Chap nhan</Button>
+                <Button danger onClick={() => handleRespond(offer.maThuMoi, 'TuChoi')}>Tu choi</Button>
+              </Space>
+            )}
+          </Card>
+        ))
+      )}
+    </Card>
   );
 };
 

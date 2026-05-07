@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Card, Table, Tag, Empty, Spin } from 'antd';
-import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined } from '@ant-design/icons';
+﻿import { useState, useEffect } from 'react';
+import { Card, Table, Tag, Empty, Spin, Button, Modal, Descriptions } from 'antd';
+import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, EyeOutlined } from '@ant-design/icons';
 import { interviewService } from '../../services/interviewService';
+import { interviewResultService } from '../../services/interviewResultService';
 import type { LichPhongVan } from '../../services/interviewService';
 import { applicationService } from '../../services/applicationService';
+import { message } from 'antd';
 import dayjs from 'dayjs';
 
 const MyInterviewsPage = () => {
   const [interviews, setInterviews] = useState<LichPhongVan[]>([]);
   const [loading, setLoading] = useState(false);
+  const [resultModalVisible, setResultModalVisible] = useState(false);
+  const [selectedResult, setSelectedResult] = useState<any>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -40,6 +44,20 @@ const MyInterviewsPage = () => {
       console.error('Error loading interviews:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const viewResult = async (maLich: number) => {
+    try {
+      const res = await interviewResultService.getByLich(maLich);
+      if (res.success && res.data) {
+        setSelectedResult(res.data);
+        setResultModalVisible(true);
+      } else {
+        message.info('Chua co ket qua phong van');
+      }
+    } catch (error) {
+      message.error('Khong the tai ket qua');
     }
   };
 
@@ -120,6 +138,24 @@ const MyInterviewsPage = () => {
       dataIndex: 'ghiChu',
       key: 'ghiChu',
       render: (text: string) => text || '-'
+    },
+    {
+      title: 'Ket qua',
+      key: 'ketQua',
+      render: (_: any, record: LichPhongVan) => {
+        if (record.trangThai === 'HoanThanh') {
+          return (
+            <Button 
+              size="small" 
+              icon={<EyeOutlined />}
+              onClick={() => viewResult(record.maLich)}
+            >
+              Xem
+            </Button>
+          );
+        }
+        return '-';
+      }
     }
   ];
 
@@ -148,6 +184,54 @@ const MyInterviewsPage = () => {
           />
         )}
       </Card>
+
+      <Modal
+        title="Ket qua phong van"
+        open={resultModalVisible}
+        onCancel={() => {
+          setResultModalVisible(false);
+          setSelectedResult(null);
+        }}
+        footer={[
+          <Button key="close" type="primary" onClick={() => {
+            setResultModalVisible(false);
+            setSelectedResult(null);
+          }}>
+            Dong
+          </Button>
+        ]}
+        width={600}
+      >
+        {selectedResult && (
+          <Descriptions column={1} bordered>
+            <Descriptions.Item label="Diem tong quat">
+              <Tag color="blue">{selectedResult.diemTongQuat}/5</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Diem ky thuat">
+              <Tag color="blue">{selectedResult.diemKyThuat}/5</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Diem ky nang mem">
+              <Tag color="blue">{selectedResult.diemKyNangMem}/5</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Ket qua">
+              <Tag color={selectedResult.ketQua === 'Dat' ? 'green' : selectedResult.ketQua === 'KhongDat' ? 'red' : 'orange'}>
+                {selectedResult.ketQua === 'Dat' ? 'Dat' : selectedResult.ketQua === 'KhongDat' ? 'Khong dat' : 'Cho danh gia'}
+              </Tag>
+            </Descriptions.Item>
+            {selectedResult.nhanXet && (
+              <Descriptions.Item label="Nhan xet">
+                <div style={{ whiteSpace: 'pre-wrap' }}>{selectedResult.nhanXet}</div>
+              </Descriptions.Item>
+            )}
+            <Descriptions.Item label="Nguoi danh gia">
+              {selectedResult.tenNguoiDanhGia || 'N/A'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Ngay danh gia">
+              {dayjs(selectedResult.ngayTao).format('DD/MM/YYYY HH:mm')}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
     </div>
   );
 };
