@@ -77,6 +77,41 @@ namespace BTL_CNW.BLL.ThuMoiLamViec
             if (dto.MucLuong <= 0)
                 return (false, "Muc luong phai lon hon 0", 0);
 
+            if (dto.MaDon <= 0)
+                return (false, "Ma don ung tuyen khong hop le", 0);
+
+            // Kiểm tra đơn ứng tuyển có tồn tại không
+            var don = _context.DonUngTuyens
+                .Include(d => d.LichPhongVans)
+                .FirstOrDefault(d => d.MaDon == dto.MaDon);
+            
+            if (don == null)
+                return (false, "Don ung tuyen khong ton tai", 0);
+
+            // Kiểm tra trạng thái đơn ứng tuyển
+            if (don.TrangThai != "VaoDanhSach")
+                return (false, "Chi co the gui thu moi cho don ung tuyen co trang thai 'Vao danh sach'", 0);
+
+            // Kiểm tra đã có lịch phỏng vấn hoàn thành chưa
+            var lichPhongVan = don.LichPhongVans.FirstOrDefault(l => l.TrangThai == "HoanThanh");
+            if (lichPhongVan == null)
+                return (false, "Ung vien chua hoan thanh phong van", 0);
+
+            // Kiểm tra kết quả phỏng vấn
+            var ketQua = _context.KetQuaPhongVans
+                .FirstOrDefault(k => k.MaLich == lichPhongVan.MaLich);
+            
+            if (ketQua == null)
+                return (false, "Chua co ket qua phong van", 0);
+
+            if (ketQua.KetQua != "Dat")
+                return (false, "Chi co the gui thu moi cho ung vien dat ket qua phong van", 0);
+
+            // Kiểm tra đã gửi thư mời chưa
+            var existingOffer = _context.ThuMoiLamViecs.FirstOrDefault(t => t.MaDon == dto.MaDon);
+            if (existingOffer != null)
+                return (false, "Da gui thu moi cho ung vien nay roi", 0);
+
             var thuMoi = new Models.ThuMoiLamViec
             {
                 MaDon = dto.MaDon,

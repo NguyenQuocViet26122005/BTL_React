@@ -1,5 +1,6 @@
 using BTL_CNW.DTO.LichPhongVan;
 using BTL_CNW.DAL.LichPhongVan;
+using BTL_CNW.Models;
 
 namespace BTL_CNW.BLL.LichPhongVan
 {
@@ -16,7 +17,13 @@ namespace BTL_CNW.BLL.LichPhongVan
     public class LichPhongVanService : ILichPhongVanService
     {
         private readonly ILichPhongVanRepository _repo;
-        public LichPhongVanService(ILichPhongVanRepository repo) => _repo = repo;
+        private readonly QuanLyViecLamContext _context;
+        
+        public LichPhongVanService(ILichPhongVanRepository repo, QuanLyViecLamContext context)
+        {
+            _repo = repo;
+            _context = context;
+        }
 
         public (bool success, string message) TaoLich(TaoLichDto dto)
         {
@@ -34,6 +41,15 @@ namespace BTL_CNW.BLL.LichPhongVan
 
                 if (dto.MaDon <= 0)
                     return (false, "Mã đơn ứng tuyển không hợp lệ");
+
+                // Kiểm tra đơn ứng tuyển có tồn tại không
+                var don = _context.DonUngTuyens.FirstOrDefault(d => d.MaDon == dto.MaDon);
+                if (don == null)
+                    return (false, "Đơn ứng tuyển không tồn tại");
+
+                // Kiểm tra trạng thái đơn ứng tuyển
+                if (don.TrangThai != "VaoDanhSach")
+                    return (false, "Chỉ có thể tạo lịch phỏng vấn cho đơn ứng tuyển có trạng thái 'Vào danh sách'");
 
                 // Check if interview already exists for this application
                 var existingInterviews = _repo.LayTheoDon(dto.MaDon);

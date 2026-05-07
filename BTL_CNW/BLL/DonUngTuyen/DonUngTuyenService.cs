@@ -1,5 +1,6 @@
 using BTL_CNW.DTO.DonUngTuyen;
 using BTL_CNW.DAL.DonUngTuyen;
+using BTL_CNW.Models;
 
 namespace BTL_CNW.BLL.DonUngTuyen
 {
@@ -16,7 +17,13 @@ namespace BTL_CNW.BLL.DonUngTuyen
     public class DonUngTuyenService : IDonUngTuyenService
     {
         private readonly IDonUngTuyenRepository _repo;
-        public DonUngTuyenService(IDonUngTuyenRepository repo) => _repo = repo;
+        private readonly QuanLyViecLamContext _context;
+        
+        public DonUngTuyenService(IDonUngTuyenRepository repo, QuanLyViecLamContext context)
+        {
+            _repo = repo;
+            _context = context;
+        }
 
         public (bool ok, string msg) NopDon(NopDonDto dto)
         {
@@ -36,6 +43,39 @@ namespace BTL_CNW.BLL.DonUngTuyen
                 if (dto.MaFileCV <= 0)
                 {
                     return (false, "Vui lòng chọn file CV");
+                }
+
+                // Kiểm tra tin tuyển dụng có tồn tại không
+                var tin = _context.TinTuyenDungs.FirstOrDefault(t => t.MaTin == dto.MaTin);
+                if (tin == null)
+                {
+                    return (false, "Tin tuyển dụng không tồn tại");
+                }
+
+                // Kiểm tra tin tuyển dụng đã được duyệt chưa
+                if (tin.TrangThai != "DaDuyet")
+                {
+                    return (false, "Tin tuyển dụng chưa được duyệt. Không thể nộp đơn");
+                }
+
+                // Kiểm tra hạn nộp hồ sơ
+                if (tin.HanNopHoSo.HasValue && tin.HanNopHoSo.Value < DateOnly.FromDateTime(DateTime.Now))
+                {
+                    return (false, "Tin tuyển dụng đã hết hạn nộp hồ sơ");
+                }
+
+                // Kiểm tra ứng viên có hồ sơ chưa
+                var hoSo = _context.HoSoUngViens.FirstOrDefault(h => h.MaNguoiDung == dto.MaUngVien);
+                if (hoSo == null)
+                {
+                    return (false, "Bạn chưa có hồ sơ. Vui lòng tạo hồ sơ trước khi nộp đơn");
+                }
+
+                // Kiểm tra file CV có tồn tại không
+                var fileCV = _context.FileCvs.FirstOrDefault(f => f.MaFile == dto.MaFileCV && f.MaHoSo == hoSo.MaHoSo);
+                if (fileCV == null)
+                {
+                    return (false, "File CV không hợp lệ hoặc không thuộc về bạn");
                 }
 
                 // Kiểm tra đã ứng tuyển chưa
