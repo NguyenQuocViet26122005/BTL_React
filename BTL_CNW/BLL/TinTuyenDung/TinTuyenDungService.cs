@@ -1,6 +1,7 @@
 ﻿using BTL_CNW.DTO.TinTuyenDung;
 using BTL_CNW.DAL.TinTuyenDung;
 using BTL_CNW.DAL.CongTy;
+using BTL_CNW.Models;
 
 namespace BTL_CNW.BLL.TinTuyenDung
 {
@@ -22,11 +23,13 @@ namespace BTL_CNW.BLL.TinTuyenDung
     {
         private readonly ITinTuyenDungRepository _repo;
         private readonly ICongTyRepository _congTyRepo;
+        private readonly QuanLyViecLamContext _context;
         
-        public TinTuyenDungService(ITinTuyenDungRepository repo, ICongTyRepository congTyRepo)
+        public TinTuyenDungService(ITinTuyenDungRepository repo, ICongTyRepository congTyRepo, QuanLyViecLamContext context)
         {
             _repo = repo;
             _congTyRepo = congTyRepo;
+            _context = context;
         }
 
         public (bool success, string message) TaoTin(TaoTinDto dto)
@@ -38,15 +41,17 @@ namespace BTL_CNW.BLL.TinTuyenDung
                     return (false, "Mã người đăng không hợp lệ");
 
                 // Kiểm tra công ty của người dùng
-                var congTy = _congTyRepo.LayTheoChuSoHuu(dto.MaNguoiDang);
-                if (congTy == null)
+                var danhSachCongTy = _congTyRepo.LayTheoChuSoHuu(dto.MaNguoiDang);
+                if (danhSachCongTy == null || danhSachCongTy.Count == 0)
                     return (false, "Bạn chưa có công ty. Vui lòng tạo công ty trước khi đăng tin tuyển dụng");
 
-                if (congTy.TrangThai != "Đã duyệt")
-                    return (false, "Công ty của bạn chưa được duyệt. Vui lòng chờ admin duyệt công ty");
+                // Lấy công ty đã duyệt
+                var congTyDaDuyet = danhSachCongTy.FirstOrDefault(c => c.TrangThai == "Đã duyệt");
+                if (congTyDaDuyet == null)
+                    return (false, "Bạn chưa có công ty nào được duyệt. Vui lòng chờ admin duyệt công ty");
 
-                // Tự động gán MaCongTy từ công ty của người dùng
-                dto.MaCongTy = congTy.MaCongTy;
+                // Tự động gán MaCongTy từ công ty đã duyệt
+                dto.MaCongTy = congTyDaDuyet.MaCongTy;
 
                 // Validate input
                 if (string.IsNullOrWhiteSpace(dto.TieuDe))
