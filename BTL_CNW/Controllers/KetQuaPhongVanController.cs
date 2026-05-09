@@ -44,6 +44,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize("UngVien")] // Ung vien
         public IActionResult LayTheoUngVien(int maUngVien)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maUngVien != userId)
+                return Forbid();
+
             var result = _service.LayTheoUngVien(maUngVien);
             return Ok(new { success = true, message = result.message, data = result.data });
         }

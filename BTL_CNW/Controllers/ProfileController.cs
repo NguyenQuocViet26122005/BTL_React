@@ -3,6 +3,7 @@ using BTL_CNW.DTO.Profile;
 using BTL_CNW.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BTL_CNW.Controllers
 {
@@ -23,6 +24,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayProfile(int maNguoiDung)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayProfile(maNguoiDung);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
@@ -34,6 +42,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult CapNhatProfile(int maNguoiDung, CapNhatProfileDto dto)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.CapNhatProfile(maNguoiDung, dto);
             return result.success
                 ? Ok(new { success = true, message = result.message })
@@ -45,6 +60,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult DoiMatKhau(int maNguoiDung, DoiMatKhauDto dto)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.DoiMatKhau(maNguoiDung, dto);
             return result.success
                 ? Ok(new { success = true, message = result.message })

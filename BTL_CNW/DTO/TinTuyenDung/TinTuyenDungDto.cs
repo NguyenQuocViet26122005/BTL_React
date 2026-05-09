@@ -4,6 +4,7 @@ namespace BTL_CNW.DTO.TinTuyenDung
     {
         public int MaTin { get; set; }
         public int MaCongTy { get; set; }
+        public int? MaLinhVuc { get; set; }
         public string TenCongTy { get; set; } = null!;
         public string? LogoCongTy { get; set; }
         public int MaNguoiDang { get; set; }

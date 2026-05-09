@@ -2,6 +2,7 @@ using BTL_CNW.BLL.Dashboard;
 using BTL_CNW.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BTL_CNW.Controllers
 {
@@ -22,6 +23,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayThongKe(int maNguoiDung)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayThongKe(maNguoiDung);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
@@ -33,6 +41,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayLichPhongVanSapToi(int maNguoiDung, [FromQuery] int soNgay = 7)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayLichPhongVanSapToi(maNguoiDung, soNgay);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
@@ -44,6 +59,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayBieuDoLuotXem(int maNguoiDung, [FromQuery] int soNgay = 7)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayBieuDoLuotXem(maNguoiDung, soNgay);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })
@@ -55,6 +77,13 @@ namespace BTL_CNW.Controllers
         [RoleAuthorize(UserRoles.NhaTuyenDung)]
         public IActionResult LayBieuDoDonUngTuyen(int maNguoiDung, [FromQuery] int soThang = 6)
         {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
+
+            if (maNguoiDung != userId)
+                return Forbid();
+
             var result = _service.LayBieuDoDonUngTuyen(maNguoiDung, soThang);
             return result.success
                 ? Ok(new { success = true, message = result.message, data = result.data })

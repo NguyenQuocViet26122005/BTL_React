@@ -292,6 +292,12 @@ namespace BTL_CNW.BLL.TinTuyenDung
                     ).ToList();
                 }
 
+                // Filter by linh vuc (company industry)
+                if (linhVuc != null && linhVuc.Length > 0)
+                {
+                    allJobs = allJobs.Where(j => j.MaLinhVuc.HasValue && linhVuc.Contains(j.MaLinhVuc.Value)).ToList();
+                }
+
                 // Filter by city
                 if (!string.IsNullOrWhiteSpace(thanhPho))
                 {

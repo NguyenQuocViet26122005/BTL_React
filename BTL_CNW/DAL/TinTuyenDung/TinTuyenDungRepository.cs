@@ -82,6 +82,7 @@ namespace BTL_CNW.DAL.TinTuyenDung
                 {
                     MaTin = x.MaTin,
                     MaCongTy = x.MaCongTy,
+                    MaLinhVuc = x.MaCongTyNavigation.MaLinhVuc,
                     TenCongTy = x.MaCongTyNavigation.TenCongTy,
                     LogoCongTy = x.MaCongTyNavigation.Logo,
                     MaNguoiDang = x.MaNguoiDang,
@@ -119,6 +120,7 @@ namespace BTL_CNW.DAL.TinTuyenDung
                 {
                     MaTin = x.MaTin,
                     MaCongTy = x.MaCongTy,
+                    MaLinhVuc = x.MaCongTyNavigation.MaLinhVuc,
                     TenCongTy = x.MaCongTyNavigation.TenCongTy,
                     LogoCongTy = x.MaCongTyNavigation.Logo,
                     MaNguoiDang = x.MaNguoiDang,
@@ -156,6 +158,7 @@ namespace BTL_CNW.DAL.TinTuyenDung
                 {
                     MaTin = x.MaTin,
                     MaCongTy = x.MaCongTy,
+                    MaLinhVuc = x.MaCongTyNavigation.MaLinhVuc,
                     TenCongTy = x.MaCongTyNavigation.TenCongTy,
                     LogoCongTy = x.MaCongTyNavigation.Logo,
                     MaNguoiDang = x.MaNguoiDang,
@@ -195,6 +198,7 @@ namespace BTL_CNW.DAL.TinTuyenDung
             {
                 MaTin = tin.MaTin,
                 MaCongTy = tin.MaCongTy,
+                MaLinhVuc = tin.MaCongTyNavigation.MaLinhVuc,
                 TenCongTy = tin.MaCongTyNavigation.TenCongTy,
                 LogoCongTy = tin.MaCongTyNavigation.Logo,
                 MaNguoiDang = tin.MaNguoiDang,
@@ -311,6 +315,7 @@ namespace BTL_CNW.DAL.TinTuyenDung
                 {
                     MaTin = x.MaTin,
                     MaCongTy = x.MaCongTy,
+                    MaLinhVuc = x.MaCongTyNavigation.MaLinhVuc,
                     TenCongTy = x.MaCongTyNavigation.TenCongTy,
                     LogoCongTy = x.MaCongTyNavigation.Logo,
                     MaNguoiDang = x.MaNguoiDang,

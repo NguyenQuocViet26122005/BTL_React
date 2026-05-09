@@ -21,11 +21,11 @@ namespace BTL_CNW.Controllers
             try
             {
                 var danhMucs = await _danhMucService.GetAllDanhMucAsync();
-                return Ok(danhMucs);
+                return Ok(new { success = true, message = "Lấy danh mục thành công", data = danhMucs });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi khi lấy danh mục", error = ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi khi lấy danh mục", error = ex.Message });
             }
         }
 
@@ -36,11 +36,11 @@ namespace BTL_CNW.Controllers
             try
             {
                 var danhMucs = await _danhMucService.GetDanhMucByParentAsync(parentId);
-                return Ok(danhMucs);
+                return Ok(new { success = true, message = "Lấy danh mục con thành công", data = danhMucs });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi khi lấy danh mục con", error = ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi khi lấy danh mục con", error = ex.Message });
             }
         }
 
@@ -51,11 +51,11 @@ namespace BTL_CNW.Controllers
             try
             {
                 var linhVucs = await _danhMucService.GetAllLinhVucAsync();
-                return Ok(linhVucs);
+                return Ok(new { success = true, message = "Lấy lĩnh vực thành công", data = linhVucs });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi khi lấy lĩnh vực", error = ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi khi lấy lĩnh vực", error = ex.Message });
             }
         }
     }
