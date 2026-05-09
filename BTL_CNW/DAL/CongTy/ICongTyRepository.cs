@@ -1,4 +1,4 @@
-````````using BTL_CNW.DTO.CongTy;
+using BTL_CNW.DTO.CongTy;
 
 namespace BTL_CNW.DAL.CongTy
 {
