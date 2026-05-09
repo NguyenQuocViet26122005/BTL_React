@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Tag, Descriptions, Spin, message, Row, Col, Modal, Form, Input, Select, Alert } from 'antd';
-import { EnvironmentOutlined, DollarOutlined, CalendarOutlined, ArrowLeftOutlined, FileOutlined } from '@ant-design/icons';
+import { EnvironmentOutlined, DollarOutlined, CalendarOutlined, ArrowLeftOutlined, FileOutlined, HeartOutlined, HeartFilled } from '@ant-design/icons';
+import savedJobService from '../../services/savedJobService';
 import { getTinTuyenDungById } from '../../services/jobService';
 import { applicationService } from '../../services/applicationService';
 import cvService, { type FileCv } from '../../services/cvService';
@@ -22,6 +23,8 @@ const JobDetailPage = () => {
   const [cvList, setCvList] = useState<FileCv[]>([]);
   const [loadingCv, setLoadingCv] = useState(false);
   const [hasResume, setHasResume] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingJob, setSavingJob] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -36,6 +39,7 @@ const JobDetailPage = () => {
       const response = await getTinTuyenDungById(maTin);
       if (response.success && response.data) {
         setJob(response.data);
+        await checkSavedStatus(maTin);
       } else {
         message.error('Khong tim thay tin tuyen dung');
         setTimeout(() => navigate('/jobs'), 2000);
@@ -45,6 +49,61 @@ const JobDetailPage = () => {
       setTimeout(() => navigate('/jobs'), 2000);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkSavedStatus = async (maTin: number) => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+      const user = JSON.parse(userStr);
+      if (user.maVaiTro !== 3) return;
+
+      const response = await savedJobService.getMySavedJobs();
+      if (response.success && response.data) {
+        const saved = response.data.some(item => item.maTin === maTin);
+        setIsSaved(saved);
+      }
+    } catch (error) {
+      console.error('Error checking saved status:', error);
+    }
+  };
+
+  const handleToggleSave = async () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      message.warning('Vui long dang nhap de luu tin');
+      setTimeout(() => navigate('/login'), 1000);
+      return;
+    }
+
+    const user = JSON.parse(userStr);
+    if (user.maVaiTro !== 3) {
+      message.error('Chi ung vien moi co the luu tin!');
+      return;
+    }
+
+    if (!job) return;
+
+    setSavingJob(true);
+    try {
+      if (isSaved) {
+        const response = await savedJobService.unsaveJob(job.maTin);
+        if (response.success) {
+          message.success('Da bo luu tin');
+          setIsSaved(false);
+        }
+      } else {
+        const response = await savedJobService.saveJob(job.maTin);
+        if (response.success) {
+          message.success('Da luu tin');
+          setIsSaved(true);
+        }
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Thao tac that bai');
+    } finally {
+      setSavingJob(false);
     }
   };
 

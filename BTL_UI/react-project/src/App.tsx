@@ -8,6 +8,7 @@ import RegisterPage from './pages/Auth/RegisterPage';
 import JobListPage from './pages/Jobs/JobListPage';
 import JobDetailPage from './pages/Jobs/JobDetailPage';
 import JobFilterPage from './pages/Jobs/JobFilterPage';
+import SavedJobsPage from './pages/Jobs/SavedJobsPage';
 import CompanyDashboard from './pages/Company/CompanyDashboard';
 import InterviewSchedulePage from './pages/Company/InterviewSchedulePage';
 import ManageApplicationsPage from './pages/Company/ManageApplicationsPage';
@@ -39,7 +40,7 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path="jobs" element={<JobListPage />} />
             <Route path="jobs/:id" element={<JobDetailPage />} />
-            <Route path="jobs/filter" element={<JobFilterPage />} />
+            <Route path="jobs/filter" element={<JobFilterPage />} />`n            <Route path="jobs/saved" element={<SavedJobsPage />} />
             <Route path="company/dashboard" element={<CompanyDashboard />} />
             <Route path="company/interviews" element={<InterviewSchedulePage />} />
             <Route path="company/applications" element={<ManageApplicationsPage />} />
