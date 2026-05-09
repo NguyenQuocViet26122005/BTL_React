@@ -1,5 +1,6 @@
 using BTL_CNW.DTO.CongTy;
 using BTL_CNW.DAL.CongTy;
+using BTL_CNW.Models;
 
 namespace BTL_CNW.BLL.CongTy
 {
@@ -17,7 +18,13 @@ namespace BTL_CNW.BLL.CongTy
     public class CongTyService : ICongTyService
     {
         private readonly ICongTyRepository _repo;
-        public CongTyService(ICongTyRepository repo) => _repo = repo;
+        private readonly QuanLyViecLamContext _context;
+        
+        public CongTyService(ICongTyRepository repo, QuanLyViecLamContext context)
+        {
+            _repo = repo;
+            _context = context;
+        }
 
         public (bool success, string message) TaoCongTy(TaoCongTyDto dto)
         {
@@ -156,10 +163,17 @@ namespace BTL_CNW.BLL.CongTy
                 if (existingCompany == null)
                     return (false, "Không tìm thấy công ty cần xóa");
 
+                // Kiểm tra công ty có tin tuyển dụng không
+                var hasTinTuyenDung = _context.TinTuyenDungs.Any(t => t.MaCongTy == maCongTy);
+                if (hasTinTuyenDung)
+                {
+                    return (false, "Không thể xóa công ty đã có tin tuyển dụng");
+                }
+
                 var result = _repo.Xoa(maCongTy);
                 return result 
                     ? (true, "Xóa công ty thành công")
-                    : (false, "Không thể xóa công ty, có thể công ty đang có tin tuyển dụng");
+                    : (false, "Không thể xóa công ty");
             }
             catch (Exception ex)
             {

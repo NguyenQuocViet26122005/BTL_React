@@ -192,6 +192,33 @@ namespace BTL_CNW.BLL.DonUngTuyen
                     return (false, "Trạng thái không hợp lệ");
                 }
 
+                // Kiểm tra đơn ứng tuyển tồn tại và lấy trạng thái hiện tại
+                var don = _context.DonUngTuyens.FirstOrDefault(d => d.MaDon == maDon);
+                if (don == null)
+                {
+                    return (false, "Không tìm thấy đơn ứng tuyển");
+                }
+
+                var currentStatus = don.TrangThai;
+
+                // Validate state transitions
+                var validTransitions = new Dictionary<string, string[]>
+                {
+                    { "DaNop", new[] { "DangXem", "RutDon" } },
+                    { "DangXem", new[] { "VaoDanhSach", "TuChoi" } },
+                    { "VaoDanhSach", new[] { "TuChoi" } }, // Chỉ có thể từ chối, không thể quay lại
+                    { "TuChoi", new string[] { } }, // Không thể chuyển sang trạng thái khác
+                    { "RutDon", new string[] { } } // Không thể chuyển sang trạng thái khác
+                };
+
+                if (validTransitions.ContainsKey(currentStatus))
+                {
+                    if (!validTransitions[currentStatus].Contains(trangThai))
+                    {
+                        return (false, $"Không thể chuyển từ trạng thái '{currentStatus}' sang '{trangThai}'");
+                    }
+                }
+
                 var result = _repo.CapNhatTrangThai(maDon, trangThai);
                 return result 
                     ? (true, "Cập nhật trạng thái thành công") 

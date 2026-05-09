@@ -212,6 +212,32 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 if (existingTin.TrangThai == trangThai)
                     return (false, $"Tin đã ở trạng thái '{trangThai}' rồi");
 
+                var currentStatus = existingTin.TrangThai;
+
+                // Validate state transitions (Admin only)
+                var validTransitions = new Dictionary<string, string[]>
+                {
+                    { "ChoXetDuyet", new[] { "DaDuyet", "TuChoi" } },
+                    { "DaDuyet", new[] { "HetHan", "DaDong" } },
+                    { "TuChoi", new string[] { } }, // Không thể chuyển sang trạng thái khác
+                    { "HetHan", new[] { "DaDong" } },
+                    { "DaDong", new string[] { } } // Không thể chuyển sang trạng thái khác
+                };
+
+                if (validTransitions.ContainsKey(currentStatus))
+                {
+                    if (!validTransitions[currentStatus].Contains(trangThai))
+                    {
+                        return (false, $"Không thể chuyển từ trạng thái '{currentStatus}' sang '{trangThai}'");
+                    }
+                }
+
+                // Kiểm tra lý do khi từ chối
+                if (trangThai == "TuChoi" && string.IsNullOrWhiteSpace(lyDo))
+                {
+                    return (false, "Vui lòng nhập lý do từ chối");
+                }
+
                 var result = _repo.DoiTrangThai(maTin, trangThai, lyDo);
                 return result 
                     ? (true, $"Đã cập nhật trạng thái thành '{trangThai}'")
@@ -235,10 +261,17 @@ namespace BTL_CNW.BLL.TinTuyenDung
                 if (existingTin == null)
                     return (false, "Không tìm thấy tin cần xóa");
 
+                // Kiểm tra tin có đơn ứng tuyển không
+                var hasDonUngTuyen = _context.DonUngTuyens.Any(d => d.MaTin == maTin);
+                if (hasDonUngTuyen)
+                {
+                    return (false, "Không thể xóa tin tuyển dụng đã có đơn ứng tuyển");
+                }
+
                 var result = _repo.Xoa(maTin);
                 return result 
                     ? (true, "Xóa tin tuyển dụng thành công")
-                    : (false, "Không thể xóa tin, có thể tin đang có đơn ứng tuyển");
+                    : (false, "Không thể xóa tin tuyển dụng");
             }
             catch (Exception ex)
             {

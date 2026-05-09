@@ -123,9 +123,24 @@ namespace BTL_CNW.BLL.LichPhongVan
                 if (existingInterview.TrangThai == trangThai)
                     return (false, $"Lịch phỏng vấn đã ở trạng thái '{trangThai}' rồi");
 
-                // Business logic validation
-                if (existingInterview.TrangThai == "HoanThanh" && trangThai != "HoanThanh")
-                    return (false, "Không thể thay đổi trạng thái của lịch phỏng vấn đã hoàn thành");
+                var currentStatus = existingInterview.TrangThai;
+
+                // Validate state transitions
+                var validTransitions = new Dictionary<string, string[]>
+                {
+                    { "DaLen", new[] { "HoanThanh", "HuyBo", "VangMat" } },
+                    { "HoanThanh", new string[] { } }, // Không thể chuyển sang trạng thái khác
+                    { "HuyBo", new string[] { } }, // Không thể chuyển sang trạng thái khác
+                    { "VangMat", new[] { "HoanThanh" } } // Có thể đánh dấu hoàn thành sau khi vắng mặt
+                };
+
+                if (validTransitions.ContainsKey(currentStatus))
+                {
+                    if (!validTransitions[currentStatus].Contains(trangThai))
+                    {
+                        return (false, $"Không thể chuyển từ trạng thái '{currentStatus}' sang '{trangThai}'");
+                    }
+                }
 
                 var result = _repo.DoiTrangThai(maLich, trangThai);
                 return result 
