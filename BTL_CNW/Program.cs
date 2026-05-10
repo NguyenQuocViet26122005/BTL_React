@@ -10,6 +10,7 @@ using BTL_CNW.BLL.Profile;
 using BTL_CNW.BLL.ThongBao;
 using BTL_CNW.BLL.KetQuaPhongVan;
 using BTL_CNW.BLL.ThuMoiLamViec;
+using BTL_CNW.BLL.HocVan;
 
 using BTL_CNW.DAL.Auth;
 using BTL_CNW.DAL.CongTy;
@@ -23,6 +24,7 @@ using BTL_CNW.DAL.Profile;
 using BTL_CNW.DAL.ThongBao;
 using BTL_CNW.DAL.KetQuaPhongVan;
 using BTL_CNW.DAL.ThuMoiLamViec;
+using BTL_CNW.DAL.HocVan;
 
 using BTL_CNW.Models;
 using BTL_CNW.Services;
@@ -134,6 +136,10 @@ builder.Services.AddScoped<IKetQuaPhongVanService, KetQuaPhongVanService>();
 // Thu moi lam viec
 builder.Services.AddScoped<IThuMoiLamViecRepository, ThuMoiLamViecRepository>();
 builder.Services.AddScoped<IThuMoiLamViecService, ThuMoiLamViecService>();
+
+// Hoc van
+builder.Services.AddScoped<IHocVanRepository, HocVanRepository>();
+builder.Services.AddScoped<IHocVanService, HocVanService>();
 
 var app = builder.Build();
 

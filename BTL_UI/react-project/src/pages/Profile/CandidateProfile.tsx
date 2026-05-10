@@ -1,9 +1,10 @@
-﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty } from 'antd';
-import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileOutlined } from '@ant-design/icons';
+﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty, List, Popconfirm, InputNumber } from 'antd';
+import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileOutlined, MailOutlined, BookOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NguoiDung, HoSoUngVien } from '../../types';
 import { offerService } from '../../services/offerService';
+import { educationService, HocVan, TaoHocVanDto } from '../../services/educationService';
 import { resumeService } from '../../services/resumeService';
 import { profileService } from '../../services/profileService';
 import CvManager from '../../components/CV/CvManager';
@@ -253,6 +254,11 @@ const CandidateProfile = () => {
       children: hoSo ? <CvManager maHoSo={hoSo.maHoSo} /> : <Empty description="Vui long tao ho so truoc" />,
     },
     {
+      key: 'education',
+      label: <span><BookOutlined /> Hoc van</span>,
+      children: <EducationTab />,
+    },
+    {
       key: 'offers',
       label: <span><MailOutlined /> Thu moi</span>,
       children: <OffersTab />,
@@ -357,6 +363,193 @@ const CandidateProfile = () => {
 };
 
 
+const EducationTab = () => {
+  const [educations, setEducations] = useState<HocVan[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form] = Form.useForm();
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+
+  useEffect(() => {
+    if (hoSo) loadEducations();
+  }, [hoSo]);
+
+  const loadEducations = async () => {
+    if (!hoSo) return;
+    setLoading(true);
+    try {
+      const res = await educationService.getByHoSo(hoSo.maHoSo);
+      if (res.success) setEducations(res.data || []);
+    } catch (error) {
+      message.error('Khong the tai hoc van');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (values: any) => {
+    if (!hoSo) return;
+    try {
+      const data: TaoHocVanDto = {
+        maHoSo: hoSo.maHoSo,
+        truongHoc: values.truongHoc,
+        bangCap: values.bangCap,
+        chuyenNganh: values.chuyenNganh,
+        diemTrungBinh: values.diemTrungBinh,
+        ngayBatDau: values.ngayBatDau ? values.ngayBatDau.format('YYYY-MM-DD') : undefined,
+        ngayKetThuc: values.ngayKetThuc ? values.ngayKetThuc.format('YYYY-MM-DD') : undefined,
+        dangHocKhong: values.dangHocKhong || false,
+      };
+
+      if (editingId) {
+        await educationService.update(editingId, data);
+        message.success('Cap nhat hoc van thanh cong');
+      } else {
+        await educationService.create(data);
+        message.success('Them hoc van thanh cong');
+      }
+
+      setModalVisible(false);
+      setEditingId(null);
+      form.resetFields();
+      loadEducations();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Thao tac that bai');
+    }
+  };
+
+  const handleEdit = (edu: HocVan) => {
+    setEditingId(edu.maHocVan);
+    form.setFieldsValue({
+      truongHoc: edu.truongHoc,
+      bangCap: edu.bangCap,
+      chuyenNganh: edu.chuyenNganh,
+      diemTrungBinh: edu.diemTrungBinh,
+      ngayBatDau: edu.ngayBatDau ? dayjs(edu.ngayBatDau) : null,
+      ngayKetThuc: edu.ngayKetThuc ? dayjs(edu.ngayKetThuc) : null,
+      dangHocKhong: edu.dangHocKhong,
+    });
+    setModalVisible(true);
+  };
+
+  const handleDelete = async (maHocVan: number) => {
+    try {
+      await educationService.delete(maHocVan);
+      message.success('Xoa hoc van thanh cong');
+      loadEducations();
+    } catch (error: any) {
+      message.error('Xoa that bai');
+    }
+  };
+
+  const handleAdd = () => {
+    setEditingId(null);
+    form.resetFields();
+    setModalVisible(true);
+  };
+
+  return (
+    <Card loading={loading}>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Hoc van</Title>
+          <Text type="secondary">Qua trinh hoc tap cua ban</Text>
+        </div>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>Them hoc van</Button>
+      </div>
+      <Divider />
+      {educations.length === 0 ? (
+        <Empty description="Chua co thong tin hoc van" />
+      ) : (
+        <List
+          dataSource={educations}
+          renderItem={(edu) => (
+            <List.Item
+              actions={[
+                <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(edu)}>Sua</Button>,
+                <Popconfirm title="Ban co chac muon xoa?" onConfirm={() => handleDelete(edu.maHocVan)}>
+                  <Button type="link" danger icon={<DeleteOutlined />}>Xoa</Button>
+                </Popconfirm>
+              ]}
+            >
+              <List.Item.Meta
+                title={<Text strong>{edu.truongHoc}</Text>}
+                description={
+                  <div>
+                    {edu.bangCap && <div><Text type="secondary">Bang cap: </Text>{edu.bangCap}</div>}
+                    {edu.chuyenNganh && <div><Text type="secondary">Chuyen nganh: </Text>{edu.chuyenNganh}</div>}
+                    {edu.diemTrungBinh && <div><Text type="secondary">Diem TB: </Text>{edu.diemTrungBinh}</div>}
+                    <div>
+                      <Text type="secondary">Thoi gian: </Text>
+                      {edu.ngayBatDau ? dayjs(edu.ngayBatDau).format('MM/YYYY') : '?'} - {edu.dangHocKhong ? 'Hien tai' : edu.ngayKetThuc ? dayjs(edu.ngayKetThuc).format('MM/YYYY') : '?'}
+                    </div>
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      )}
+
+      <Modal
+        title={editingId ? 'Cap nhat hoc van' : 'Them hoc van'}
+        open={modalVisible}
+        onCancel={() => { setModalVisible(false); setEditingId(null); form.resetFields(); }}
+        footer={null}
+        width={600}
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form.Item label="Truong hoc" name="truongHoc" rules={[{ required: true, message: 'Vui long nhap ten truong' }]}>
+            <Input size="large" placeholder="VD: Dai hoc Bach Khoa Ha Noi" />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="Bang cap" name="bangCap">
+                <Input size="large" placeholder="VD: Cu nhan" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Chuyen nganh" name="chuyenNganh">
+                <Input size="large" placeholder="VD: Cong nghe thong tin" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item label="Diem trung binh" name="diemTrungBinh">
+            <InputNumber size="large" style={{ width: '100%' }} min={0} max={4} step={0.1} placeholder="VD: 3.5" />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="Ngay bat dau" name="ngayBatDau">
+                <DatePicker size="large" style={{ width: '100%' }} format="MM/YYYY" picker="month" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Ngay ket thuc" name="ngayKetThuc">
+                <DatePicker size="large" style={{ width: '100%' }} format="MM/YYYY" picker="month" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="dangHocKhong" valuePropName="checked">
+            <Space>
+              <input type="checkbox" />
+              <Text>Dang hoc</Text>
+            </Space>
+          </Form.Item>
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+              <Button onClick={() => { setModalVisible(false); setEditingId(null); form.resetFields(); }}>Huy</Button>
+              <Button type="primary" htmlType="submit">Luu</Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </Card>
+  );
+};
+
+
 const OffersTab = () => {
   const [offers, setOffers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -427,3 +620,5 @@ const OffersTab = () => {
 };
 
 export default CandidateProfile;
+
+
