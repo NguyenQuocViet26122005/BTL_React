@@ -11,6 +11,7 @@ using BTL_CNW.BLL.ThongBao;
 using BTL_CNW.BLL.KetQuaPhongVan;
 using BTL_CNW.BLL.ThuMoiLamViec;
 using BTL_CNW.BLL.HocVan;
+using BTL_CNW.BLL.KinhNghiemLamViec;
 
 using BTL_CNW.DAL.Auth;
 using BTL_CNW.DAL.CongTy;
@@ -25,6 +26,7 @@ using BTL_CNW.DAL.ThongBao;
 using BTL_CNW.DAL.KetQuaPhongVan;
 using BTL_CNW.DAL.ThuMoiLamViec;
 using BTL_CNW.DAL.HocVan;
+using BTL_CNW.DAL.KinhNghiemLamViec;
 
 using BTL_CNW.Models;
 using BTL_CNW.Services;
@@ -140,6 +142,10 @@ builder.Services.AddScoped<IThuMoiLamViecService, ThuMoiLamViecService>();
 // Hoc van
 builder.Services.AddScoped<IHocVanRepository, HocVanRepository>();
 builder.Services.AddScoped<IHocVanService, HocVanService>();
+
+// Kinh nghiem lam viec
+builder.Services.AddScoped<IKinhNghiemRepository, KinhNghiemRepository>();
+builder.Services.AddScoped<IKinhNghiemService, KinhNghiemService>();
 
 var app = builder.Build();
 
