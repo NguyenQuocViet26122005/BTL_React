@@ -3,6 +3,7 @@ import { Card, Descriptions, Button, message, Spin, Tag } from 'antd';
 import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../services/api';
+import { getCandidateStatusColor, getCandidateStatusText } from '../../utils/candidateStatus';
 import dayjs from 'dayjs';
 
 interface HoSoUngVien {
@@ -87,8 +88,8 @@ const CandidateDetailPage: React.FC = () => {
           <Descriptions.Item label="Tiêu đề" span={2}>{candidate.tieuDe}</Descriptions.Item>
           <Descriptions.Item label="Tóm tắt" span={2}>{candidate.tomTat}</Descriptions.Item>
           <Descriptions.Item label="Tình trạng">
-            <Tag color={candidate.tinhTrangTimViec === 'SangTimViec' ? 'green' : 'blue'}>
-              {candidate.tinhTrangTimViec}
+            <Tag color={getCandidateStatusColor(candidate.tinhTrangTimViec)}>
+              {getCandidateStatusText(candidate.tinhTrangTimViec)}
             </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="Mức lương mong muốn">

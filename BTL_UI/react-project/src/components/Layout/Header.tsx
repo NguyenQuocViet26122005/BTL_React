@@ -2,7 +2,8 @@
 import { UserOutlined, LogoutOutlined, SettingOutlined, DashboardOutlined, CalendarOutlined, FileTextOutlined, GiftOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import type { NguoiDung } from '../../types';
+import type { StoredUser } from '../../utils/auth';
+import { getStoredUser } from '../../utils/auth';
 import NotificationBell from '../Notifications/NotificationBell';
 
 const { Header: AntHeader } = Layout;
@@ -10,17 +11,10 @@ const { Header: AntHeader } = Layout;
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState<NguoiDung | null>(null);
+  const [user, setUser] = useState<StoredUser | null>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        setUser(JSON.parse(userStr));
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-      }
-    }
+    setUser(getStoredUser());
   }, [location]);
 
   const handleLogout = () => {
@@ -41,7 +35,7 @@ const Header = () => {
       key: 'settings',
       icon: <SettingOutlined />,
       label: 'Cài đặt',
-      onClick: () => {}
+      onClick: () => navigate('/profile')
     },
     {
       type: 'divider' as const

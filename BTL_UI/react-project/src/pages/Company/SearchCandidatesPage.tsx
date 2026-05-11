@@ -3,6 +3,7 @@ import { Card, Input, Select, Button, Table, message, Tag, Space } from 'antd';
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { CANDIDATE_STATUS, getCandidateStatusColor, getCandidateStatusText } from '../../utils/candidateStatus';
 
 const { Option } = Select;
 
@@ -94,14 +95,7 @@ const SearchCandidatesPage: React.FC = () => {
       dataIndex: 'tinhTrangTimViec',
       key: 'tinhTrangTimViec',
       width: 150,
-      render: (status: string) => {
-        const colorMap: Record<string, string> = {
-          'SangTimViec': 'green',
-          'MoTimViec': 'blue',
-          'KhongTimViec': 'gray',
-        };
-        return <Tag color={colorMap[status] || 'default'}>{status || 'N/A'}</Tag>;
-      },
+      render: (status: string) => <Tag color={getCandidateStatusColor(status)}>{status ? getCandidateStatusText(status) : 'N/A'}</Tag>,
     },
     {
       title: 'Mức lương mong muốn',
@@ -163,9 +157,9 @@ const SearchCandidatesPage: React.FC = () => {
               onChange={(value) => setSearchParams({ ...searchParams, tinhTrang: value })}
               allowClear
             >
-              <Option value="SangTimViec">San sang tim viec</Option>
-              <Option value="MoTimViec">Mo tim viec</Option>
-              <Option value="KhongTimViec">Không tìm việc</Option>
+              <Option value={CANDIDATE_STATUS.SANG_TIM_VIEC}>Sẵn sàng tìm việc</Option>
+              <Option value={CANDIDATE_STATUS.MO_TIM_VIEC}>Mở tìm việc</Option>
+              <Option value={CANDIDATE_STATUS.KHONG_TIM_VIEC}>Không tìm việc</Option>
             </Select>
 
             <Button type="primary" icon={<SearchOutlined />} onClick={fetchCandidates}>

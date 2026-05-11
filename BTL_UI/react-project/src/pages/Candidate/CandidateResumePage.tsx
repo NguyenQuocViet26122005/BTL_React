@@ -4,6 +4,7 @@ import { SaveOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { resumeService } from '../../services/resumeService';
 import dayjs from 'dayjs';
+import { CANDIDATE_STATUS, normalizeCandidateStatus } from '../../utils/candidateStatus';
 
 const { TextArea } = Input;
 
@@ -51,7 +52,7 @@ export const CandidateResumeContent = () => {
           linkedIn: response.data.linkedIn,
           gitHub: response.data.gitHub,
           portfolio: response.data.portfolio,
-          tinhTrangTimViec: response.data.tinhTrangTimViec,
+          tinhTrangTimViec: normalizeCandidateStatus(response.data.tinhTrangTimViec),
           mucLuongMongMuon: response.data.mucLuongMongMuon
         });
       } else {
@@ -93,7 +94,7 @@ export const CandidateResumeContent = () => {
         linkedIn: values.linkedIn,
         gitHub: values.gitHub,
         portfolio: values.portfolio,
-        tinhTrangTimViec: values.tinhTrangTimViec || 'SanSang',
+        tinhTrangTimViec: normalizeCandidateStatus(values.tinhTrangTimViec),
         mucLuongMongMuon: values.mucLuongMongMuon
       };
 
@@ -237,10 +238,9 @@ export const CandidateResumeContent = () => {
             label="Tinh trang tim viec"
           >
             <Select placeholder="Chon tinh trang">
-              <Select.Option value="SanSang">San sang</Select.Option>
-              <Select.Option value="TimKiem">Dang tim kiem</Select.Option>
-              <Select.Option value="MoXem">Mo xem co hoi</Select.Option>
-              <Select.Option value="KhongTimKiem">Khong tim kiem</Select.Option>
+              <Select.Option value={CANDIDATE_STATUS.SANG_TIM_VIEC}>Sẵn sàng tìm việc</Select.Option>
+              <Select.Option value={CANDIDATE_STATUS.MO_TIM_VIEC}>Mở tìm việc</Select.Option>
+              <Select.Option value={CANDIDATE_STATUS.KHONG_TIM_VIEC}>Không tìm việc</Select.Option>
             </Select>
           </Form.Item>
         </Col>

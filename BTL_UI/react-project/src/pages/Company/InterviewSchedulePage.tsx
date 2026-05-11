@@ -7,6 +7,7 @@ import { applicationService } from '../../services/applicationService';
 import { interviewResultService } from '../../services/interviewResultService';
 import { type TaoKetQuaDto } from '../../services/interviewResultService';
 import dayjs from 'dayjs';
+import { getStoredUser } from '../../utils/auth';
 
 const { TextArea } = Input;
 
@@ -26,18 +27,21 @@ const InterviewSchedulePage = () => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
+    const userData = getStoredUser();
+    if (userData) {
       setUser(userData);
-      loadApplications(userData.maNguoiDung);
+      if (userData.maCongTy) {
+        loadApplications(userData.maCongTy);
+      } else {
+        message.warning('Tài khoản chưa có thông tin công ty');
+      }
     }
   }, []);
 
-  const loadApplications = async (maNguoiDung: number) => {
+  const loadApplications = async (maCongTy: number) => {
     setLoading(true);
     try {
-      const res = await applicationService.getCompanyApplications(maNguoiDung);
+      const res = await applicationService.getCompanyApplications(maCongTy);
       console.log('Applications loaded:', res);
       if (res.success && res.data) {
         console.log('Total applications:', res.data.length);
@@ -105,7 +109,7 @@ const InterviewSchedulePage = () => {
       message.success('Tao lich phong van thanh cong');
       setModalVisible(false);
       form.resetFields();
-      if (user) loadApplications(user.maNguoiDung);
+      if (user) loadApplications(user.maCongTy);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Tao lich that bai');
     } finally {
@@ -144,7 +148,7 @@ const InterviewSchedulePage = () => {
       setEditInterviewModalVisible(false);
       editForm.resetFields();
       setSelectedInterview(null);
-      if (user) loadApplications(user.maNguoiDung);
+      if (user) loadApplications(user.maCongTy);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Cap nhat lich that bai');
     } finally {
@@ -163,7 +167,7 @@ const InterviewSchedulePage = () => {
         try {
           await interviewService.deleteInterview(interview.maLich);
           message.success('Xoa lich phong van thanh cong');
-          if (user) loadApplications(user.maNguoiDung);
+          if (user) loadApplications(user.maCongTy);
         } catch (error: any) {
           message.error(error.response?.data?.message || 'Xoa lich that bai');
         }
@@ -175,7 +179,7 @@ const InterviewSchedulePage = () => {
     try {
       await interviewService.updateStatus(maLich, trangThai);
       message.success('Cap nhat trang thai thanh cong');
-      if (user) loadApplications(user.maNguoiDung);
+      if (user) loadApplications(user.maCongTy);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Cap nhat that bai');
     }
@@ -231,7 +235,7 @@ const InterviewSchedulePage = () => {
       resultForm.resetFields();
       setSelectedInterview(null);
       setIsEditMode(false);
-      if (user) loadApplications(user.maNguoiDung);
+      if (user) loadApplications(user.maCongTy);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Luu ket qua that bai');
     } finally {

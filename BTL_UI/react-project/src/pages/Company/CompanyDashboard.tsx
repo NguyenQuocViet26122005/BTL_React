@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getTinTuyenDungByUser, createTinTuyenDung, updateTinTuyenDung, deleteTinTuyenDung, getTinTuyenDungById } from '../../services/jobService';
 import { applicationService } from '../../services/applicationService';
 import { eventBus, EVENTS } from '../../utils/eventBus';
+import { getStoredUser } from '../../utils/auth';
 import type { TinTuyenDung, DonUngTuyen } from '../../types';
 import dayjs from 'dayjs';
 
@@ -22,29 +23,21 @@ const CompanyDashboard = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const userData = JSON.parse(userStr);
+    const userData = getStoredUser();
+    if (userData) {
       setUser(userData);
       fetchJobs(userData.maNguoiDung);
-      fetchApplications(userData.maNguoiDung);
+      if (userData.maCongTy) fetchApplications(userData.maCongTy);
     }
 
-    // Listen for events
     const handleJobCreated = () => {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userData = JSON.parse(userStr);
-        fetchJobs(userData.maNguoiDung);
-      }
+      const userData = getStoredUser();
+      if (userData) fetchJobs(userData.maNguoiDung);
     };
 
     const handleApplicationSubmitted = () => {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userData = JSON.parse(userStr);
-        fetchApplications(userData.maNguoiDung);
-      }
+      const userData = getStoredUser();
+      if (userData?.maCongTy) fetchApplications(userData.maCongTy);
     };
 
     eventBus.on(EVENTS.JOB_CREATED, handleJobCreated);
@@ -74,9 +67,9 @@ const CompanyDashboard = () => {
     }
   };
 
-  const fetchApplications = async (maNguoiDung: number) => {
+  const fetchApplications = async (maCongTy: number) => {
     try {
-      const response = await applicationService.getCompanyApplications(maNguoiDung);
+      const response = await applicationService.getCompanyApplications(maCongTy);
       if (response.success && response.data) {
         setApplications(response.data);
       }
@@ -146,8 +139,13 @@ const CompanyDashboard = () => {
 
   const handleCreateJob = async (values: any) => {
     try {
+      if (!user?.maCongTy) {
+        message.error('Tài khoản chưa có thông tin công ty!');
+        return;
+      }
+
       const jobData = {
-        maCongTy: user.maCongTy || 1,
+        maCongTy: user.maCongTy,
         maNguoiDang: user.maNguoiDung,
         tieuDe: values.tieuDe,
         moTa: values.moTa,

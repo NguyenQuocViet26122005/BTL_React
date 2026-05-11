@@ -12,6 +12,7 @@ import { resumeService } from '../../services/resumeService';
 import { profileService } from '../../services/profileService';
 import CvManager from '../../components/CV/CvManager';
 import dayjs from 'dayjs';
+import { CANDIDATE_STATUS, getCandidateStatusColor, getCandidateStatusText, normalizeCandidateStatus } from '../../utils/candidateStatus';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -54,7 +55,7 @@ const CandidateProfile = () => {
           linkedIn: res.data.linkedIn,
           gitHub: res.data.gitHub,
           portfolio: res.data.portfolio,
-          tinhTrangTimViec: res.data.tinhTrangTimViec,
+          tinhTrangTimViec: normalizeCandidateStatus(res.data.tinhTrangTimViec),
           mucLuongMongMuon: res.data.mucLuongMongMuon,
         });
       } else {
@@ -78,6 +79,7 @@ const CandidateProfile = () => {
         email: user.email,
         soDienThoai: user.soDienThoai || '0000000000',
         ...values,
+        tinhTrangTimViec: normalizeCandidateStatus(values.tinhTrangTimViec),
         ngaySinh: values.ngaySinh ? values.ngaySinh.format('YYYY-MM-DD') : null,
       };
       await resumeService.updateResume(hoSo.maHoSo, updateData);
@@ -216,9 +218,9 @@ const CandidateProfile = () => {
                 <Col span={12}>
                   <Form.Item label="Tinh trang tim viec" name="tinhTrangTimViec">
                     <Select size="large">
-                      <Select.Option value="Dang tim viec">Dang tim viec</Select.Option>
-                      <Select.Option value="San sang">San sang</Select.Option>
-                      <Select.Option value="Khong tim viec">Khong tim viec</Select.Option>
+                      <Select.Option value={CANDIDATE_STATUS.SANG_TIM_VIEC}>Sẵn sàng tìm việc</Select.Option>
+                      <Select.Option value={CANDIDATE_STATUS.MO_TIM_VIEC}>Mở tìm việc</Select.Option>
+                      <Select.Option value={CANDIDATE_STATUS.KHONG_TIM_VIEC}>Không tìm việc</Select.Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -244,7 +246,7 @@ const CandidateProfile = () => {
               <Descriptions.Item label="LinkedIn">{hoSo?.linkedIn ? <a href={hoSo.linkedIn} target="_blank" rel="noopener noreferrer">{hoSo.linkedIn}</a> : 'Chua cap nhat'}</Descriptions.Item>
               <Descriptions.Item label="GitHub">{hoSo?.gitHub ? <a href={hoSo.gitHub} target="_blank" rel="noopener noreferrer">{hoSo.gitHub}</a> : 'Chua cap nhat'}</Descriptions.Item>
               <Descriptions.Item label="Portfolio" span={2}>{hoSo?.portfolio ? <a href={hoSo.portfolio} target="_blank" rel="noopener noreferrer">{hoSo.portfolio}</a> : 'Chua cap nhat'}</Descriptions.Item>
-              <Descriptions.Item label="Tinh trang"><Tag color={hoSo?.tinhTrangTimViec === 'Dang tim viec' ? 'green' : 'default'}>{hoSo?.tinhTrangTimViec || 'Chua cap nhat'}</Tag></Descriptions.Item>
+              <Descriptions.Item label="Tình trạng"><Tag color={getCandidateStatusColor(hoSo?.tinhTrangTimViec)}>{hoSo?.tinhTrangTimViec ? getCandidateStatusText(hoSo.tinhTrangTimViec) : 'Chưa cập nhật'}</Tag></Descriptions.Item>
               <Descriptions.Item label="Muc luong mong muon">{hoSo?.mucLuongMongMuon ? `${hoSo.mucLuongMongMuon.toLocaleString()} VND` : 'Chua cap nhat'}</Descriptions.Item>
             </Descriptions>
           )}

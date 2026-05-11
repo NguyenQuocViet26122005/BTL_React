@@ -2,6 +2,7 @@
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
+import { getDefaultRouteForRole, normalizeUser } from '../../utils/auth';
 
 const { Title, Text } = Typography;
 
@@ -24,21 +25,18 @@ const LoginPage = () => {
         
         console.log('Backend user data:', response.data.user);
         
-        const user = response.data.user;
-        
+        const user = normalizeUser(response.data.user);
+
+        if (!user) {
+          message.error('Dữ liệu tài khoản không hợp lệ!');
+          return;
+        }
+
         console.log('User data to save:', user);
         localStorage.setItem('user', JSON.stringify(user));
-        
+
         message.success('Đăng nhập thành công!');
-        
-        // Redirect based on role
-        if (user.MaVaiTro === 1) {
-          navigate('/admin/jobs');
-        } else if (user.MaVaiTro === 2) {
-          navigate('/company/dashboard');
-        } else {
-          navigate('/');
-        }
+        navigate(getDefaultRouteForRole(user.maVaiTro));
       }
     } catch (error: any) {
       console.error('Login error:', error);
