@@ -220,8 +220,8 @@ const RecruiterProfile = () => {
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
               <BankOutlined style={{ fontSize: 48, color: '#ccc', marginBottom: 16 }} />
               <Paragraph type="secondary">Bạn chưa có thông tin công ty</Paragraph>
-              <Button type="primary" onClick={() => navigate('/company/create')}>
-                Tạo công ty
+              <Button type="primary" onClick={() => navigate('/company/dashboard')}>
+                Về trang quản lý tuyển dụng
               </Button>
             </div>
           ) : editingCompany ? (

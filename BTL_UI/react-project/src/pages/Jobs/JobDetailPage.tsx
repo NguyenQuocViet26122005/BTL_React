@@ -41,11 +41,11 @@ const JobDetailPage = () => {
         setJob(response.data);
         await checkSavedStatus(maTin);
       } else {
-        message.error('Khong tim thay tin tuyen dung');
+        message.error('Không tìm thấy tin tuyển dụng');
         setTimeout(() => navigate('/jobs'), 2000);
       }
     } catch (error) {
-      message.error('Co loi xay ra khi tai du lieu');
+      message.error('Có lỗi xảy ra khi tải dữ liệu');
       setTimeout(() => navigate('/jobs'), 2000);
     } finally {
       setLoading(false);
@@ -72,14 +72,14 @@ const JobDetailPage = () => {
   const handleToggleSave = async () => {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
-      message.warning('Vui long dang nhap de luu tin');
+      message.warning('Vui lòng đăng nhập để lưu tin');
       setTimeout(() => navigate('/login'), 1000);
       return;
     }
 
     const user = JSON.parse(userStr);
     if (user.maVaiTro !== 3) {
-      message.error('Chi ung vien moi co the luu tin!');
+      message.error('Chỉ ứng viên mới có thể lưu tin!');
       return;
     }
 
@@ -90,18 +90,18 @@ const JobDetailPage = () => {
       if (isSaved) {
         const response = await savedJobService.unsaveJob(job.maTin);
         if (response.success) {
-          message.success('Da bo luu tin');
+          message.success('Đã bỏ lưu tin');
           setIsSaved(false);
         }
       } else {
         const response = await savedJobService.saveJob(job.maTin);
         if (response.success) {
-          message.success('Da luu tin');
+          message.success('Đã lưu tin');
           setIsSaved(true);
         }
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Thao tac that bai');
+      message.error(error.response?.data?.message || 'Thao tác thất bại');
     } finally {
       setSavingJob(false);
     }
@@ -136,14 +136,14 @@ const JobDetailPage = () => {
     const userStr = localStorage.getItem('user');
     
     if (!token || !userStr) {
-      message.warning('Vui long dang nhap de ung tuyen');
+      message.warning('Vui lòng đăng nhập để ứng tuyển');
       setTimeout(() => navigate('/login'), 1000);
       return;
     }
 
     const user = JSON.parse(userStr);
     if (user.maVaiTro !== 3) {
-      message.error('Chi ung vien moi co the ung tuyen!');
+      message.error('Chỉ ứng viên mới có thể ứng tuyển!');
       return;
     }
 
@@ -156,14 +156,14 @@ const JobDetailPage = () => {
       setSubmitting(true);
       const userStr = localStorage.getItem('user');
       if (!userStr) {
-        message.error('Vui long dang nhap lai!');
+        message.error('Vui lòng đăng nhập lại!');
         return;
       }
       
       const user = JSON.parse(userStr);
 
       if (!values.maFileCV) {
-        message.error('Vui long chon CV!');
+        message.error('Vui lòng chọn CV!');
         return;
       }
       
@@ -175,13 +175,13 @@ const JobDetailPage = () => {
       });
 
       if (response.success) {
-        message.success('Nop don ung tuyen thanh cong!');
+        message.success('Nộp đơn ứng tuyển thành công!');
         eventBus.emit(EVENTS.APPLICATION_SUBMITTED);
         setIsModalOpen(false);
         form.resetFields();
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Nop don that bai!');
+      message.error(error.response?.data?.message || 'Nộp đơn thất bại!');
     } finally {
       setSubmitting(false);
     }
@@ -201,9 +201,9 @@ const JobDetailPage = () => {
 
   const formatSalary = () => {
     if (job.mucLuongToiThieu && job.mucLuongToiDa) {
-      return `${job.mucLuongToiThieu / 1000000}-${job.mucLuongToiDa / 1000000} trieu VND`;
+      return `${job.mucLuongToiThieu / 1000000}-${job.mucLuongToiDa / 1000000} triệu VND`;
     }
-    return 'Thoa thuan';
+    return 'Thỏa thuận';
   };
 
   return (
@@ -213,7 +213,7 @@ const JobDetailPage = () => {
         onClick={() => navigate('/jobs')}
         style={{ marginBottom: 16 }}
       >
-        Quay lai
+        Quay lại
       </Button>
 
       <Row gutter={[24, 24]}>
@@ -229,28 +229,28 @@ const JobDetailPage = () => {
                 <DollarOutlined /> {formatSalary()}
               </Tag>
               <Tag color="orange">
-                <CalendarOutlined /> Han nop: {dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}
+                <CalendarOutlined /> Hạn nộp: {dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}
               </Tag>
             </div>
 
-            <Descriptions title="Thong tin chung" bordered column={1} style={{ marginBottom: 24 }}>
-              <Descriptions.Item label="Cong ty">{job.tenCongTy}</Descriptions.Item>
-              <Descriptions.Item label="Dia diem">{job.diaDiem}</Descriptions.Item>
-              <Descriptions.Item label="Thanh pho">{job.thanhPho}</Descriptions.Item>
-              <Descriptions.Item label="Muc luong">{formatSalary()}</Descriptions.Item>
-              <Descriptions.Item label="Han nop ho so">{dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}</Descriptions.Item>
-              <Descriptions.Item label="Ngay dang">{job.ngayDang ? dayjs(job.ngayDang).format('DD/MM/YYYY') : 'N/A'}</Descriptions.Item>
+            <Descriptions title="Thông tin chung" bordered column={1} style={{ marginBottom: 24 }}>
+              <Descriptions.Item label="Công ty">{job.tenCongTy}</Descriptions.Item>
+              <Descriptions.Item label="Địa điểm">{job.diaDiem}</Descriptions.Item>
+              <Descriptions.Item label="Thành phố">{job.thanhPho}</Descriptions.Item>
+              <Descriptions.Item label="Mức lương">{formatSalary()}</Descriptions.Item>
+              <Descriptions.Item label="Hạn nộp hồ sơ">{dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}</Descriptions.Item>
+              <Descriptions.Item label="Ngày đăng">{job.ngayDang ? dayjs(job.ngayDang).format('DD/MM/YYYY') : 'N/A'}</Descriptions.Item>
             </Descriptions>
 
-            <Card title="Mo ta cong viec" style={{ marginBottom: 16 }}>
+            <Card title="Mô tả công việc" style={{ marginBottom: 16 }}>
               <div style={{ whiteSpace: 'pre-wrap' }}>{job.moTa}</div>
             </Card>
 
-            <Card title="Yeu cau cong viec" style={{ marginBottom: 16 }}>
+            <Card title="Yêu cầu công việc" style={{ marginBottom: 16 }}>
               <div style={{ whiteSpace: 'pre-wrap' }}>{job.yeuCau}</div>
             </Card>
 
-            <Card title="Quyen loi">
+            <Card title="Quyền lợi">
               <div style={{ whiteSpace: 'pre-wrap' }}>{job.quyenLoi}</div>
             </Card>
           </Card>
@@ -265,7 +265,7 @@ const JobDetailPage = () => {
               onClick={handleToggleSave}
               style={{ marginBottom: 12 }}
             >
-              {isSaved ? 'Da luu tin' : 'Luu tin'}
+              {isSaved ? 'Đã lưu tin' : 'Lưu tin'}
             </Button>
 
             <Button
@@ -275,13 +275,13 @@ const JobDetailPage = () => {
               onClick={handleApply}
               style={{ marginBottom: 16 }}
             >
-              Ung tuyen ngay
+              Ứng tuyển ngay
             </Button>
 
             <Card title="Thong tin tom tat" size="small">
-              <p><strong>Muc luong:</strong> {formatSalary()}</p>
-              <p><strong>Dia diem:</strong> {job.diaDiem}</p>
-              <p><strong>Han nop:</strong> {dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}</p>
+              <p><strong>Mức lương:</strong> {formatSalary()}</p>
+              <p><strong>Địa điểm:</strong> {job.diaDiem}</p>
+              <p><strong>Hạn nộp:</strong> {dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}</p>
             </Card>
 
             <Card title="Thong tin cong ty" size="small" style={{ marginTop: 16 }}>
@@ -309,13 +309,13 @@ const JobDetailPage = () => {
 
         {!hasResume ? (
           <Alert
-            message="Ban chua co ho so ung vien"
-            description="Vui long tao ho so ung vien truoc khi ung tuyen"
+            message="Ban chua co hồ sơ ung vien"
+            description="Vui long tao hồ sơ ung vien truoc khi ung tuyen"
             type="warning"
             showIcon
             action={
               <Button size="small" type="primary" onClick={() => navigate('/candidate/resume')}>
-                Tao ho so
+                Tao hồ sơ
               </Button>
             }
           />
@@ -340,7 +340,7 @@ const JobDetailPage = () => {
             <Form.Item
               name="maFileCV"
               label="Chon CV"
-              rules={[{ required: true, message: 'Vui long chon CV!' }]}
+              rules={[{ required: true, message: 'Vui lòng chọn CV!' }]}
             >
               <Select
                 placeholder="Chon CV de ung tuyen"

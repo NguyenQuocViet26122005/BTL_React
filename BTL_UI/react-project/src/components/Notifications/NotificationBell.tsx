@@ -30,7 +30,7 @@ const NotificationBell = ({ maNguoiDung }: NotificationBellProps) => {
         setUnreadCount(response.data.count || 0);
       }
     } catch (error) {
-      console.error('Khong the dem thong bao chua doc:', error);
+      console.error('Không thể đếm thông báo chưa đọc:', error);
       setUnreadCount(0);
     }
   };

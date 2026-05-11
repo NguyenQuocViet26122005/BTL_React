@@ -352,7 +352,7 @@ const JobListPage = () => {
                           <Space style={{ marginTop: 'auto' }}>
                             <ClockCircleOutlined />
                             <Text type="secondary" style={{ fontSize: '12px' }}>
-                              Han nop: {dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}
+                              Hạn nộp: {dayjs(job.hanNopHoSo).format('DD/MM/YYYY')}
                             </Text>
                           </Space>
                         </Space>
@@ -375,7 +375,7 @@ const JobListPage = () => {
 
                 {jobs.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                    <Title level={4}>Khong tim thay viec lam phu hop</Title>
+                    <Title level={4}>Không tìm thấy việc làm phù hợp</Title>
                     <Text type="secondary">Thu tim kiem voi tu khoa khac</Text>
                   </div>
                 )}

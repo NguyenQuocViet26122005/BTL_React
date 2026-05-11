@@ -11,6 +11,8 @@ import {
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
+const mutedTextStyle = { color: 'rgba(255,255,255,0.65)' };
+
 const { Footer: AntFooter } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
@@ -56,16 +58,16 @@ const Footer = () => {
               <Link to="/jobs" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Tìm việc làm
               </Link>
-              <Link to="/companies" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              <Link to="/jobs" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Danh sách công ty
               </Link>
               <Link to="/profile" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Quản lý hồ sơ
               </Link>
-              <Link to="/applications" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              <Link to="/candidate/applications" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Đơn ứng tuyển
               </Link>
-              <Link to="/interviews" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              <Link to="/candidate/interviews" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Lịch phỏng vấn
               </Link>
             </div>
@@ -77,10 +79,10 @@ const Footer = () => {
               Dành cho nhà tuyển dụng
             </Title>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <Link to="/company/register" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              <Link to="/register" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Đăng ký tuyển dụng
               </Link>
-              <Link to="/jobs/create" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              <Link to="/company/dashboard" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Đăng tin tuyển dụng
               </Link>
               <Link to="/company/dashboard" style={{ color: 'rgba(255,255,255,0.65)' }}>
@@ -89,7 +91,7 @@ const Footer = () => {
               <Link to="/company/candidates" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Tìm ứng viên
               </Link>
-              <Link to="/pricing" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              <Link to="/company/dashboard" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 Bảng giá dịch vụ
               </Link>
             </div>
@@ -144,17 +146,11 @@ const Footer = () => {
           </Col>
           <Col xs={24} md={12} style={{ textAlign: 'center' }}>
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/terms" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Điều khoản sử dụng
-              </Link>
+              <span style={mutedTextStyle}>Điều khoản sử dụng</span>
               <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
-              <Link to="/privacy" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Chính sách bảo mật
-              </Link>
+              <span style={mutedTextStyle}>Chính sách bảo mật</span>
               <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
-              <Link to="/about" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Về chúng tôi
-              </Link>
+              <span style={mutedTextStyle}>Về chúng tôi</span>
             </div>
           </Col>
         </Row>

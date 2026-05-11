@@ -94,7 +94,7 @@ const CompanyDashboard = () => {
         setIsDetailModalOpen(true);
       }
     } catch (error) {
-      message.error('Khong the tai chi tiet tin tuyen dung!');
+      message.error('Không thể tải chi tiết tin tuyển dụng!');
     } finally {
       setLoading(false);
     }
@@ -125,7 +125,7 @@ const CompanyDashboard = () => {
         setIsModalOpen(true);
       }
     } catch (error) {
-      message.error('Khong the tai thong tin tin tuyen dung!');
+      message.error('Không thể tải thông tin tin tuyển dụng!');
     } finally {
       setLoading(false);
     }
@@ -135,12 +135,12 @@ const CompanyDashboard = () => {
     try {
       const response = await deleteTinTuyenDung(maTin);
       if (response.success) {
-        message.success('Xoa tin tuyen dung thanh cong!');
+        message.success('Xóa tin tuyển dụng thành công!');
         fetchJobs(user.maNguoiDung);
         eventBus.emit(EVENTS.JOB_DELETED);
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Xoa tin that bai!');
+      message.error(error.response?.data?.message || 'Xóa tin thất bại!');
     }
   };
 
@@ -167,7 +167,7 @@ const CompanyDashboard = () => {
       if (isEditMode && editingJobId) {
         const response = await updateTinTuyenDung(editingJobId, jobData);
         if (response.success) {
-          message.success('Cap nhat tin tuyen dung thanh cong!');
+          message.success('Cập nhật tin tuyển dụng thành công!');
           setIsModalOpen(false);
           setIsEditMode(false);
           setEditingJobId(null);
@@ -178,7 +178,7 @@ const CompanyDashboard = () => {
       } else {
         const response = await createTinTuyenDung(jobData);
         if (response.success) {
-          message.success('Dang tin tuyen dung thanh cong!');
+          message.success('Đăng tin tuyển dụng thành công!');
           setIsModalOpen(false);
           form.resetFields();
           fetchJobs(user.maNguoiDung);
@@ -186,7 +186,7 @@ const CompanyDashboard = () => {
         }
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || (isEditMode ? 'Cap nhat tin that bai!' : 'Dang tin that bai!'));
+      message.error(error.response?.data?.message || (isEditMode ? 'Cập nhật tin thất bại!' : 'Đăng tin thất bại!'));
     }
   };
 
@@ -206,12 +206,12 @@ const CompanyDashboard = () => {
 
   const columns = [
     {
-      title: 'Tieu de',
+      title: 'Tiêu đề',
       dataIndex: 'tieuDe',
       key: 'tieuDe',
     },
     {
-      title: 'Trang thai',
+      title: 'Trạng thái',
       dataIndex: 'trangThai',
       key: 'trangThai',
       render: (status: string) => {
@@ -225,18 +225,18 @@ const CompanyDashboard = () => {
       },
     },
     {
-      title: 'Dia diem',
+      title: 'Địa điểm',
       dataIndex: 'diaDiem',
       key: 'diaDiem',
     },
     {
-      title: 'Han nop',
+      title: 'Hạn nộp',
       dataIndex: 'hanNopHoSo',
       key: 'hanNopHoSo',
       render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : 'N/A',
     },
     {
-      title: 'Thao tac',
+      title: 'Thao tác',
       key: 'action',
       render: (_: any, record: TinTuyenDung) => (
         <Space size="middle">
@@ -245,28 +245,28 @@ const CompanyDashboard = () => {
             icon={<InfoCircleOutlined />}
             onClick={() => handleViewDetail(record.maTin)}
           >
-            Chi tiet
+            Chi tiết
           </Button>
           <Button 
             type="link" 
             icon={<EditOutlined />}
             onClick={() => handleEdit(record.maTin)}
           >
-            Sua
+            Sửa
           </Button>
           <Popconfirm
-            title="Xoa tin tuyen dung"
-            description="Ban co chac chan muon xoa tin nay?"
+            title="Xóa tin tuyển dụng"
+            description="Bạn có chắc chắn muốn xóa tin này?"
             onConfirm={() => handleDelete(record.maTin)}
-            okText="Xoa"
-            cancelText="Huy"
+            okText="Xóa"
+            cancelText="Hủy"
           >
             <Button 
               type="link" 
               danger
               icon={<DeleteOutlined />}
             >
-              Xoa
+              Xóa
             </Button>
           </Popconfirm>
         </Space>
@@ -278,15 +278,15 @@ const CompanyDashboard = () => {
     <div style={{ background: '#fff', minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <div style={{ marginBottom: 24 }}>
-        <h1>Chao mung, {user?.hoTen || 'Nha tuyen dung'}</h1>
-        <p>Quan ly tin tuyen dung va ung vien cua ban</p>
+        <h1>Chào mừng, {user?.hoTen || 'Nhà tuyển dụng'}</h1>
+        <p>Quản lý tin tuyển dụng và ứng viên của bạn</p>
       </div>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tong tin tuyen dung"
+              title="Tổng tin tuyển dụng"
               value={stats.totalJobs}
               prefix={<FileTextOutlined />}
             />
@@ -295,7 +295,7 @@ const CompanyDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tin dang tuyen"
+              title="Tin đang tuyển"
               value={stats.activeJobs}
               prefix={<FileTextOutlined />}
             />
@@ -304,7 +304,7 @@ const CompanyDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tong don ung tuyen"
+              title="Tổng đơn ứng tuyển"
               value={stats.totalApplications}
               prefix={<UserOutlined />}
             />
@@ -313,7 +313,7 @@ const CompanyDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Don cho duyet"
+              title="Đơn chờ duyệt"
               value={stats.pendingApplications}
               prefix={<EyeOutlined />}
             />
@@ -322,14 +322,14 @@ const CompanyDashboard = () => {
       </Row>
 
       <Card
-        title="Tin tuyen dung cua ban"
+        title="Tin tuyển dụng của bạn"
         extra={
           <Button 
             type="primary" 
             icon={<PlusOutlined />}
             onClick={() => setIsModalOpen(true)}
           >
-            Dang tin moi
+            Đăng tin mới
           </Button>
         }
       >
@@ -343,7 +343,7 @@ const CompanyDashboard = () => {
       </Card>
 
       <Modal
-        title={isEditMode ? "Sua tin tuyen dung" : "Dang tin tuyen dung moi"}
+        title={isEditMode ? "Sửa tin tuyen dung" : "Đăng tin tuyển dụng mới"}
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}
@@ -356,44 +356,44 @@ const CompanyDashboard = () => {
         >
           <Form.Item
             name="tieuDe"
-            label="Tieu de"
-            rules={[{ required: true, message: 'Vui long nhap tieu de!' }]}
+            label="Tiêu đề"
+            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
           >
             <Input placeholder="VD: Senior Frontend Developer" />
           </Form.Item>
 
           <Form.Item
             name="moTa"
-            label="Mo ta cong viec"
-            rules={[{ required: true, message: 'Vui long nhap mo ta!' }]}
+            label="Mô tả công việc"
+            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
           >
-            <TextArea rows={4} placeholder="Mo ta chi tiet cong viec..." />
+            <TextArea rows={4} placeholder="Mô tả chi tiết công việc..." />
           </Form.Item>
 
           <Form.Item
             name="yeuCau"
-            label="Yeu cau"
+            label="Yêu cầu"
           >
-            <TextArea rows={3} placeholder="Yeu cau kinh nghiem, ky nang..." />
+            <TextArea rows={3} placeholder="Yêu cầu kinh nghiệm, kỹ năng..." />
           </Form.Item>
 
           <Form.Item
             name="quyenLoi"
-            label="Quyen loi"
+            label="Quyền lợi"
           >
-            <TextArea rows={3} placeholder="Che do phuc loi, bao hiem..." />
+            <TextArea rows={3} placeholder="Chế độ phúc lợi, bảo hiểm..." />
           </Form.Item>
 
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="hinhThucLamViec"
-                label="Hinh thuc lam viec"
+                label="Hình thức làm việc"
               >
-                <Select placeholder="Chon hinh thuc">
-                  <Select.Option value="ToanThoiGian">Toan thoi gian</Select.Option>
-                  <Select.Option value="BanThoiGian">Ban thoi gian</Select.Option>
-                  <Select.Option value="ThucTap">Thuc tap</Select.Option>
+                <Select placeholder="Chọn hình thức">
+                  <Select.Option value="ToanThoiGian">Toàn thời gian</Select.Option>
+                  <Select.Option value="BanThoiGian">Bán thời gian</Select.Option>
+                  <Select.Option value="ThucTap">Thực tập</Select.Option>
                   <Select.Option value="FreeLance">Freelance</Select.Option>
                   <Select.Option value="Remote">Remote</Select.Option>
                 </Select>
@@ -402,15 +402,15 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="kinhNghiem"
-                label="Kinh nghiem"
+                label="Kinh nghiệm"
               >
                 <Select placeholder="Chon kinh nghiem">
-                  <Select.Option value="MoiRa">Moi ra truong</Select.Option>
-                  <Select.Option value="Junior">Junior (1-2 nam)</Select.Option>
-                  <Select.Option value="Mid">Mid (2-5 nam)</Select.Option>
-                  <Select.Option value="Senior">Senior (5+ nam)</Select.Option>
-                  <Select.Option value="TruongNhom">Truong nhom</Select.Option>
-                  <Select.Option value="QuanLy">Quan ly</Select.Option>
+                  <Select.Option value="MoiRa">Mới ra trường</Select.Option>
+                  <Select.Option value="Junior">Junior (1-2 năm)</Select.Option>
+                  <Select.Option value="Mid">Mid (2-5 năm)</Select.Option>
+                  <Select.Option value="Senior">Senior (5+ năm)</Select.Option>
+                  <Select.Option value="TruongNhom">Trưởng nhóm</Select.Option>
+                  <Select.Option value="QuanLy">Quản lý</Select.Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -420,7 +420,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="mucLuongToiThieu"
-                label="Muc luong toi thieu (VND)"
+                label="Mức lương tối thiểu (VND)"
               >
                 <InputNumber 
                   style={{ width: '100%' }}
@@ -433,7 +433,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="mucLuongToiDa"
-                label="Muc luong toi da (VND)"
+                label="Mức lương tối đa (VND)"
               >
                 <InputNumber 
                   style={{ width: '100%' }}
@@ -449,7 +449,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="diaDiem"
-                label="Dia diem"
+                label="Địa điểm"
               >
                 <Input placeholder="VD: 123 Nguyen Trai, Thanh Xuan" />
               </Form.Item>
@@ -468,7 +468,7 @@ const CompanyDashboard = () => {
             <Col span={12}>
               <Form.Item
                 name="hanNopHoSo"
-                label="Han nop ho so"
+                label="Hạn nộp ho so"
               >
                 <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
               </Form.Item>
@@ -493,7 +493,7 @@ const CompanyDashboard = () => {
       </Modal>
 
       <Modal
-        title="Chi tiet tin tuyen dung"
+        title="Chi tiết tin tuyen dung"
         open={isDetailModalOpen}
         onCancel={() => setIsDetailModalOpen(false)}
         footer={[
@@ -506,20 +506,20 @@ const CompanyDashboard = () => {
         {selectedJob && (
           <div>
             <h2>{selectedJob.tieuDe}</h2>
-            <p><strong>Trang thai:</strong> <Tag color={selectedJob.trangThai === 'DaDuyet' ? 'green' : 'orange'}>{selectedJob.trangThai}</Tag></p>
+            <p><strong>Trạng thái:</strong> <Tag color={selectedJob.trangThai === 'DaDuyet' ? 'green' : 'orange'}>{selectedJob.trangThai}</Tag></p>
             <p><strong>Hinh thuc:</strong> {selectedJob.hinhThucLamViec}</p>
-            <p><strong>Kinh nghiem:</strong> {selectedJob.kinhNghiem}</p>
+            <p><strong>Kinh nghiệm:</strong> {selectedJob.kinhNghiem}</p>
             <p><strong>Muc luong:</strong> {selectedJob.mucLuongToiThieu?.toLocaleString()} - {selectedJob.mucLuongToiDa?.toLocaleString()} VND</p>
-            <p><strong>Dia diem:</strong> {selectedJob.diaDiem}, {selectedJob.thanhPho}</p>
-            <p><strong>Han nop:</strong> {selectedJob.hanNopHoSo ? dayjs(selectedJob.hanNopHoSo).format('DD/MM/YYYY') : 'N/A'}</p>
+            <p><strong>Địa điểm:</strong> {selectedJob.diaDiem}, {selectedJob.thanhPho}</p>
+            <p><strong>Hạn nộp:</strong> {selectedJob.hanNopHoSo ? dayjs(selectedJob.hanNopHoSo).format('DD/MM/YYYY') : 'N/A'}</p>
             <p><strong>So luong tuyen:</strong> {selectedJob.soLuongTuyen}</p>
             <p><strong>Luot xem:</strong> {selectedJob.luotXem || 0}</p>
             <hr />
-            <h3>Mo ta cong viec</h3>
+            <h3>Mô tả công việc</h3>
             <p>{selectedJob.moTa}</p>
-            <h3>Yeu cau</h3>
+            <h3>Yêu cầu</h3>
             <p>{selectedJob.yeuCau}</p>
-            <h3>Quyen loi</h3>
+            <h3>Quyền lợi</h3>
             <p>{selectedJob.quyenLoi}</p>
           </div>
         )}

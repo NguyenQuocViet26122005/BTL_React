@@ -44,13 +44,13 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
       const isDocx = file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
       
       if (!isPDF && !isDoc && !isDocx) {
-        message.error('Chi chap nhan file PDF, DOC, DOCX!');
+        message.error('Chỉ chấp nhận file PDF, DOC, DOCX!');
         return Upload.LIST_IGNORE;
       }
 
       const isLt5M = file.size / 1024 / 1024 < 5;
       if (!isLt5M) {
-        message.error('File phai nho hon 5MB!');
+        message.error('File phải nhỏ hơn 5MB!');
         return Upload.LIST_IGNORE;
       }
 
@@ -59,12 +59,12 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
         const laMacDinh = cvList.length === 0;
         const res = await cvService.uploadCv(maHoSo, file, laMacDinh);
         if (res.success) {
-          message.success('Tai CV thanh cong!');
+          message.success('Tải CV thành công!');
           loadCvList();
           onCvChange?.();
         }
       } catch (error: any) {
-        message.error(error.response?.data?.message || 'Tai CV that bai!');
+        message.error(error.response?.data?.message || 'Tải CV thất bại!');
       } finally {
         setUploading(false);
       }
@@ -78,12 +78,12 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
     try {
       const res = await cvService.setDefaultCv(maFileCv, maHoSo);
       if (res.success) {
-        message.success('Dat CV mac dinh thanh cong!');
+        message.success('Đặt CV mặc định thành công!');
         loadCvList();
         onCvChange?.();
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Dat mac dinh that bai!');
+      message.error(error.response?.data?.message || 'Đặt mặc định thất bại!');
     }
   };
 
@@ -91,12 +91,12 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
     try {
       const res = await cvService.deleteCv(maFileCv);
       if (res.success) {
-        message.success('Xoa CV thanh cong!');
+        message.success('Xóa CV thành công!');
         loadCvList();
         onCvChange?.();
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Xoa CV that bai!');
+      message.error(error.response?.data?.message || 'Xóa CV thất bại!');
     }
   };
 
@@ -114,21 +114,21 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
   };
 
   return (
-    <Card title="Quan ly CV" loading={loading}>
+    <Card title="Quản lý CV" loading={loading}>
       <Upload {...uploadProps}>
         <Button icon={<UploadOutlined />} loading={uploading} type="primary" style={{ marginBottom: 16 }}>
-          Tai len CV moi
+          Tải lên CV mới
         </Button>
       </Upload>
 
       <p style={{ color: '#666', fontSize: 12, marginBottom: 16 }}>
-        Chi chap nhan file PDF, DOC, DOCX. Kich thuoc toi da 5MB.
+        Chỉ chấp nhận file PDF, DOC, DOCX. Kích thước tối đa 5MB.
       </p>
 
       {cvList.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
           <FileOutlined style={{ fontSize: 48, marginBottom: 16 }} />
-          <p>Chua co CV nao. Hay tai len CV dau tien cua ban!</p>
+          <p>Chưa có CV nào. Hãy tải lên CV đầu tiên của bạn!</p>
         </div>
       ) : (
         <List
@@ -137,7 +137,7 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
             <List.Item
               actions={[
                 cv.laMacDinh ? (
-                  <Tag color="gold" icon={<StarFilled />}>Mac dinh</Tag>
+                  <Tag color="gold" icon={<StarFilled />}>Mặc định</Tag>
                 ) : (
                   <Button
                     type="link"
@@ -145,7 +145,7 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
                     icon={<StarOutlined />}
                     onClick={() => handleSetDefault(cv.maFileCv)}
                   >
-                    Dat mac dinh
+                    Đặt mặc định
                   </Button>
                 ),
                 <Button
@@ -155,17 +155,17 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
                   href={`https://localhost:44314${cv.duongDanFile}`}
                   target="_blank"
                 >
-                  Tai xuong
+                  Tải xuống
                 </Button>,
                 <Popconfirm
-                  title="Xoa CV"
-                  description="Ban co chac chan muon xoa CV nay?"
+                  title="Xóa CV"
+                  description="Bạn có chắc chắn muốn xóa CV này?"
                   onConfirm={() => handleDelete(cv.maFileCv)}
-                  okText="Xoa"
-                  cancelText="Huy"
+                  okText="Xóa"
+                  cancelText="Hủy"
                 >
                   <Button type="link" size="small" danger icon={<DeleteOutlined />}>
-                    Xoa
+                    Xóa
                   </Button>
                 </Popconfirm>
               ]}
@@ -175,12 +175,12 @@ const CvManager = ({ maHoSo, onCvChange }: CvManagerProps) => {
                 title={
                   <Space>
                     {cv.tenFile}
-                    {cv.laMacDinh && <Tag color="gold">Mac dinh</Tag>}
+                    {cv.laMacDinh && <Tag color="gold">Mặc định</Tag>}
                   </Space>
                 }
                 description={
                   <div>
-                    <div>Kich thuoc: {formatFileSize(cv.kichThuoc)}</div>
+                    <div>Kích thước: {formatFileSize(cv.kichThuoc)}</div>
                     <div>Ngay tai: {dayjs(cv.ngayTai).format('DD/MM/YYYY HH:mm')}</div>
                   </div>
                 }

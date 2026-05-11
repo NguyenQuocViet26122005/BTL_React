@@ -2,7 +2,7 @@
 import { Card, Input, Select, Button, Table, message, Tag, Space } from 'antd';
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 
 const { Option } = Select;
 
@@ -32,14 +32,6 @@ const SearchCandidatesPage: React.FC = () => {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        message.error('Vui long dang nhap lai');
-        setLoading(false);
-        return;
-      }
-
       const params = new URLSearchParams();
       
       if (searchParams.tuKhoa) params.append('tuKhoa', searchParams.tuKhoa);
@@ -48,29 +40,26 @@ const SearchCandidatesPage: React.FC = () => {
 
       console.log('Searching with params:', params.toString());
 
-      const response = await axios.get(
-        'https://localhost:44314/api/ho-so/tim-kiem?' + params.toString(),
-        { headers: { Authorization: 'Bearer ' + token } }
-      );
+      const response = await api.get('/ho-so/tim-kiem?' + params.toString());
 
       console.log('Response:', response.data);
 
       if (response.data.success) {
         setCandidates(response.data.data || []);
         if (!response.data.data || response.data.data.length === 0) {
-          message.info('Khong tim thay ung vien phu hop');
+          message.info('Không tìm thấy ứng viên phù hợp');
         }
       } else {
-        message.error(response.data.message || 'Khong the tai danh sach ung vien');
+        message.error(response.data.message || 'Không thể tải danh sách ứng viên');
       }
     } catch (error: any) {
       console.error('Error fetching candidates:', error);
       if (error.response?.status === 401) {
-        message.error('Phien dang nhap het han, vui long dang nhap lai');
+        message.error('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại');
       } else if (error.response?.status === 403) {
-        message.error('Ban khong co quyen truy cap chuc nang nay');
+        message.error('Bạn không có quyền truy cập chức năng này');
       } else {
-        message.error(error.response?.data?.message || 'Khong the tai danh sach ung vien');
+        message.error(error.response?.data?.message || 'Không thể tải danh sách ứng viên');
       }
     } finally {
       setLoading(false);
@@ -83,25 +72,25 @@ const SearchCandidatesPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'Ho ten',
+      title: 'Họ tên',
       dataIndex: 'tenNguoiDung',
       key: 'tenNguoiDung',
       width: 150,
     },
     {
-      title: 'Tieu de',
+      title: 'Tiêu đề',
       dataIndex: 'tieuDe',
       key: 'tieuDe',
       width: 200,
     },
     {
-      title: 'Thanh pho',
+      title: 'Thành phố',
       dataIndex: 'thanhPho',
       key: 'thanhPho',
       width: 120,
     },
     {
-      title: 'Tinh trang',
+      title: 'Tình trạng',
       dataIndex: 'tinhTrangTimViec',
       key: 'tinhTrangTimViec',
       width: 150,
@@ -115,14 +104,14 @@ const SearchCandidatesPage: React.FC = () => {
       },
     },
     {
-      title: 'Muc luong mong muon',
+      title: 'Mức lương mong muốn',
       dataIndex: 'mucLuongMongMuon',
       key: 'mucLuongMongMuon',
       width: 150,
-      render: (salary: number) => salary ? salary.toLocaleString() + ' VND' : 'Thoa thuan',
+      render: (salary: number) => salary ? salary.toLocaleString() + ' VND' : 'Thỏa thuận',
     },
     {
-      title: 'Hanh dong',
+      title: 'Hành động',
       key: 'action',
       width: 150,
       render: (_: any, record: HoSoUngVien) => (
@@ -142,10 +131,10 @@ const SearchCandidatesPage: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Card title="Tim kiem ung vien" style={{ marginBottom: 24 }}>
+      <Card title="Tìm kiếm ứng viên" style={{ marginBottom: 24 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <Input
-            placeholder="Tim theo ten, tieu de, ky nang..."
+            placeholder="Tìm theo tên, tiêu đề, kỹ năng..."
             prefix={<SearchOutlined />}
             value={searchParams.tuKhoa}
             onChange={(e) => setSearchParams({ ...searchParams, tuKhoa: e.target.value })}
@@ -154,21 +143,21 @@ const SearchCandidatesPage: React.FC = () => {
           
           <Space wrap>
             <Select
-              placeholder="Thanh pho"
+              placeholder="Thành phố"
               style={{ width: 200 }}
               value={searchParams.thanhPho || undefined}
               onChange={(value) => setSearchParams({ ...searchParams, thanhPho: value })}
               allowClear
             >
-              <Option value="Ha Noi">Ha Noi</Option>
-              <Option value="Ho Chi Minh">Ho Chi Minh</Option>
-              <Option value="Da Nang">Da Nang</Option>
-              <Option value="Hai Phong">Hai Phong</Option>
-              <Option value="Can Tho">Can Tho</Option>
+              <Option value="Hà Nội">Hà Nội</Option>
+              <Option value="Hồ Chí Minh">Hồ Chí Minh</Option>
+              <Option value="Đà Nẵng">Đà Nẵng</Option>
+              <Option value="Hải Phòng">Hải Phòng</Option>
+              <Option value="Cần Thơ">Cần Thơ</Option>
             </Select>
 
             <Select
-              placeholder="Tinh trang"
+              placeholder="Tình trạng"
               style={{ width: 200 }}
               value={searchParams.tinhTrang || undefined}
               onChange={(value) => setSearchParams({ ...searchParams, tinhTrang: value })}
@@ -176,24 +165,24 @@ const SearchCandidatesPage: React.FC = () => {
             >
               <Option value="SangTimViec">San sang tim viec</Option>
               <Option value="MoTimViec">Mo tim viec</Option>
-              <Option value="KhongTimViec">Khong tim viec</Option>
+              <Option value="KhongTimViec">Không tìm việc</Option>
             </Select>
 
             <Button type="primary" icon={<SearchOutlined />} onClick={fetchCandidates}>
-              Tim kiem
+              Tìm kiếm
             </Button>
           </Space>
         </Space>
       </Card>
 
-      <Card title={'Ket qua tim kiem (' + candidates.length + ' ung vien)'}>
+      <Card title={'Kết quả tìm kiếm (' + candidates.length + ' ung vien)'}>
         <Table
           columns={columns}
           dataSource={candidates}
           rowKey="maHoSo"
           loading={loading}
           pagination={{ pageSize: 10 }}
-          locale={{ emptyText: 'Chua co ung vien nao' }}
+          locale={{ emptyText: 'Chưa có ứng viên nào' }}
         />
       </Card>
     </div>

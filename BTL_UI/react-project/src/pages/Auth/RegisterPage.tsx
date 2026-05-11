@@ -33,7 +33,7 @@ const RegisterPage = () => {
 
   return (
     <div style={{
-      minHeight: 'calc(100vh - 64px - 200px)',
+      minHeight: 'calc(100vh - 64px)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',

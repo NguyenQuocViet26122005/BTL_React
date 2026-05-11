@@ -2,7 +2,7 @@
 import { Card, Descriptions, Button, message, Spin, Tag } from 'antd';
 import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import dayjs from 'dayjs';
 
 interface HoSoUngVien {
@@ -37,17 +37,13 @@ const CandidateDetailPage: React.FC = () => {
   const fetchCandidateDetail = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        'https://localhost:44314/api/ho-so/' + maHoSo,
-        { headers: { Authorization: 'Bearer ' + token } }
-      );
+      const response = await api.get('/ho-so/' + maHoSo);
 
       if (response.data.success) {
         setCandidate(response.data.data);
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Khong the tai thong tin ung vien');
+      message.error(error.response?.data?.message || 'Không thể tải thông tin ứng viên');
     } finally {
       setLoading(false);
     }
@@ -62,41 +58,41 @@ const CandidateDetailPage: React.FC = () => {
   }
 
   if (!candidate) {
-    return <div>Khong tim thay ung vien</div>;
+    return <div>Không tìm thấy ứng viên</div>;
   }
 
   return (
     <div style={{ padding: '24px' }}>
       <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/company/candidates')} style={{ marginBottom: 16 }}>
-        Quay lai
+        Quay lại
       </Button>
 
-      <Card title={'Ho so: ' + candidate.tenNguoiDung}>
+      <Card title={'Hồ sơ: ' + candidate.tenNguoiDung}>
         <Descriptions bordered column={2}>
-          <Descriptions.Item label="Ho ten">{candidate.tenNguoiDung}</Descriptions.Item>
+          <Descriptions.Item label="Họ tên">{candidate.tenNguoiDung}</Descriptions.Item>
           <Descriptions.Item label="Email">
             <a href={'mailto:' + candidate.email}>
               <MailOutlined /> {candidate.email}
             </a>
           </Descriptions.Item>
-          <Descriptions.Item label="So dien thoai">
+          <Descriptions.Item label="Số điện thoại">
             <PhoneOutlined /> {candidate.soDienThoai}
           </Descriptions.Item>
-          <Descriptions.Item label="Ngay sinh">
-            {candidate.ngaySinh ? dayjs(candidate.ngaySinh).format('DD/MM/YYYY') : 'Chua cap nhat'}
+          <Descriptions.Item label="Ngày sinh">
+            {candidate.ngaySinh ? dayjs(candidate.ngaySinh).format('DD/MM/YYYY') : 'Chưa cập nhật'}
           </Descriptions.Item>
-          <Descriptions.Item label="Gioi tinh">{candidate.gioiTinh || 'Chua cap nhat'}</Descriptions.Item>
-          <Descriptions.Item label="Thanh pho">{candidate.thanhPho || 'Chua cap nhat'}</Descriptions.Item>
-          <Descriptions.Item label="Dia chi" span={2}>{candidate.diaChi || 'Chua cap nhat'}</Descriptions.Item>
-          <Descriptions.Item label="Tieu de" span={2}>{candidate.tieuDe}</Descriptions.Item>
-          <Descriptions.Item label="Tom tat" span={2}>{candidate.tomTat}</Descriptions.Item>
-          <Descriptions.Item label="Tinh trang">
+          <Descriptions.Item label="Giới tính">{candidate.gioiTinh || 'Chưa cập nhật'}</Descriptions.Item>
+          <Descriptions.Item label="Thành phố">{candidate.thanhPho || 'Chưa cập nhật'}</Descriptions.Item>
+          <Descriptions.Item label="Địa chỉ" span={2}>{candidate.diaChi || 'Chưa cập nhật'}</Descriptions.Item>
+          <Descriptions.Item label="Tiêu đề" span={2}>{candidate.tieuDe}</Descriptions.Item>
+          <Descriptions.Item label="Tóm tắt" span={2}>{candidate.tomTat}</Descriptions.Item>
+          <Descriptions.Item label="Tình trạng">
             <Tag color={candidate.tinhTrangTimViec === 'SangTimViec' ? 'green' : 'blue'}>
               {candidate.tinhTrangTimViec}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="Muc luong mong muon">
-            {candidate.mucLuongMongMuon ? candidate.mucLuongMongMuon.toLocaleString() + ' VND' : 'Thoa thuan'}
+          <Descriptions.Item label="Mức lương mong muốn">
+            {candidate.mucLuongMongMuon ? candidate.mucLuongMongMuon.toLocaleString() + ' VND' : 'Thỏa thuận'}
           </Descriptions.Item>
           {candidate.linkedIn && (
             <Descriptions.Item label="LinkedIn">

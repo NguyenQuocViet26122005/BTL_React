@@ -32,7 +32,7 @@ const NotificationsPage = () => {
         setNotifications(response.data);
       }
     } catch (error) {
-      message.error('Khong the tai thong bao');
+      message.error('Không thể tải thông báo');
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ const NotificationsPage = () => {
         setUnreadCount((response.data as any).count || 0);
       }
     } catch (error) {
-      console.error('Khong the dem thong bao chua doc');
+      console.error('Không thể đếm thông báo chưa đọc');
     }
   };
 
@@ -57,7 +57,7 @@ const NotificationsPage = () => {
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-      message.error('Khong the danh dau da doc');
+      message.error('Không thể đánh dấu đã đọc');
     }
   };
 
@@ -66,9 +66,9 @@ const NotificationsPage = () => {
       await notificationService.markAllAsRead(maNguoiDung);
       setNotifications(prev => prev.map(n => ({ ...n, daDoc: true })));
       setUnreadCount(0);
-      message.success('Da danh dau tat ca da doc');
+      message.success('Đã đánh dấu tất cả đã đọc');
     } catch (error) {
-      message.error('Khong the danh dau tat ca da doc');
+      message.error('Không thể đánh dấu tất cả đã đọc');
     }
   };
 
@@ -104,11 +104,11 @@ const NotificationsPage = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>
-              <BellOutlined /> Thong bao {unreadCount > 0 && <Badge count={unreadCount} />}
+              <BellOutlined /> Thông báo {unreadCount > 0 && <Badge count={unreadCount} />}
             </span>
             {unreadCount > 0 && (
               <Button type="link" icon={<CheckOutlined />} onClick={handleMarkAllAsRead}>
-                Danh dau tat ca da doc
+                Đánh dấu tất cả đã đọc
               </Button>
             )}
           </div>
@@ -116,7 +116,7 @@ const NotificationsPage = () => {
       >
         <Spin spinning={loading}>
           {notifications.length === 0 ? (
-            <Empty description="Khong co thong bao nao" />
+            <Empty description="Không có thông báo nào" />
           ) : (
             <List
               dataSource={notifications}

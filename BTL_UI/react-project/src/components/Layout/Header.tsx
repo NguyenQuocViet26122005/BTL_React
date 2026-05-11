@@ -34,13 +34,13 @@ const Header = () => {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: 'Thong tin ca nhan',
+      label: 'Thông tin cá nhân',
       onClick: () => navigate('/profile')
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: 'Cai dat',
+      label: 'Cài đặt',
       onClick: () => {}
     },
     {
@@ -49,7 +49,7 @@ const Header = () => {
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: 'Dang xuat',
+      label: 'Đăng xuất',
       onClick: handleLogout
     }
   ];
@@ -94,14 +94,14 @@ const Header = () => {
             style={getButtonStyle('/')} 
             onClick={() => navigate('/')}
           >
-            Trang chu
+            Trang chủ
           </Button>
           <Button 
             type="link" 
             style={getButtonStyle('/jobs')} 
             onClick={() => navigate('/jobs')}
           >
-            Viec lam
+            Việc làm
           </Button>
           {user && user.maVaiTro === 2 && (
             <>
@@ -117,28 +117,28 @@ const Header = () => {
                 style={getButtonStyle('/company/applications')} 
                 onClick={() => navigate('/company/applications')}
               >
-                <TeamOutlined /> Don ung tuyen
+                <TeamOutlined /> Đơn ứng tuyển
               </Button>
               <Button 
                 type="link" 
                 style={getButtonStyle('/company/interviews')} 
                 onClick={() => navigate('/company/interviews')}
               >
-                <CalendarOutlined /> Lich phong van
+                <CalendarOutlined /> Lịch phỏng vấn
               </Button>
               <Button 
                 type="link" 
                 style={getButtonStyle('/company/candidates')} 
                 onClick={() => navigate('/company/candidates')}
               >
-                <TeamOutlined /> Tim ung vien
+                <TeamOutlined /> Tìm ứng viên
               </Button>
               <Button 
                 type="link" 
                 style={getButtonStyle('/company/offers')} 
                 onClick={() => navigate('/company/offers')}
               >
-                <GiftOutlined /> Thu moi da gui
+                <GiftOutlined /> Thư mời đã gửi
               </Button>
             </>
           )}
@@ -149,21 +149,21 @@ const Header = () => {
                 style={getButtonStyle('/candidate/applications')} 
                 onClick={() => navigate('/candidate/applications')}
               >
-                <FileTextOutlined /> Don ung tuyen
+                <FileTextOutlined /> Đơn ứng tuyển
               </Button>
               <Button 
                 type="link" 
                 style={getButtonStyle('/candidate/interviews')} 
                 onClick={() => navigate('/candidate/interviews')}
               >
-                <CalendarOutlined /> Lich phong van
+                <CalendarOutlined /> Lịch phỏng vấn
               </Button>
               <Button 
                 type="link" 
                 style={getButtonStyle('/candidate/offers')} 
                 onClick={() => navigate('/candidate/offers')}
               >
-                <GiftOutlined /> Thu moi
+                <GiftOutlined /> Thư mời
               </Button>
             </>
           )}
@@ -173,7 +173,7 @@ const Header = () => {
               style={getButtonStyle('/admin/jobs')} 
               onClick={() => navigate('/admin/jobs')}
             >
-              <DashboardOutlined /> Quan ly tin
+              <DashboardOutlined /> Quản lý tin
             </Button>
         
           )}
@@ -202,10 +202,10 @@ const Header = () => {
         ) : (
           <>
             <Button onClick={() => navigate('/login')}>
-              Dang nhap
+              Đăng nhập
             </Button>
             <Button type="primary" onClick={() => navigate('/register')}>
-              Dang ky
+              Đăng ký
             </Button>
           </>
         )}

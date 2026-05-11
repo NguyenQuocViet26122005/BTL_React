@@ -29,11 +29,11 @@ const LoginPage = () => {
         console.log('User data to save:', user);
         localStorage.setItem('user', JSON.stringify(user));
         
-        message.success('Dang nhap thanh cong!');
+        message.success('Đăng nhập thành công!');
         
         // Redirect based on role
         if (user.MaVaiTro === 1) {
-          navigate('/admin/dashboard');
+          navigate('/admin/jobs');
         } else if (user.MaVaiTro === 2) {
           navigate('/company/dashboard');
         } else {
@@ -42,13 +42,13 @@ const LoginPage = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      message.error(error.response?.data?.message || 'Dang nhap that bai!');
+      message.error(error.response?.data?.message || 'Đăng nhập thất bại!');
     }
   };
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: 'calc(100vh - 64px)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
@@ -57,8 +57,8 @@ const LoginPage = () => {
     }}>
       <Card style={{ width: '100%', maxWidth: '500px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <Title level={2}>Dang Nhap</Title>
-          <Text type="secondary">Chao mung ban quay tro lai!</Text>
+          <Title level={2}>Đăng nhập</Title>
+          <Text type="secondary">Chào mừng bạn quay trở lại!</Text>
         </div>
 
         <Form
@@ -72,36 +72,36 @@ const LoginPage = () => {
             name="email"
             label="Email"
             rules={[
-              { required: true, message: 'Vui long nhap email!' },
-              { type: 'email', message: 'Email khong dung dinh dang!' }
+              { required: true, message: 'Vui lòng nhập email!' },
+              { type: 'email', message: 'Email không đúng định dạng!' }
             ]}
           >
             <Input 
               prefix={<UserOutlined />} 
-              placeholder="Nhap email"
+              placeholder="Nhập email"
             />
           </Form.Item>
 
           <Form.Item
             name="matKhau"
-            label="Mat khau"
-            rules={[{ required: true, message: 'Vui long nhap mat khau!' }]}
+            label="Mật khẩu"
+            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
           >
             <Input.Password
               prefix={<LockOutlined />}
-              placeholder="Nhap mat khau"
+              placeholder="Nhập mật khẩu"
             />
           </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              Dang nhap
+              Đăng nhập
             </Button>
           </Form.Item>
 
           <div style={{ textAlign: 'center' }}>
-            <Text>Chua co tai khoan? </Text>
-            <Link to="/register">Dang ky ngay</Link>
+            <Text>Chưa có tài khoản? </Text>
+            <Link to="/register">Đăng ký ngay</Link>
           </div>
         </Form>
       </Card>
