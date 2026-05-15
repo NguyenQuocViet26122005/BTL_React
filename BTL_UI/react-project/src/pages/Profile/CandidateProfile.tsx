@@ -1,4 +1,4 @@
-﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty, List, Popconfirm, InputNumber } from 'antd';
+﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty, List, Popconfirm, InputNumber, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileOutlined, MailOutlined, BookOutlined, PlusOutlined, DeleteOutlined, SolutionOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -405,7 +405,7 @@ const EducationTab = ({ hoSo }: { hoSo: HoSoUngVien | null }) => {
         chuyenNganh: values.chuyenNganh,
         diemTrungBinh: values.diemTrungBinh,
         ngayBatDau: values.ngayBatDau ? values.ngayBatDau.format('YYYY-MM-DD') : undefined,
-        ngayKetThuc: values.ngayKetThuc ? values.ngayKetThuc.format('YYYY-MM-DD') : undefined,
+        ngayKetThuc: values.dangHocKhong || !values.ngayKetThuc ? undefined : values.ngayKetThuc.format('YYYY-MM-DD'),
         dangHocKhong: values.dangHocKhong || false,
       };
 
@@ -527,21 +527,32 @@ const EducationTab = ({ hoSo }: { hoSo: HoSoUngVien | null }) => {
           </Form.Item>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item label="Ngay bat dau" name="ngayBatDau">
+              <Form.Item label="Ngay bat dau" name="ngayBatDau" rules={[{ required: true, message: 'Vui long chon ngay bat dau' }]}>
                 <DatePicker size="large" style={{ width: '100%' }} format="MM/YYYY" picker="month" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="Ngay ket thuc" name="ngayKetThuc">
+              <Form.Item
+                label="Ngay ket thuc"
+                name="ngayKetThuc"
+                dependencies={['ngayBatDau', 'dangHocKhong']}
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (getFieldValue('dangHocKhong') || !value) return Promise.resolve();
+                      const startDate = getFieldValue('ngayBatDau');
+                      if (!startDate || value.isSame(startDate) || value.isAfter(startDate)) return Promise.resolve();
+                      return Promise.reject(new Error('Ngay ket thuc phai sau ngay bat dau'));
+                    },
+                  }),
+                ]}
+              >
                 <DatePicker size="large" style={{ width: '100%' }} format="MM/YYYY" picker="month" />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item name="dangHocKhong" valuePropName="checked">
-            <Space>
-              <input type="checkbox" />
-              <Text>Dang hoc</Text>
-            </Space>
+            <Checkbox>Dang hoc</Checkbox>
           </Form.Item>
           <Form.Item style={{ marginBottom: 0 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
@@ -725,10 +736,7 @@ const ExperienceTab = ({ hoSo }: { hoSo: HoSoUngVien | null }) => {
             </Col>
           </Row>
           <Form.Item name="dangLamKhong" valuePropName="checked">
-            <Space>
-              <input type="checkbox" />
-              <Text>Dang lam viec tai day</Text>
-            </Space>
+            <Checkbox>Dang lam viec tai day</Checkbox>
           </Form.Item>
           <Form.Item style={{ marginBottom: 0 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
