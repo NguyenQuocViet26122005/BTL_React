@@ -130,6 +130,12 @@ const InterviewSchedulePage = () => {
     setEditInterviewModalVisible(true);
   };
 
+  const closeEditInterviewModal = () => {
+    setEditInterviewModalVisible(false);
+    editForm.resetFields();
+    setSelectedInterview(null);
+  };
+
   const handleUpdateInterview = async (values: any) => {
     if (!selectedInterview) return;
     setLoading(true);
@@ -146,9 +152,7 @@ const InterviewSchedulePage = () => {
       };
       await interviewService.updateInterview(selectedInterview.maLich, data);
       message.success('Cap nhat lich phong van thanh cong');
-      setEditInterviewModalVisible(false);
-      editForm.resetFields();
-      setSelectedInterview(null);
+      closeEditInterviewModal();
       if (user) loadApplications(user.maCongTy);
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Cap nhat lich that bai');
@@ -326,11 +330,9 @@ const InterviewSchedulePage = () => {
       key: 'action',
       width: 300,
       render: (_: any, record: LichPhongVan) => {
-        // DaLen and ChuaPhongVan both show same actions
         if (record.trangThai === 'DaLen') {
           return (
             <Space size={4} wrap direction="vertical" style={{ width: '100%' }}>
-              <Space size={4} wrap direction="vertical" style={{ width: '100%' }}>
               <Space size={4} wrap>
                 <Button size="small" type="primary" onClick={() => handleUpdateStatus(record.maLich, 'HoanThanh')}>
                   Hoan thanh
@@ -348,18 +350,9 @@ const InterviewSchedulePage = () => {
                 </Button>
               </Space>
             </Space>
-              <Space size={4} wrap>
-                <Button size="small" icon={<EditOutlined />} onClick={() => handleOpenEditModal(record)}>
-                  Sua
-                </Button>
-                <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDeleteInterview(record)}>
-                  Xoa
-                </Button>
-              </Space>
-            </Space>
           );
         }
-        
+
         if (record.trangThai === 'HoanThanh') {
           if ((record as any).ketQuaPhongVan) {
             return (
@@ -530,11 +523,7 @@ const InterviewSchedulePage = () => {
       <Modal
         title="Sua lich phong van"
         open={editInterviewModalVisible}
-        onCancel={() => {
-          setEditInterviewModalVisible(false);
-          editForm.resetFields();
-          setSelectedInterview(null);
-        }}
+        onCancel={closeEditInterviewModal}
         footer={null}
         width={600}
       >
@@ -544,7 +533,7 @@ const InterviewSchedulePage = () => {
             <div><strong>Vi tri:</strong> {selectedInterview.viTriUngTuyen}</div>
           </div>
         )}
-        
+
         <Form form={editForm} layout="vertical" onFinish={handleUpdateInterview}>
           <Form.Item name="vongPhongVan" label="Vong phong van" initialValue={1}>
             <InputNumber min={1} max={5} style={{ width: '100%' }} />
@@ -589,7 +578,7 @@ const InterviewSchedulePage = () => {
 
           <Form.Item style={{ marginBottom: 0 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={() => { setEditInterviewModalVisible(false); editForm.resetFields(); setSelectedInterview(null); }}>
+              <Button onClick={closeEditInterviewModal}>
                 Huy
               </Button>
               <Button type="primary" htmlType="submit" loading={loading}>
@@ -601,78 +590,6 @@ const InterviewSchedulePage = () => {
       </Modal>
 
       <Modal
-        title="Sua lich phong van"
-        open={editInterviewModalVisible}
-        onCancel={() => {
-          setEditInterviewModalVisible(false);
-          editForm.resetFields();
-          setSelectedInterview(null);
-        }}
-        footer={null}
-        width={600}
-      >
-        {selectedInterview && (
-          <div style={{ marginBottom: 16, padding: 12, background: '#e6f7ff', borderRadius: 4 }}>
-            <div><strong>Ung vien:</strong> {selectedInterview.tenUngVien}</div>
-            <div><strong>Vi tri:</strong> {selectedInterview.viTriUngTuyen}</div>
-          </div>
-        )}
-        
-        <Form form={editForm} layout="vertical" onFinish={handleUpdateInterview}>
-          <Form.Item name="vongPhongVan" label="Vong phong van" initialValue={1}>
-            <InputNumber min={1} max={5} style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            name="hinhThuc"
-            label="Hinh thuc"
-            rules={[{ required: true, message: 'Vui long chon hinh thuc' }]}
-          >
-            <Select>
-              <Select.Option value="Online">Online</Select.Option>
-              <Select.Option value="Truc tiep">Truc tiep</Select.Option>
-              <Select.Option value="Dien thoai">Dien thoai</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="thoiGian"
-            label="Thoi gian"
-            rules={[{ required: true, message: 'Vui long chon thoi gian' }]}
-          >
-            <DatePicker
-              showTime
-              format="DD/MM/YYYY HH:mm"
-              style={{ width: '100%' }}
-              placeholder="Chon ngay gio phong van"
-            />
-          </Form.Item>
-
-          <Form.Item name="thoiLuongPhut" label="Thoi luong (phut)" initialValue={60}>
-            <InputNumber min={15} max={240} step={15} style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item name="diaDiem" label="Dia diem">
-            <Input placeholder="VD: Phong hop A, Tang 3 hoac link Zoom" />
-          </Form.Item>
-
-          <Form.Item name="ghiChu" label="Ghi chu">
-            <TextArea rows={3} placeholder="Ghi chu them ve lich phong van..." />
-          </Form.Item>
-
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button onClick={() => { setEditInterviewModalVisible(false); editForm.resetFields(); setSelectedInterview(null); }}>
-                Huy
-              </Button>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Cap nhat
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
-<Modal
         title="Tao lich phong van"
         open={modalVisible}
         onCancel={() => {
@@ -688,9 +605,9 @@ const InterviewSchedulePage = () => {
             label="Don ung tuyen"
             rules={[{ required: true, message: 'Vui long chon don ung tuyen' }]}
           >
-            <Select 
-              placeholder="Chon don ung tuyen" 
-              showSearch 
+            <Select
+              placeholder="Chon don ung tuyen"
+              showSearch
               optionFilterProp="children"
               notFoundContent={applications.length === 0 ? "Chua co don ung tuyen nao" : "Khong tim thay"}
             >
