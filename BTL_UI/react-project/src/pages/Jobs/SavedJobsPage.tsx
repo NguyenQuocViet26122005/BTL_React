@@ -2,7 +2,8 @@
 import { Card, List, Button, message, Empty, Tag, Space, Spin } from 'antd';
 import { HeartFilled, EnvironmentOutlined, DollarOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import savedJobService, { SavedJobItem } from '../../services/savedJobService';
+import savedJobService from '../../services/savedJobService';
+import type { SavedJobItem } from '../../services/savedJobService';
 import dayjs from 'dayjs';
 
 const SavedJobsPage: React.FC = () => {
@@ -76,7 +77,7 @@ const SavedJobsPage: React.FC = () => {
                   <Button
                     type="primary"
                     icon={<EyeOutlined />}
-                    onClick={() => navigate(/jobs/)}
+                    onClick={() => navigate(`/jobs/${item.maTin}`)}
                   >
                     Xem chi tiet
                   </Button>,
@@ -91,7 +92,7 @@ const SavedJobsPage: React.FC = () => {
               >
                 <List.Item.Meta
                   title={
-                    <a onClick={() => navigate(/jobs/)} style={{ fontSize: '18px', cursor: 'pointer' }}>
+                    <a onClick={() => navigate(`/jobs/${item.maTin}`)} style={{ fontSize: '18px', cursor: 'pointer' }}>
                       {item.tieuDe}
                     </a>
                   }

@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { Card, Table, Tag, Button, Space, message, Empty, Modal, Descriptions, Alert, Divider, Input } from 'antd';
-import { FileTextOutlined, CheckOutlined, CloseOutlined, EyeOutlined, DollarOutlined, CalendarOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, EyeOutlined, DollarOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { offerService, type ThuMoiLamViec } from '../../services/offerService';
 import dayjs from 'dayjs';

@@ -1,5 +1,5 @@
 ﻿import api from './api';
-import type { ApiResponse, DonUngTuyen, TinTuyenDung } from '../types';
+import type { ApiResponse, DonUngTuyen } from '../types';
 
 export const applicationService = {
   // Lấy danh sách đơn ứng tuyển của ứng viên

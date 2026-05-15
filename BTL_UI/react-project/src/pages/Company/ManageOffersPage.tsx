@@ -31,7 +31,6 @@ const ManageOffersPage: React.FC = () => {
   const fetchOffers = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
       
       if (!userStr) {
@@ -70,7 +69,6 @@ const ManageOffersPage: React.FC = () => {
       cancelText: 'Huy',
       onOk: async () => {
         try {
-          const token = localStorage.getItem('token');
           await api.delete(`/thu-moi/${maThuMoi}`);
           message.success('Xoa thu moi thanh cong');
           fetchOffers();

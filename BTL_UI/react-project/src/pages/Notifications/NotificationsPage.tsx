@@ -94,7 +94,7 @@ const NotificationsPage = () => {
     }
   };
 
-  const getNotificationIcon = (loaiThongBao: string) => {
+  const getNotificationIcon = () => {
     return <BellOutlined style={{ fontSize: 24, color: '#1890ff' }} />;
   };
 
@@ -132,7 +132,7 @@ const NotificationsPage = () => {
                   onClick={() => handleNotificationClick(item)}
                 >
                   <List.Item.Meta
-                    avatar={getNotificationIcon(item.loaiThongBao)}
+                    avatar={getNotificationIcon()}
                     title={
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span style={{ fontWeight: item.daDoc ? 'normal' : 'bold' }}>

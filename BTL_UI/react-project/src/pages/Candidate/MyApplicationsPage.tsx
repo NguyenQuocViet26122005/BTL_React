@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, Table, Tag, Button, Space, message, Empty, Modal, Descriptions, Alert, Divider } from 'antd';
-import { EyeOutlined, FileTextOutlined, InfoCircleOutlined, FileOutlined, DownloadOutlined } from '@ant-design/icons';
+import { EyeOutlined, InfoCircleOutlined, FileOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { applicationService } from '../../services/applicationService';
 import type { DonUngTuyen } from '../../types';

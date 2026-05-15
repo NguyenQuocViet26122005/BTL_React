@@ -16,14 +16,11 @@ const InterviewSchedulePage = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editInterviewModalVisible, setEditInterviewModalVisible] = useState(false);
-  const [editInterviewModalVisible, setEditInterviewModalVisible] = useState(false);
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [viewResultModalVisible, setViewResultModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isEditInterview, setIsEditInterview] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState<LichPhongVan | null>(null);
   const [form] = Form.useForm();
-  const [editForm] = Form.useForm();
   const [editForm] = Form.useForm();
   const [resultForm] = Form.useForm();
   const [user, setUser] = useState<any>(null);

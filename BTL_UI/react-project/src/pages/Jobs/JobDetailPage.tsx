@@ -258,8 +258,18 @@ const JobDetailPage = () => {
 
         <Col xs={24} lg={8}>
           <Card>
-            <Button 
-              type="primary" 
+            <Button
+              block
+              icon={isSaved ? <HeartFilled /> : <HeartOutlined />}
+              loading={savingJob}
+              onClick={handleToggleSave}
+              style={{ marginBottom: 12 }}
+            >
+              {isSaved ? 'Da luu tin' : 'Luu tin'}
+            </Button>
+
+            <Button
+              type="primary"
               size="large" 
               block
               onClick={handleApply}
