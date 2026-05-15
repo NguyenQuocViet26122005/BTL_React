@@ -43,11 +43,11 @@ const SavedJobsPage: React.FC = () => {
   const formatSalary = (min?: number, max?: number, currency?: string) => {
     const unit = currency || 'VND';
     if (min && max) {
-      return ${min.toLocaleString()} -  ;
+      return `${min.toLocaleString()} - ${max.toLocaleString()} ${unit}`;
     } else if (min) {
-      return Tu  ;
+      return `Tu ${min.toLocaleString()} ${unit}`;
     } else if (max) {
-      return Toi da  ;
+      return `Toi da ${max.toLocaleString()} ${unit}`;
     }
     return 'Thoa thuan';
   };

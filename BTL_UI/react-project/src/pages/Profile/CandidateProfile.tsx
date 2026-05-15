@@ -1,10 +1,13 @@
 ﻿import { Card, Avatar, Typography, Button, Form, Input, message, Modal, Tabs, Descriptions, Tag, Space, DatePicker, Select, Row, Col, Divider, Empty, List, Popconfirm, InputNumber } from 'antd';
-import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileOutlined, MailOutlined, BookOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, LogoutOutlined, EditOutlined, SaveOutlined, LinkedinOutlined, GithubOutlined, GlobalOutlined, EnvironmentOutlined, FileOutlined, MailOutlined, BookOutlined, PlusOutlined, DeleteOutlined, SolutionOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NguoiDung, HoSoUngVien } from '../../types';
 import { offerService } from '../../services/offerService';
-import { educationService, HocVan, TaoHocVanDto } from '../../services/educationService';
+import { educationService } from '../../services/educationService';
+import type { HocVan, TaoHocVanDto } from '../../services/educationService';
+import { experienceService } from '../../services/experienceService';
+import type { KinhNghiem, TaoKinhNghiemDto } from '../../services/experienceService';
 import { resumeService } from '../../services/resumeService';
 import { profileService } from '../../services/profileService';
 import CvManager from '../../components/CV/CvManager';
@@ -256,7 +259,12 @@ const CandidateProfile = () => {
     {
       key: 'education',
       label: <span><BookOutlined /> Hoc van</span>,
-      children: <EducationTab />,
+      children: <EducationTab hoSo={hoSo} />,
+    },
+    {
+      key: 'experience',
+      label: <span><SolutionOutlined /> Kinh nghiem</span>,
+      children: <ExperienceTab hoSo={hoSo} />,
     },
     {
       key: 'offers',
@@ -363,14 +371,12 @@ const CandidateProfile = () => {
 };
 
 
-const EducationTab = () => {
+const EducationTab = ({ hoSo }: { hoSo: HoSoUngVien | null }) => {
   const [educations, setEducations] = useState<HocVan[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form] = Form.useForm();
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
 
   useEffect(() => {
     if (hoSo) loadEducations();
@@ -535,6 +541,193 @@ const EducationTab = () => {
             <Space>
               <input type="checkbox" />
               <Text>Dang hoc</Text>
+            </Space>
+          </Form.Item>
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+              <Button onClick={() => { setModalVisible(false); setEditingId(null); form.resetFields(); }}>Huy</Button>
+              <Button type="primary" htmlType="submit">Luu</Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </Card>
+  );
+};
+
+
+const ExperienceTab = ({ hoSo }: { hoSo: HoSoUngVien | null }) => {
+  const [experiences, setExperiences] = useState<KinhNghiem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (hoSo) loadExperiences();
+  }, [hoSo]);
+
+  const loadExperiences = async () => {
+    if (!hoSo) return;
+    setLoading(true);
+    try {
+      const res = await experienceService.getByHoSo(hoSo.maHoSo);
+      if (res.success) setExperiences(res.data || []);
+    } catch (error) {
+      message.error('Khong the tai kinh nghiem');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (values: any) => {
+    if (!hoSo) return;
+    try {
+      const data: TaoKinhNghiemDto = {
+        maHoSo: hoSo.maHoSo,
+        tenCongTy: values.tenCongTy,
+        viTri: values.viTri,
+        moTa: values.moTa,
+        ngayBatDau: values.ngayBatDau ? values.ngayBatDau.format('YYYY-MM-DD') : undefined,
+        ngayKetThuc: values.dangLamKhong || !values.ngayKetThuc ? undefined : values.ngayKetThuc.format('YYYY-MM-DD'),
+        dangLamKhong: values.dangLamKhong || false,
+      };
+
+      if (editingId) {
+        await experienceService.update(editingId, data);
+        message.success('Cap nhat kinh nghiem thanh cong');
+      } else {
+        await experienceService.create(data);
+        message.success('Them kinh nghiem thanh cong');
+      }
+
+      setModalVisible(false);
+      setEditingId(null);
+      form.resetFields();
+      loadExperiences();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Thao tac that bai');
+    }
+  };
+
+  const handleEdit = (experience: KinhNghiem) => {
+    setEditingId(experience.maKinhNghiem);
+    form.setFieldsValue({
+      tenCongTy: experience.tenCongTy,
+      viTri: experience.viTri,
+      moTa: experience.moTa,
+      ngayBatDau: experience.ngayBatDau ? dayjs(experience.ngayBatDau) : null,
+      ngayKetThuc: experience.ngayKetThuc ? dayjs(experience.ngayKetThuc) : null,
+      dangLamKhong: experience.dangLamKhong,
+    });
+    setModalVisible(true);
+  };
+
+  const handleDelete = async (maKinhNghiem: number) => {
+    try {
+      await experienceService.delete(maKinhNghiem);
+      message.success('Xoa kinh nghiem thanh cong');
+      loadExperiences();
+    } catch (error: any) {
+      message.error('Xoa that bai');
+    }
+  };
+
+  const handleAdd = () => {
+    setEditingId(null);
+    form.resetFields();
+    setModalVisible(true);
+  };
+
+  return (
+    <Card loading={loading}>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Kinh nghiem lam viec</Title>
+          <Text type="secondary">Qua trinh lam viec cua ban</Text>
+        </div>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>Them kinh nghiem</Button>
+      </div>
+      <Divider />
+      {experiences.length === 0 ? (
+        <Empty description="Chua co kinh nghiem lam viec" />
+      ) : (
+        <List
+          dataSource={experiences}
+          renderItem={(experience) => (
+            <List.Item
+              actions={[
+                <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(experience)}>Sua</Button>,
+                <Popconfirm title="Ban co chac muon xoa?" onConfirm={() => handleDelete(experience.maKinhNghiem)}>
+                  <Button type="link" danger icon={<DeleteOutlined />}>Xoa</Button>
+                </Popconfirm>
+              ]}
+            >
+              <List.Item.Meta
+                title={<Text strong>{experience.viTri}</Text>}
+                description={
+                  <div>
+                    <div><Text type="secondary">Cong ty: </Text>{experience.tenCongTy}</div>
+                    {experience.moTa && <div><Text type="secondary">Mo ta: </Text>{experience.moTa}</div>}
+                    <div>
+                      <Text type="secondary">Thoi gian: </Text>
+                      {experience.ngayBatDau ? dayjs(experience.ngayBatDau).format('MM/YYYY') : '?'} - {experience.dangLamKhong ? 'Hien tai' : experience.ngayKetThuc ? dayjs(experience.ngayKetThuc).format('MM/YYYY') : '?'}
+                    </div>
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      )}
+
+      <Modal
+        title={editingId ? 'Cap nhat kinh nghiem' : 'Them kinh nghiem'}
+        open={modalVisible}
+        onCancel={() => { setModalVisible(false); setEditingId(null); form.resetFields(); }}
+        footer={null}
+        width={600}
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form.Item label="Ten cong ty" name="tenCongTy" rules={[{ required: true, message: 'Vui long nhap ten cong ty' }]}>
+            <Input size="large" placeholder="VD: Cong ty ABC" />
+          </Form.Item>
+          <Form.Item label="Vi tri" name="viTri" rules={[{ required: true, message: 'Vui long nhap vi tri' }]}>
+            <Input size="large" placeholder="VD: Frontend Developer" />
+          </Form.Item>
+          <Form.Item label="Mo ta cong viec" name="moTa">
+            <TextArea rows={4} placeholder="Mo ta cong viec, thanh tich, cong nghe su dung..." />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="Ngay bat dau" name="ngayBatDau" rules={[{ required: true, message: 'Vui long chon ngay bat dau' }]}>
+                <DatePicker size="large" style={{ width: '100%' }} format="MM/YYYY" picker="month" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Ngay ket thuc"
+                name="ngayKetThuc"
+                dependencies={['ngayBatDau', 'dangLamKhong']}
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (getFieldValue('dangLamKhong') || !value) return Promise.resolve();
+                      const startDate = getFieldValue('ngayBatDau');
+                      if (!startDate || value.isSame(startDate) || value.isAfter(startDate)) return Promise.resolve();
+                      return Promise.reject(new Error('Ngay ket thuc phai sau ngay bat dau'));
+                    },
+                  }),
+                ]}
+              >
+                <DatePicker size="large" style={{ width: '100%' }} format="MM/YYYY" picker="month" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="dangLamKhong" valuePropName="checked">
+            <Space>
+              <input type="checkbox" />
+              <Text>Dang lam viec tai day</Text>
             </Space>
           </Form.Item>
           <Form.Item style={{ marginBottom: 0 }}>
