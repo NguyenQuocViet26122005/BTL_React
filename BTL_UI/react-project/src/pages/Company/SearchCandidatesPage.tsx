@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Card, Input, Select, Button, Table, message, Tag, Space } from 'antd';
-import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
+import { SearchOutlined, EyeOutlined, GiftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { CANDIDATE_STATUS, getCandidateStatusColor, getCandidateStatusText } from '../../utils/candidateStatus';
@@ -10,6 +10,7 @@ const { Option } = Select;
 
 interface HoSoUngVien {
   maHoSo: number;
+  maNguoiDung: number;
   tenNguoiDung: string;
   email: string;
   soDienThoai: string;
@@ -118,6 +119,21 @@ const SearchCandidatesPage: React.FC = () => {
             onClick={() => navigate('/company/candidates/' + record.maHoSo)}
           >
             Xem
+          </Button>
+          <Button
+            icon={<GiftOutlined />}
+            size="small"
+            onClick={() => navigate('/company/applications', {
+              state: {
+                prefillOfferCandidate: {
+                  maHoSo: record.maHoSo,
+                  maNguoiDung: record.maNguoiDung,
+                  tenUngVien: record.tenNguoiDung,
+                },
+              },
+            })}
+          >
+            Mời làm
           </Button>
         </Space>
       ),

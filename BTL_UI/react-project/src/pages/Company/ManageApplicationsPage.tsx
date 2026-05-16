@@ -2,6 +2,7 @@
 import { Card, Table, Tag, Button, Space, message, Modal, Form, Input, InputNumber, DatePicker, Descriptions, Alert, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { EyeOutlined, GiftOutlined, UserOutlined, FileOutlined, DownloadOutlined, FilePdfOutlined, MoreOutlined, CheckOutlined, CloseOutlined, CalendarOutlined } from '@ant-design/icons';
+import { useLocation } from 'react-router-dom';
 import { applicationService } from '../../services/applicationService';
 import { offerService } from '../../services/offerService';
 import type { DonUngTuyen } from '../../types';
@@ -10,10 +11,49 @@ import { getStoredUser } from '../../utils/auth';
 import { getFileUrl } from '../../services/api';
 import PageContainer from '../../components/Layout/PageContainer';
 
+interface PrefillOfferCandidateState {
+  prefillOfferCandidate?: {
+    maHoSo: number;
+    maNguoiDung: number;
+    tenUngVien: string;
+  };
+}
+
 const { TextArea } = Input;
 
 const ManageApplicationsPage = () => {
+  const location = useLocation();
+  const prefillOfferCandidate = (location.state as PrefillOfferCandidateState | null)?.prefillOfferCandidate;
   const [applications, setApplications] = useState<DonUngTuyen[]>([]);
+  const [showOnlySelectedCandidate, setShowOnlySelectedCandidate] = useState(Boolean(prefillOfferCandidate));
+
+  const filteredApplications = prefillOfferCandidate && showOnlySelectedCandidate
+    ? applications.filter((app) => app.maUngVien === prefillOfferCandidate.maNguoiDung)
+    : applications;
+
+  const matchedApplicationCount = prefillOfferCandidate
+    ? applications.filter((app) => app.maUngVien === prefillOfferCandidate.maNguoiDung).length
+    : 0;
+
+  const isSelectedCandidateApplication = (app: DonUngTuyen) =>
+    Boolean(prefillOfferCandidate && app.maUngVien === prefillOfferCandidate.maNguoiDung);
+
+  const getRowStyle = (app: DonUngTuyen) =>
+    isSelectedCandidateApplication(app)
+      ? { backgroundColor: '#f6ffed' }
+      : undefined;
+
+  const getOfferButtonStyle = (app: DonUngTuyen) => ({
+    borderColor: isSelectedCandidateApplication(app) ? '#389e0d' : '#52c41a',
+    color: isSelectedCandidateApplication(app) ? '#389e0d' : '#52c41a',
+  });
+
+  const getOfferButtonLabel = (app: DonUngTuyen) =>
+    isSelectedCandidateApplication(app) ? 'Mời làm' : 'Gui thu moi';
+
+  const getOfferButtonType = (app: DonUngTuyen) =>
+    isSelectedCandidateApplication(app) ? 'primary' : 'default';
+
   const [loading, setLoading] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [cvModalOpen, setCvModalOpen] = useState(false);
@@ -227,7 +267,6 @@ const ManageApplicationsPage = () => {
       width: 280,
       render: (_: any, record: DonUngTuyen) => {
         const menuItems = getActionMenuItems(record);
-        
         const hasOffer = offerApplicationIds.has(record.maDon);
 
         return (
@@ -250,15 +289,15 @@ const ManageApplicationsPage = () => {
                 Xem CV
               </Button>
               <Button
-                type="default"
+                type={getOfferButtonType(record)}
                 size="small"
                 icon={<GiftOutlined />}
-                style={{ borderColor: '#52c41a', color: '#52c41a' }}
+                style={getOfferButtonStyle(record)}
                 onClick={() => handleOpenOfferModal(record)}
                 disabled={hasOffer}
                 title={hasOffer ? 'Don nay da co thu moi' : undefined}
               >
-                Gui thu moi
+                {getOfferButtonLabel(record)}
               </Button>
             </Space>
             
@@ -282,13 +321,32 @@ const ManageApplicationsPage = () => {
         <p>Xem va xu ly cac don ung tuyen tu ung vien</p>
       </div>
 
+      {prefillOfferCandidate && (
+        <Alert
+          type={matchedApplicationCount > 0 ? 'info' : 'warning'}
+          showIcon
+          style={{ marginBottom: 16 }}
+          message={`Đã chọn ứng viên ${prefillOfferCandidate.tenUngVien} từ màn tìm kiếm`}
+          description={matchedApplicationCount > 0
+            ? `Đang tìm thấy ${matchedApplicationCount} đơn của ứng viên này. Các dòng phù hợp đã được tô nổi bật; có thể đang bật chế độ chỉ hiện ứng viên đã chọn.`
+            : 'Chưa thấy đơn ứng tuyển nào của ứng viên này trong công ty của bạn. Muốn mời làm, ứng viên cần có đơn ứng tuyển hợp lệ trước.'}
+          action={matchedApplicationCount > 0 ? (
+            <Button size="small" onClick={() => setShowOnlySelectedCandidate((prev) => !prev)}>
+              {showOnlySelectedCandidate ? 'Hiện tất cả đơn' : 'Chỉ hiện ứng viên này'}
+            </Button>
+          ) : undefined}
+        />
+      )}
+
       <Card>
-        <Table 
-          columns={columns} 
-          dataSource={applications} 
+        <Table
+          columns={columns}
+          dataSource={filteredApplications}
           rowKey="maDon"
           loading={loading}
           pagination={{ pageSize: 10 }}
+          rowClassName={(record) => isSelectedCandidateApplication(record) ? 'selected-candidate-row' : ''}
+          onRow={(record) => ({ style: getRowStyle(record) })}
         />
       </Card>
 
